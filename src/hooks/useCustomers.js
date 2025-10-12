@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { customersApi } from '../api/customers';
 
 /**
@@ -8,20 +8,32 @@ export const useCustomers = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async (params = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await customersApi.getAll();
-      setCustomers(data);
+      const data = await customersApi.getAll(params);
+      setCustomers(data.customers || data);
+      setPagination(data.pagination || {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
+      });
     } catch (err) {
       setError(err.message || 'Failed to fetch customers');
       console.error('Error fetching customers:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const createCustomer = async (customerData) => {
     try {
@@ -57,12 +69,14 @@ export const useCustomers = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [fetchCustomers]);
 
   return {
     customers,
     loading,
     error,
+    pagination,
+    fetchCustomers,
     refetch: fetchCustomers,
     createCustomer,
     updateCustomer,
