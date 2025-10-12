@@ -13,13 +13,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.homesteads.viands"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.homesteads.viands",
       "edgeToEdgeEnabled": true,
       "usesCleartextTraffic": true,
       "permissions": [
@@ -29,6 +31,12 @@
     },
     "web": {
       "favicon": "./assets/logo.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c78b72a3-b19b-4b6e-b439-f78b2a630c88"
+      }
+    },
+    "owner": "sreeharshrajan"
   }
 }
