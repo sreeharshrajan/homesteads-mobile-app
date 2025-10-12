@@ -6,6 +6,7 @@ import { ROUTES } from '../utils/constants';
 
 // Import screens
 import LoginScreen from '../screens/LoginScreen';
+import DashboardScreen from '../screens/DashboardScreen';
 import CustomerListScreen from '../screens/CustomerListScreen';
 import CustomerFormScreen from '../screens/CustomerFormScreen';
 import BillingScreen from '../screens/BillingScreen';
@@ -46,6 +47,9 @@ const AppNavigator = () => {
         ) : (
           // Main app screens
           <>
+            {/* Dashboard */}
+            <Stack.Screen name={ROUTES.DASHBOARD} component={DashboardScreen} />
+            
             {/* Customer Management */}
             <Stack.Screen name={ROUTES.CUSTOMER_LIST} component={CustomerListScreen} />
             <Stack.Screen name={ROUTES.CUSTOMER_FORM} component={CustomerFormScreen} />

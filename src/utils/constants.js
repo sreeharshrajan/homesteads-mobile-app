@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
 // Navigation routes
 export const ROUTES = {
   LOGIN: 'Login',
+  DASHBOARD: 'Dashboard',
   CUSTOMER_LIST: 'CustomerList',
   CUSTOMER_FORM: 'CustomerForm',
   BILLING: 'Billing',

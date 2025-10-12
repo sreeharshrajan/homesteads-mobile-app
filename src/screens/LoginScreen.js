@@ -27,8 +27,8 @@ const LoginScreen = ({ navigation }) => {
     const result = await login(values.email, values.password);
 
     if (result.success) {
-      // Navigate to customer list on successful login
-      navigation.replace(ROUTES.CUSTOMER_LIST);
+      // Navigate to dashboard on successful login
+      navigation.replace(ROUTES.DASHBOARD);
     } else {
       setError(result.error || 'Login failed. Please try again.');
     }
