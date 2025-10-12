@@ -45,6 +45,17 @@ apiClient.interceptors.response.use(
     return response.data;
   },
   async (error) => {
+    // Log detailed error information for debugging
+    console.log('=== API Error Debug Info ===');
+    console.log('Error message:', error.message);
+    console.log('Error code:', error.code);
+    console.log('Request URL:', error.config?.url);
+    console.log('Request method:', error.config?.method);
+    console.log('Response status:', error.response?.status);
+    console.log('Response data:', error.response?.data);
+    console.log('Is network error:', error.message === 'Network Error');
+    console.log('===========================');
+    
     if (error.response?.status === 401) {
       // Token expired or invalid - clear storage
       await AsyncStorage.removeItem('authToken');
@@ -59,6 +70,7 @@ apiClient.interceptors.response.use(
       message: errorMessage,
       details: errorDetails,
       status: error.response?.status,
+      originalError: error.message,
     });
   }
 );

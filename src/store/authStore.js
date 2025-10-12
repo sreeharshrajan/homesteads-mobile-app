@@ -29,7 +29,9 @@ const useAuthStore = create((set) => ({
   // Login action
   login: async (email, password) => {
     try {
+      console.log('Attempting login for:', email);
       const response = await authApi.login(email, password);
+      console.log('Login response received:', response);
       const { token, user } = response;
 
       // Store token and user data
@@ -39,10 +41,15 @@ const useAuthStore = create((set) => ({
       set({ token, user, isAuthenticated: true });
       return { success: true };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('=== Login Error ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.details);
+      console.error('Original error:', error.originalError);
+      console.error('==================');
       return { 
         success: false, 
-        error: error.response?.data?.message || 'Login failed' 
+        error: error.message || error.originalError || 'Login failed. Please check your network connection.' 
       };
     }
   },
