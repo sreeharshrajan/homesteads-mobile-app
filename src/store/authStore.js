@@ -4,7 +4,10 @@ import { authApi } from '../api/auth';
 
 const useAuthStore = create((set) => ({
   user: null,
+  admin: null,
+  role: null,
   token: null,
+  sessionId: null,
   isAuthenticated: false,
   isLoading: true,
 
@@ -12,11 +15,24 @@ const useAuthStore = create((set) => ({
   initializeAuth: async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
+      const sessionId = await AsyncStorage.getItem('sessionId');
       const userString = await AsyncStorage.getItem('user');
+      const adminString = await AsyncStorage.getItem('admin');
+      const roleString = await AsyncStorage.getItem('role');
       
       if (token && userString) {
         const user = JSON.parse(userString);
-        set({ token, user, isAuthenticated: true, isLoading: false });
+        const admin = adminString ? JSON.parse(adminString) : null;
+        const role = roleString ? JSON.parse(roleString) : null;
+        set({ 
+          token, 
+          sessionId,
+          user, 
+          admin,
+          role,
+          isAuthenticated: true, 
+          isLoading: false 
+        });
       } else {
         set({ isLoading: false });
       }
@@ -32,13 +48,23 @@ const useAuthStore = create((set) => ({
       console.log('Attempting login for:', email);
       const response = await authApi.login(email, password);
       console.log('Login response received:', response);
-      const { token, user } = response;
+      const { token, sessionId, user, admin, role } = response;
 
-      // Store token and user data
+      // Store all auth data
       await AsyncStorage.setItem('authToken', token);
+      await AsyncStorage.setItem('sessionId', sessionId);
       await AsyncStorage.setItem('user', JSON.stringify(user));
+      await AsyncStorage.setItem('admin', JSON.stringify(admin));
+      await AsyncStorage.setItem('role', JSON.stringify(role));
 
-      set({ token, user, isAuthenticated: true });
+      set({ 
+        token, 
+        sessionId,
+        user, 
+        admin,
+        role,
+        isAuthenticated: true 
+      });
       return { success: true };
     } catch (error) {
       console.error('=== Login Error ===');
@@ -63,8 +89,18 @@ const useAuthStore = create((set) => ({
     } finally {
       // Clear local storage regardless of API call result
       await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem('sessionId');
       await AsyncStorage.removeItem('user');
-      set({ token: null, user: null, isAuthenticated: false });
+      await AsyncStorage.removeItem('admin');
+      await AsyncStorage.removeItem('role');
+      set({ 
+        token: null, 
+        sessionId: null,
+        user: null, 
+        admin: null,
+        role: null,
+        isAuthenticated: false 
+      });
     }
   },
 

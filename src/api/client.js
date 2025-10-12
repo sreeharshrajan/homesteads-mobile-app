@@ -16,7 +16,7 @@ apiClient.interceptors.request.use(
   async (requestConfig) => {
     try {
       // Skip authorization header for login endpoint (returns JWT token)
-      if (requestConfig.url?.includes('/store/auth/login')) {
+      if (requestConfig.url?.includes('/auth/login')) {
         console.log('=== Login Request Debug ===');
         console.log('URL:', requestConfig.url);
         console.log('Method:', requestConfig.method);
