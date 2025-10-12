@@ -54,8 +54,8 @@ const BillingScreen = ({ navigation }) => {
     >
       <Card.Content>
         <View style={styles.cardHeader}>
-          <Title>{item.invoiceNo}</Title>
-          <StatusBadge status={item.status} style={styles.statusBadge} />
+          <Title>{item.invoiceNo || 'N/A'}</Title>
+          {item.status && <StatusBadge status={item.status} style={styles.statusBadge} />}
         </View>
         
         {item.customer && (
@@ -64,13 +64,15 @@ const BillingScreen = ({ navigation }) => {
         
         <View style={styles.cardRow}>
           <Paragraph style={styles.label}>Amount:</Paragraph>
-          <Title style={styles.amount}>{formatCurrency(item.totalAmount)}</Title>
+          <Title style={styles.amount}>{formatCurrency(item.totalAmount || 0)}</Title>
         </View>
         
-        <View style={styles.cardRow}>
-          <Paragraph style={styles.label}>Issue Date:</Paragraph>
-          <Paragraph>{formatDate(item.issueDate)}</Paragraph>
-        </View>
+        {item.issueDate && (
+          <View style={styles.cardRow}>
+            <Paragraph style={styles.label}>Issue Date:</Paragraph>
+            <Paragraph>{formatDate(item.issueDate)}</Paragraph>
+          </View>
+        )}
         
         {item.dueDate && (
           <View style={styles.cardRow}>

@@ -28,9 +28,22 @@ export const useInvoices = () => {
       setPagination(response.pagination || {});
       return { success: true, data: response };
     } catch (err) {
-      const errorMessage = err.message || 'Failed to fetch invoices';
+      let errorMessage = err.message || 'Failed to fetch invoices';
+      
+      // Provide more context for specific error types
+      if (err.status === 500) {
+        errorMessage = 'Server error while fetching invoices. Please try again later.';
+      } else if (err.status === 401 || err.status === 403) {
+        errorMessage = 'You do not have permission to view invoices';
+      }
+      
+      if (err.details) {
+        errorMessage += ` (${err.details})`;
+      }
+      
       setError(errorMessage);
-      return { success: false, error: errorMessage };
+      // Don't clear the invoices list on error - keep showing existing data
+      return { success: false, error: errorMessage, status: err.status };
     } finally {
       setLoading(false);
     }
@@ -80,9 +93,23 @@ export const useInvoices = () => {
       const response = await invoicesApi.create(data);
       return { success: true, data: response };
     } catch (err) {
-      const errorMessage = err.message || 'Failed to create invoice';
+      let errorMessage = err.message || 'Failed to create invoice';
+      
+      // Provide more context for specific error types
+      if (err.status === 400) {
+        errorMessage = err.message || 'Invalid invoice data';
+      } else if (err.status === 500) {
+        errorMessage = 'Server error while creating invoice. Please try again later.';
+      } else if (err.status === 401 || err.status === 403) {
+        errorMessage = 'You do not have permission to create invoices';
+      }
+      
+      if (err.details) {
+        errorMessage += ` (${err.details})`;
+      }
+      
       setError(errorMessage);
-      return { success: false, error: errorMessage };
+      return { success: false, error: errorMessage, status: err.status };
     } finally {
       setLoading(false);
     }
@@ -133,9 +160,25 @@ export const useInvoices = () => {
       await invoicesApi.delete(id);
       return { success: true };
     } catch (err) {
-      const errorMessage = err.message || 'Failed to delete invoice';
+      let errorMessage = err.message || 'Failed to delete invoice';
+      
+      // Provide more context for specific error types
+      if (err.status === 404) {
+        errorMessage = 'Invoice not found';
+      } else if (err.status === 400) {
+        errorMessage = err.message || 'Cannot delete this invoice';
+      } else if (err.status === 500) {
+        errorMessage = 'Server error while deleting invoice. Please try again later.';
+      } else if (err.status === 401 || err.status === 403) {
+        errorMessage = 'You do not have permission to delete this invoice';
+      }
+      
+      if (err.details) {
+        errorMessage += ` (${err.details})`;
+      }
+      
       setError(errorMessage);
-      return { success: false, error: errorMessage };
+      return { success: false, error: errorMessage, status: err.status };
     } finally {
       setLoading(false);
     }
