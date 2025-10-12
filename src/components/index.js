@@ -27,3 +27,6 @@ export { default as OrderCard } from './OrderCard';
 export { default as ProductCard } from './ProductCard';
 export { default as CartSummary } from './CartSummary';
 
+// Navigation components
+export { default as CustomDrawer } from './CustomDrawer';
+
