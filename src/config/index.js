@@ -8,8 +8,8 @@
 const config = {
   // API Configuration
   api: {
-    baseURL: 'https://api.example.com',
-    timeout: 10000,
+    baseURL: 'https://admin.homesteadsviands.com/api',
+    timeout: 15000,
   },
 
   // App Information

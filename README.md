@@ -74,10 +74,17 @@ src/
 
 ### Configuration
 
-1. Update the API base URL in `src/api/client.js`:
-   ```javascript
-   const BASE_URL = 'https://your-api-endpoint.com';
-   ```
+The app is pre-configured to connect to the production API:
+
+**API Base URL**: `https://admin.homesteadsviands.com/api`
+
+To change the environment, update `src/config/index.js`:
+```javascript
+api: {
+  baseURL: 'https://admin.homesteadsviands.com/api',
+  timeout: 15000,
+}
+```
 
 ### Running the App
 
@@ -109,6 +116,9 @@ Comprehensive documentation is available in the `/docs` folder:
 - **[Development Guide](docs/DEVELOPMENT.md)** - Detailed development documentation with examples
 - **[Project Summary](docs/APP_SUMMARY.md)** - Complete overview of what was built
 - **[Development Checklist](docs/CHECKLIST.md)** - Track your development progress
+- **[REST API Documentation](docs/REST_API.md)** - Complete REST API reference
+- **[API Integration Guide](docs/API_INTEGRATION.md)** - How to use the API in the mobile app
+- **[Integration Summary](docs/INTEGRATION_SUMMARY.md)** - Summary of API integration changes
 
 ## Authentication Flow
 
@@ -121,53 +131,68 @@ Comprehensive documentation is available in the `/docs` folder:
 
 ## API Integration
 
-The app is structured to connect to REST APIs with the following endpoints:
+The app is fully integrated with the REST API at `https://admin.homesteadsviands.com/api`.
 
-### Authentication
-- `POST /auth/login` - User login
-- `POST /auth/logout` - User logout
-- `GET /auth/me` - Get current user info
+### Key Features
 
-### Customers
-- `GET /customers` - Get all customers
-- `GET /customers/:id` - Get customer by ID
-- `POST /customers` - Create new customer
-- `PUT /customers/:id` - Update customer
-- `DELETE /customers/:id` - Delete customer
+- ✅ **Automatic Response Handling** - Response interceptor extracts data automatically
+- ✅ **Pagination Support** - All list endpoints support pagination with configurable page size
+- ✅ **Search & Filtering** - Advanced search and filtering capabilities
+- ✅ **Error Handling** - Standardized error format with detailed validation messages
+- ✅ **Token Management** - Automatic JWT token injection and refresh
+- ✅ **Comprehensive Documentation** - JSDoc comments on all API methods
 
-### Billing
-- `GET /billing` - Get all billing records
-- `GET /billing/:id` - Get billing by ID
-- `GET /billing/customer/:customerId` - Get billing for a customer
-- `POST /billing` - Create billing record
-- `PUT /billing/:id` - Update billing record
+### API Modules
 
-### Invoices
-- `GET /invoices` - Get all invoices
-- `GET /invoices/:id` - Get invoice by ID
-- `GET /invoices/customer/:customerId` - Get invoices for a customer
-- `POST /invoices` - Create invoice
-- `PUT /invoices/:id` - Update invoice
-- `POST /invoices/:id/paid` - Mark invoice as paid
+```javascript
+import { invoicesApi } from './src/api/invoices';
+import { customersApi } from './src/api/customers';
+import { billingApi } from './src/api/billing';
+import { authApi } from './src/api/auth';
+```
+
+### Example Usage
+
+```javascript
+// List invoices with pagination and filters
+const { invoices, pagination } = await invoicesApi.getAll({
+  page: 1,
+  limit: 20,
+  status: 'PAID',
+  search: 'INV-2025'
+});
+
+// Create a customer with addresses
+const customer = await customersApi.create({
+  name: 'Acme Corp',
+  phone: '+1234567890',
+  email: 'billing@acme.com',
+  addresses: [{ type: 'BOTH', line1: '123 Street', city: 'Mumbai' }]
+});
+```
+
+For complete API documentation, see [REST_API.md](docs/REST_API.md) and [API_INTEGRATION.md](docs/API_INTEGRATION.md).
 
 ## Development Notes
 
-### Current State
-- The app currently uses **sample data** for demonstration
-- All screens are functional with mock data
-- Ready to be connected to real API endpoints
+### Current State (v1.1.0)
+- ✅ **API Integration Complete** - Fully connected to production REST API
+- ✅ **Pagination Support** - API layer supports pagination for all list endpoints
+- ✅ **Search & Filtering** - API methods support advanced filtering
+- ✅ **Comprehensive Documentation** - All API methods documented with JSDoc
+- ⚠️ **UI Implementation Pending** - Screens still using sample data
 
 ### Next Steps
-1. Replace sample data with real API calls in screens
-2. Add error handling UI components
-3. Implement proper loading states
-4. Add pull-to-refresh functionality
-5. Implement search and filtering
-6. Add form validation refinements
-7. Set up environment variables for API URLs
-8. Add unit tests
+1. ✅ ~~API Integration~~ (COMPLETED)
+2. Update screens to use real API calls instead of sample data
+3. Implement pagination UI in customer and billing lists
+4. Add search bars with debouncing
+5. Add filter dropdowns for status, date range, etc.
+6. Implement proper loading states with skeletons
+7. Add error handling UI components (toast notifications)
+8. Add pull-to-refresh functionality
 9. Implement offline support with caching
-10. Add push notifications
+10. Add unit tests for API modules
 
 ### TypeScript Migration
 The project is structured to be TypeScript-ready. To migrate:
@@ -189,7 +214,34 @@ When adding new features:
 
 Proprietary - Homesteads Viands
 
+## Changelog
+
+### Version 1.1.0 (October 12, 2025)
+
+**Added:**
+- Full REST API integration with production environment (`https://admin.homesteadsviands.com/api`)
+- Comprehensive API documentation (REST_API.md, API_INTEGRATION.md)
+- Pagination support for all list endpoints
+- Search and filtering capabilities
+- Enhanced error handling with detailed messages
+- Invoice and customer status constants
+- Indian states constant for GST forms
+
+**Changed:**
+- API response format handling (automatic data extraction)
+- All API modules updated with JSDoc documentation
+- Increased API timeout from 10s to 15s
+
+### Version 1.0.0 (Initial Release)
+- Basic app structure with Expo
+- Authentication flow with JWT
+- Customer, billing, and invoice screens
+- Sample data for demonstration
+
 ## Support
 
-For issues or questions, contact the development team.
+For technical support:
+- **Email**: sreeharshkrajan@gmail.com
+- **Admin Panel**: https://admin.homesteadsviands.com
+- **Documentation**: See `/docs` folder
 
