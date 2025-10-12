@@ -5,7 +5,7 @@ import { ROUTES } from '../utils/constants';
 import { useInvoices } from '../hooks';
 import { useSnackbar } from '../hooks/useSnackbar';
 import { CartSummary } from '../components';
-import { formatPhoneNumber } from '../utils/formatters';
+import { formatPhoneNumber, formatCurrency } from '../utils/formatters';
 
 const InvoiceReviewScreen = ({ navigation, route }) => {
   const { customer, cart, coupon, discountAmount } = route.params;
@@ -100,7 +100,7 @@ const InvoiceReviewScreen = ({ navigation, route }) => {
                   </DataTable.Cell>
                   <DataTable.Cell numeric>{item.quantity}</DataTable.Cell>
                   <DataTable.Cell numeric style={styles.priceCell}>
-                    ₹{item.totalPrice.toFixed(2)}
+                    {formatCurrency(item.totalPrice)}
                   </DataTable.Cell>
                 </DataTable.Row>
               ))}

@@ -14,7 +14,7 @@ import { useState, useCallback } from 'react';
  *   {message}
  * </Snackbar>
  */
-const useSnackbar = () => {
+export const useSnackbar = () => {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
   const [action, setAction] = useState(null);
@@ -42,8 +42,6 @@ const useSnackbar = () => {
     hideSnackbar,
   };
 };
-
-export default useSnackbar;
 
 
 
