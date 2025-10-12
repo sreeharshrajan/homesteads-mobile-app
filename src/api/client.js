@@ -11,18 +11,24 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor to add JWT token to headers
+// Request interceptor to add API key to headers
 apiClient.interceptors.request.use(
-  async (config) => {
+  async (requestConfig) => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      // Use API key from config for authentication
+      if (config.api.apiKey) {
+        requestConfig.headers.Authorization = `Bearer ${config.api.apiKey}`;
+      } else {
+        // Fallback to JWT token from storage if API key is not configured
+        const token = await AsyncStorage.getItem('authToken');
+        if (token) {
+          requestConfig.headers.Authorization = `Bearer ${token}`;
+        }
       }
     } catch (error) {
-      console.error('Error reading token from storage:', error);
+      console.error('Error setting authorization header:', error);
     }
-    return config;
+    return requestConfig;
   },
   (error) => {
     return Promise.reject(error);
