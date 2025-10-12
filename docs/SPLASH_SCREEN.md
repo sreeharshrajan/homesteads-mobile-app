@@ -479,3 +479,4 @@ The splash screen provides a professional first impression of your app with:
 
 Configure the minimum display time in `App.js` to match your app's initialization requirements.
 
+
