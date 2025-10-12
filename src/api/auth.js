@@ -14,7 +14,7 @@ export const authApi = {
    * @returns {Promise<Object>} User data and authentication token
    */
   login: async (email, password) => {
-    const response = await apiClient.post('/auth/login', { email, password });
+    const response = await apiClient.post('/store/auth/login', { email, password });
     return response;
   },
   
@@ -23,7 +23,7 @@ export const authApi = {
    * @returns {Promise<Object>} Success message
    */
   logout: async () => {
-    const response = await apiClient.post('/auth/logout');
+    const response = await apiClient.post('/store/auth/logout');
     return response;
   },
   
@@ -32,7 +32,7 @@ export const authApi = {
    * @returns {Promise<Object>} Current user data
    */
   getCurrentUser: async () => {
-    const response = await apiClient.get('/auth/me');
+    const response = await apiClient.get('/store/auth/me');
     return response;
   },
 };

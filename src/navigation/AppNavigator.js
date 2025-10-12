@@ -10,6 +10,7 @@ import CustomerListScreen from '../screens/CustomerListScreen';
 import CustomerFormScreen from '../screens/CustomerFormScreen';
 import BillingScreen from '../screens/BillingScreen';
 import InvoiceScreen from '../screens/InvoiceScreen';
+import LoadingScreen from '../components/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,8 +22,7 @@ const AppNavigator = () => {
   }, []);
 
   if (isLoading) {
-    // You can replace this with a proper loading screen/splash screen
-    return null;
+    return <LoadingScreen message="Initializing..." />;
   }
 
   return (

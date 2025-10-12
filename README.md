@@ -8,7 +8,9 @@ A React Native mobile application built with Expo for billing and customer manag
 - **Customer Management**: Create, view, edit, and manage customer records
 - **Billing**: View and manage billing records
 - **Invoices**: Create and track invoices with detailed line items
-- **Modern UI**: Built with React Native Paper for a professional look
+- **Modern UI**: Built with React Native Paper (Material Design 3)
+- **Animated Splash Screen**: Professional splash screen with smooth transitions
+- **Custom Theme**: Brand-consistent color scheme and styling
 
 ## Tech Stack
 
@@ -16,9 +18,11 @@ A React Native mobile application built with Expo for billing and customer manag
 - **Navigation**: React Navigation (Native Stack)
 - **HTTP Client**: Axios with request/response interceptors
 - **Storage**: AsyncStorage for JWT token persistence
-- **UI Library**: React Native Paper
+- **UI Library**: React Native Paper 5.14.5 (Material Design 3)
 - **Form Handling**: Formik + Yup validation
 - **State Management**: Zustand (lightweight global state)
+- **Animations**: React Native Animated API
+- **Splash Screen**: expo-splash-screen
 
 ## Project Structure
 
@@ -37,15 +41,24 @@ src/
 │   ├── BillingScreen.js
 │   └── InvoiceScreen.js
 ├── components/       # Reusable UI components
+│   ├── AnimatedSplashScreen.js
 │   ├── LoadingScreen.js
-│   └── EmptyState.js
+│   ├── EmptyState.js
+│   ├── ConfirmDialog.js
+│   ├── SnackbarContainer.js
+│   ├── ActionMenu.js
+│   └── index.js      # Component exports
 ├── navigation/       # Navigation configuration
 │   └── AppNavigator.js
 ├── store/            # Zustand stores
 │   └── authStore.js
 ├── hooks/            # Custom React hooks
 │   ├── useCustomers.js
-│   └── useBilling.js
+│   ├── useBilling.js
+│   └── useSnackbar.js
+├── config/           # App configuration
+│   ├── index.js      # API and app config
+│   └── theme.js      # React Native Paper theme
 └── utils/            # Utilities and helpers
     ├── constants.js
     └── formatters.js
@@ -112,13 +125,22 @@ This will open the Expo DevTools in your browser. You can then:
 
 Comprehensive documentation is available in the `/docs` folder:
 
+### Getting Started
 - **[Quick Start Guide](docs/QUICK_START.md)** - Get up and running in 5 minutes
 - **[Development Guide](docs/DEVELOPMENT.md)** - Detailed development documentation with examples
 - **[Project Summary](docs/APP_SUMMARY.md)** - Complete overview of what was built
 - **[Development Checklist](docs/CHECKLIST.md)** - Track your development progress
+
+### API Documentation
 - **[REST API Documentation](docs/REST_API.md)** - Complete REST API reference
 - **[API Integration Guide](docs/API_INTEGRATION.md)** - How to use the API in the mobile app
 - **[Integration Summary](docs/INTEGRATION_SUMMARY.md)** - Summary of API integration changes
+
+### UI & Components
+- **[React Native Paper Guide](docs/REACT_NATIVE_PAPER.md)** - Complete Paper implementation guide
+- **[Component Examples](docs/PAPER_COMPONENTS_EXAMPLES.md)** - Practical Paper component examples
+- **[Quick Reference](docs/PAPER_QUICK_REFERENCE.md)** - Quick reference for common components
+- **[Splash Screen](docs/SPLASH_SCREEN.md)** - Animated splash screen implementation
 
 ## Authentication Flow
 
@@ -175,12 +197,16 @@ For complete API documentation, see [REST_API.md](docs/REST_API.md) and [API_INT
 
 ## Development Notes
 
-### Current State (v1.1.0)
+### Current State (v1.2.0)
 - ✅ **API Integration Complete** - Fully connected to production REST API
 - ✅ **Pagination Support** - API layer supports pagination for all list endpoints
 - ✅ **Search & Filtering** - API methods support advanced filtering
-- ✅ **Comprehensive Documentation** - All API methods documented with JSDoc
-- ⚠️ **UI Implementation Pending** - Screens still using sample data
+- ✅ **React Native Paper** - Material Design 3 UI framework fully integrated
+- ✅ **Custom Theme** - Brand-consistent color scheme with light/dark mode support
+- ✅ **Animated Splash Screen** - Professional splash screen with smooth animations
+- ✅ **Reusable Components** - Dialog, Snackbar, Menu, and more
+- ✅ **Comprehensive Documentation** - All API methods and UI components documented
+- ⚠️ **UI Implementation Pending** - Screens still using sample data (needs API integration)
 
 ### Next Steps
 1. ✅ ~~API Integration~~ (COMPLETED)
@@ -214,7 +240,42 @@ When adding new features:
 
 Proprietary - Homesteads Viands
 
+## UI Components
+
+### Material Design 3
+The app uses React Native Paper 5.14.5 with a custom theme:
+- **Primary Color**: #2e7d32 (Green) - Fresh, food-themed
+- **Secondary Color**: #ff6f00 (Orange) - Vibrant accent
+- **Tertiary Color**: #1976d2 (Blue) - Additional accent
+
+### Custom Components
+- **AnimatedSplashScreen** - Smooth fade-in/scale animations
+- **ConfirmDialog** - Reusable confirmation dialogs
+- **SnackbarContainer** - Toast notifications with variants
+- **ActionMenu** - Three-dot menu for actions
+- **EmptyState** - Empty state with icon and action
+- **LoadingScreen** - Full-screen loading indicator
+
+See [PAPER_QUICK_REFERENCE.md](docs/PAPER_QUICK_REFERENCE.md) for component usage.
+
 ## Changelog
+
+### Version 1.2.0 (October 12, 2025)
+
+**Added:**
+- React Native Paper 5.14.5 integration with Material Design 3
+- Custom theme with brand colors (green primary, orange accent)
+- Animated splash screen with smooth transitions
+- Reusable UI components (Dialog, Snackbar, Menu, etc.)
+- useSnackbar hook for toast notifications
+- Comprehensive UI documentation (3 new guides)
+- Dark mode theme support (ready to implement)
+
+**Changed:**
+- Updated all screens to use Paper components
+- Enhanced LoadingScreen with Paper components
+- Improved EmptyState with icon support
+- Updated AppNavigator to use AnimatedSplashScreen
 
 ### Version 1.1.0 (October 12, 2025)
 

@@ -15,15 +15,21 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (requestConfig) => {
     try {
-      // Use API key from config for authentication
-      if (config.api.apiKey) {
-        requestConfig.headers.Authorization = `Bearer ${config.api.apiKey}`;
-      } else {
-        // Fallback to JWT token from storage if API key is not configured
-        const token = await AsyncStorage.getItem('authToken');
-        if (token) {
-          requestConfig.headers.Authorization = `Bearer ${token}`;
-        }
+      // Skip authorization header for login endpoint (returns JWT token)
+      if (requestConfig.url?.includes('/store/auth/login')) {
+        console.log('=== Login Request Debug ===');
+        console.log('URL:', requestConfig.url);
+        console.log('Method:', requestConfig.method);
+        console.log('Headers:', JSON.stringify(requestConfig.headers));
+        console.log('Data:', JSON.stringify(requestConfig.data));
+        console.log('=========================');
+        return requestConfig;
+      }
+      
+      // For other endpoints, use JWT token from storage (not API key)
+      const token = await AsyncStorage.getItem('authToken');
+      if (token) {
+        requestConfig.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
       console.error('Error setting authorization header:', error);
@@ -51,8 +57,11 @@ apiClient.interceptors.response.use(
     console.log('Error code:', error.code);
     console.log('Request URL:', error.config?.url);
     console.log('Request method:', error.config?.method);
+    console.log('Request data:', JSON.stringify(error.config?.data));
+    console.log('Request headers:', JSON.stringify(error.config?.headers));
     console.log('Response status:', error.response?.status);
-    console.log('Response data:', error.response?.data);
+    console.log('Response data:', JSON.stringify(error.response?.data));
+    console.log('Response headers:', JSON.stringify(error.response?.headers));
     console.log('Is network error:', error.message === 'Network Error');
     console.log('===========================');
     

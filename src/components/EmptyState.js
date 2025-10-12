@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Button } from 'react-native-paper';
+import { Text, Button, Icon } from 'react-native-paper';
 
 const EmptyState = ({ 
-  icon, 
+  icon = 'inbox', 
   title = 'No data found', 
   message = '', 
   actionLabel, 
@@ -11,6 +11,7 @@ const EmptyState = ({
 }) => {
   return (
     <View style={styles.container}>
+      <Icon source={icon} size={64} color="#bdbdbd" />
       <Text style={styles.title}>{title}</Text>
       {message ? <Text style={styles.message}>{message}</Text> : null}
       {actionLabel && onAction ? (
@@ -32,6 +33,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginTop: 16,
     marginBottom: 8,
   },
   message: {
