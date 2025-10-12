@@ -47,9 +47,24 @@ export const useInvoices = () => {
       setInvoice(response);
       return { success: true, data: response };
     } catch (err) {
-      const errorMessage = err.message || 'Failed to fetch invoice';
+      let errorMessage = err.message || 'Failed to fetch invoice';
+      
+      // Provide more context for specific error types
+      if (err.status === 404) {
+        errorMessage = 'Invoice not found';
+      } else if (err.status === 500) {
+        errorMessage = 'Server error while fetching invoice. Please try again later.';
+      } else if (err.status === 401 || err.status === 403) {
+        errorMessage = 'You do not have permission to view this invoice';
+      }
+      
+      // Include details if available
+      if (err.details) {
+        errorMessage += ` (${err.details})`;
+      }
+      
       setError(errorMessage);
-      return { success: false, error: errorMessage };
+      return { success: false, error: errorMessage, status: err.status };
     } finally {
       setLoading(false);
     }
@@ -84,9 +99,25 @@ export const useInvoices = () => {
       setInvoice(response);
       return { success: true, data: response };
     } catch (err) {
-      const errorMessage = err.message || 'Failed to update invoice';
+      let errorMessage = err.message || 'Failed to update invoice';
+      
+      // Provide more context for specific error types
+      if (err.status === 404) {
+        errorMessage = 'Invoice not found';
+      } else if (err.status === 500) {
+        errorMessage = 'Server error while updating invoice. Please try again later.';
+      } else if (err.status === 400) {
+        errorMessage = err.message || 'Invalid invoice data';
+      } else if (err.status === 401 || err.status === 403) {
+        errorMessage = 'You do not have permission to update this invoice';
+      }
+      
+      if (err.details) {
+        errorMessage += ` (${err.details})`;
+      }
+      
       setError(errorMessage);
-      return { success: false, error: errorMessage };
+      return { success: false, error: errorMessage, status: err.status };
     } finally {
       setLoading(false);
     }

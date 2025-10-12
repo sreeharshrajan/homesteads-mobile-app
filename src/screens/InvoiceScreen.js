@@ -28,8 +28,13 @@ const InvoiceScreen = ({ navigation, route }) => {
   const loadInvoice = async () => {
     const result = await fetchInvoiceById(invoiceId);
     if (!result.success) {
-      showSnackbar(result.error || 'Failed to load invoice', 'error');
-      navigation.goBack();
+      const errorMsg = result.error || 'Failed to load invoice';
+      showSnackbar(errorMsg, 'error');
+      
+      // Don't automatically go back for server errors - give user chance to retry
+      if (result.status !== 500 && result.status !== 503) {
+        setTimeout(() => navigation.goBack(), 2000);
+      }
     }
   };
 
@@ -79,6 +84,15 @@ const InvoiceScreen = ({ navigation, route }) => {
           title="Invoice not found"
           message="Unable to load invoice details"
         />
+        <Button
+          mode="outlined"
+          onPress={loadInvoice}
+          loading={loading}
+          disabled={loading}
+          style={styles.retryButton}
+        >
+          Retry
+        </Button>
       </View>
     );
   }
@@ -152,7 +166,7 @@ const InvoiceScreen = ({ navigation, route }) => {
 
             <Divider style={styles.divider} />
 
-            {localInvoice.order && localInvoice.order.orderItems && localInvoice.order.orderItems.length > 0 ? (
+            {localInvoice.order && Array.isArray(localInvoice.order.orderItems) && localInvoice.order.orderItems.length > 0 ? (
               <>
                 <Paragraph style={styles.sectionTitle}>Items</Paragraph>
                 <DataTable>
@@ -168,12 +182,12 @@ const InvoiceScreen = ({ navigation, route }) => {
                       <DataTable.Cell>
                         {item.variant?.product?.name || item.productName || 'Product'}
                       </DataTable.Cell>
-                      <DataTable.Cell numeric>{item.quantity}</DataTable.Cell>
+                      <DataTable.Cell numeric>{item.quantity || 0}</DataTable.Cell>
                       <DataTable.Cell numeric>
-                        {formatCurrency(item.unitPrice)}
+                        {formatCurrency(item.unitPrice || 0)}
                       </DataTable.Cell>
                       <DataTable.Cell numeric>
-                        {formatCurrency(item.netAmount || item.totalPrice)}
+                        {formatCurrency(item.netAmount || item.totalPrice || 0)}
                       </DataTable.Cell>
                     </DataTable.Row>
                   ))}
@@ -186,16 +200,16 @@ const InvoiceScreen = ({ navigation, route }) => {
                     <Paragraph>Subtotal:</Paragraph>
                     <Paragraph>{formatCurrency(localInvoice.order.subtotal || 0)}</Paragraph>
                   </View>
-                  {localInvoice.order.discountAmt > 0 && (
+                  {(localInvoice.order.discountAmt || 0) > 0 && (
                     <View style={styles.totalRow}>
                       <Paragraph>Discount:</Paragraph>
-                      <Paragraph>-{formatCurrency(localInvoice.order.discountAmt)}</Paragraph>
+                      <Paragraph>-{formatCurrency(localInvoice.order.discountAmt || 0)}</Paragraph>
                     </View>
                   )}
-                  {localInvoice.order.taxAmount > 0 && (
+                  {(localInvoice.order.taxAmount || 0) > 0 && (
                     <View style={styles.totalRow}>
                       <Paragraph>Tax:</Paragraph>
-                      <Paragraph>{formatCurrency(localInvoice.order.taxAmount)}</Paragraph>
+                      <Paragraph>{formatCurrency(localInvoice.order.taxAmount || 0)}</Paragraph>
                     </View>
                   )}
                 </View>
@@ -207,7 +221,7 @@ const InvoiceScreen = ({ navigation, route }) => {
             <View style={styles.totalRow}>
               <Title>Total:</Title>
               <Title style={styles.totalAmount}>
-                {formatCurrency(localInvoice.totalAmount)}
+                {formatCurrency(localInvoice.totalAmount || 0)}
               </Title>
             </View>
 
@@ -221,24 +235,24 @@ const InvoiceScreen = ({ navigation, route }) => {
               </>
             )}
 
-            {localInvoice.payments && localInvoice.payments.length > 0 && (
+            {Array.isArray(localInvoice.payments) && localInvoice.payments.length > 0 && (
               <>
                 <Divider style={styles.divider} />
                 <View style={styles.section}>
                   <Paragraph style={styles.sectionTitle}>Payment History:</Paragraph>
-                  {localInvoice.payments.map((payment) => (
-                    <View key={payment.id} style={styles.paymentRow}>
+                  {localInvoice.payments.map((payment, index) => (
+                    <View key={payment.id || `payment-${index}`} style={styles.paymentRow}>
                       <View>
-                        <Paragraph>{payment.method}</Paragraph>
+                        <Paragraph>{payment.method || 'N/A'}</Paragraph>
                         <Paragraph style={styles.label}>
                           {payment.paidAt ? formatDate(payment.paidAt) : 'Pending'}
                         </Paragraph>
                       </View>
                       <View style={styles.paymentRight}>
                         <Paragraph style={styles.paymentAmount}>
-                          {formatCurrency(payment.amount)}
+                          {formatCurrency(payment.amount || 0)}
                         </Paragraph>
-                        <StatusBadge status={payment.status} style={styles.paymentBadge} />
+                        {payment.status && <StatusBadge status={payment.status} style={styles.paymentBadge} />}
                       </View>
                     </View>
                   ))}
@@ -366,6 +380,10 @@ const styles = StyleSheet.create({
     margin: 16,
     marginTop: 0,
     paddingVertical: 8,
+  },
+  retryButton: {
+    margin: 16,
+    marginTop: 16,
   },
 });
 
