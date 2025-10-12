@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { TextInput, Button, Appbar, HelperText, SegmentedButtons } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -39,6 +39,9 @@ const CustomerFormScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <Appbar.Header>
+        <View style={styles.headerLogo}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title={isEditMode ? 'Edit Customer' : 'New Customer'} />
       </Appbar.Header>
@@ -144,6 +147,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 8,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
   },
   keyboardView: {
     flex: 1,

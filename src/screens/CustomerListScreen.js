@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
 import { Card, Title, Paragraph, FAB, Appbar, Searchbar, Chip } from 'react-native-paper';
 import { ROUTES } from '../utils/constants';
 import { formatPhoneNumber } from '../utils/formatters';
@@ -103,6 +103,9 @@ const CustomerListScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Appbar.Header>
+        <View style={styles.headerLogo}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        </View>
         <Appbar.Content title="Customers" />
         <Appbar.Action icon="invoice-text-outline" onPress={() => navigation.navigate(ROUTES.BILLING)} />
         <Appbar.Action icon="logout" onPress={handleLogout} />
@@ -140,6 +143,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 8,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
   },
   content: {
     flex: 1,

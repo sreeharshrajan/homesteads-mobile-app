@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
 import { Card, Title, Paragraph, Chip, Appbar, FAB } from 'react-native-paper';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { ROUTES } from '../utils/constants';
@@ -96,6 +96,9 @@ const BillingScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Appbar.Header>
+        <View style={styles.headerLogo}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title="Billing" />
       </Appbar.Header>
@@ -124,6 +127,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 8,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
   },
   list: {
     padding: 16,

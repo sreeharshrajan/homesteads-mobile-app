@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { Card, Title, Paragraph, Button, Appbar, Divider, DataTable } from 'react-native-paper';
 import { formatCurrency, formatDate } from '../utils/formatters';
 
@@ -44,6 +44,9 @@ const InvoiceScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <Appbar.Header>
+        <View style={styles.headerLogo}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title="Invoice Details" />
         <Appbar.Action icon="download" onPress={handleDownload} />
@@ -140,6 +143,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 8,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
   },
   scrollView: {
     flex: 1,
