@@ -1,39 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { TextInput, Button, Appbar, HelperText, SegmentedButtons } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { useCustomers } from '../hooks';
+import { useSnackbar } from '../hooks/useSnackbar';
+import { ConfirmDialog } from '../components';
 
 const CustomerSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
+  email: Yup.string().email('Invalid email'),
   phone: Yup.string().required('Phone is required'),
-  address: Yup.string().required('Address is required'),
+  companyName: Yup.string(),
+  gstNumber: Yup.string(),
+  panNumber: Yup.string(),
 });
 
 const CustomerFormScreen = ({ navigation, route }) => {
   const customerId = route.params?.customerId;
   const isEditMode = !!customerId;
-  const [loading, setLoading] = useState(false);
-
-  // In a real app, you would fetch customer data if in edit mode
-  const initialValues = {
+  
+  const [initialValues, setInitialValues] = useState({
     name: '',
     email: '',
     phone: '',
-    address: '',
-    status: 'active',
+    companyName: '',
+    gstNumber: '',
+    panNumber: '',
+    isActive: true,
+  });
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+  
+  const { loading, fetchCustomerById, createCustomer, updateCustomer, deleteCustomer } = useCustomers();
+  const { showSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    if (isEditMode) {
+      loadCustomer();
+    }
+  }, [customerId]);
+
+  const loadCustomer = async () => {
+    const result = await fetchCustomerById(customerId);
+    if (result.success) {
+      setInitialValues({
+        name: result.data.name || '',
+        email: result.data.email || '',
+        phone: result.data.phone || '',
+        companyName: result.data.companyName || '',
+        gstNumber: result.data.gstNumber || '',
+        panNumber: result.data.panNumber || '',
+        isActive: result.data.isActive ?? true,
+      });
+    } else {
+      showSnackbar(result.error || 'Failed to load customer', 'error');
+      navigation.goBack();
+    }
   };
 
   const handleSubmit = async (values) => {
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Customer data:', values);
-      setLoading(false);
+    const data = {
+      name: values.name,
+      email: values.email || undefined,
+      phone: values.phone,
+      companyName: values.companyName || undefined,
+      gstNumber: values.gstNumber || undefined,
+      panNumber: values.panNumber || undefined,
+      isActive: values.isActive,
+    };
+
+    let result;
+    if (isEditMode) {
+      result = await updateCustomer(customerId, data);
+    } else {
+      result = await createCustomer(data);
+    }
+
+    if (result.success) {
+      showSnackbar(
+        isEditMode ? 'Customer updated successfully' : 'Customer created successfully',
+        'success'
+      );
       navigation.goBack();
-    }, 1000);
+    } else {
+      showSnackbar(result.error || 'Operation failed', 'error');
+    }
+  };
+
+  const handleDelete = async () => {
+    const result = await deleteCustomer(customerId);
+    if (result.success) {
+      showSnackbar('Customer deleted successfully', 'success');
+      navigation.goBack();
+    } else {
+      showSnackbar(result.error || 'Failed to delete customer', 'error');
+    }
+    setDeleteDialogVisible(false);
   };
 
   return (
@@ -44,6 +106,12 @@ const CustomerFormScreen = ({ navigation, route }) => {
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title={isEditMode ? 'Edit Customer' : 'New Customer'} />
+        {isEditMode && (
+          <Appbar.Action
+            icon="delete"
+            onPress={() => setDeleteDialogVisible(true)}
+          />
+        )}
       </Appbar.Header>
 
       <KeyboardAvoidingView
@@ -55,11 +123,12 @@ const CustomerFormScreen = ({ navigation, route }) => {
             initialValues={initialValues}
             validationSchema={CustomerSchema}
             onSubmit={handleSubmit}
+            enableReinitialize
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
               <View style={styles.form}>
                 <TextInput
-                  label="Full Name"
+                  label="Full Name *"
                   mode="outlined"
                   value={values.name}
                   onChangeText={handleChange('name')}
@@ -87,7 +156,7 @@ const CustomerFormScreen = ({ navigation, route }) => {
                 </HelperText>
 
                 <TextInput
-                  label="Phone"
+                  label="Phone *"
                   mode="outlined"
                   value={values.phone}
                   onChangeText={handleChange('phone')}
@@ -101,23 +170,37 @@ const CustomerFormScreen = ({ navigation, route }) => {
                 </HelperText>
 
                 <TextInput
-                  label="Address"
+                  label="Company Name"
                   mode="outlined"
-                  value={values.address}
-                  onChangeText={handleChange('address')}
-                  onBlur={handleBlur('address')}
-                  multiline
-                  numberOfLines={3}
-                  error={touched.address && errors.address}
+                  value={values.companyName}
+                  onChangeText={handleChange('companyName')}
+                  onBlur={handleBlur('companyName')}
                   style={styles.input}
                 />
-                <HelperText type="error" visible={touched.address && errors.address}>
-                  {errors.address}
-                </HelperText>
+
+                <TextInput
+                  label="GST Number"
+                  mode="outlined"
+                  value={values.gstNumber}
+                  onChangeText={handleChange('gstNumber')}
+                  onBlur={handleBlur('gstNumber')}
+                  autoCapitalize="characters"
+                  style={styles.input}
+                />
+
+                <TextInput
+                  label="PAN Number"
+                  mode="outlined"
+                  value={values.panNumber}
+                  onChangeText={handleChange('panNumber')}
+                  onBlur={handleBlur('panNumber')}
+                  autoCapitalize="characters"
+                  style={styles.input}
+                />
 
                 <SegmentedButtons
-                  value={values.status}
-                  onValueChange={(value) => setFieldValue('status', value)}
+                  value={values.isActive ? 'active' : 'inactive'}
+                  onValueChange={(value) => setFieldValue('isActive', value === 'active')}
                   buttons={[
                     { value: 'active', label: 'Active' },
                     { value: 'inactive', label: 'Inactive' },
@@ -139,6 +222,15 @@ const CustomerFormScreen = ({ navigation, route }) => {
           </Formik>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <ConfirmDialog
+        visible={deleteDialogVisible}
+        title="Delete Customer"
+        message="Are you sure you want to delete this customer? This action cannot be undone."
+        onConfirm={handleDelete}
+        onDismiss={() => setDeleteDialogVisible(false)}
+        loading={loading}
+      />
     </View>
   );
 };
@@ -180,4 +272,3 @@ const styles = StyleSheet.create({
 });
 
 export default CustomerFormScreen;
-

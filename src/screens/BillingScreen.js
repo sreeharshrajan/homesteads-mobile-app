@@ -1,94 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
-import { Card, Title, Paragraph, Chip, Appbar, FAB } from 'react-native-paper';
+import { Card, Title, Paragraph, Appbar, FAB } from 'react-native-paper';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { ROUTES } from '../utils/constants';
-
-// Sample billing data
-const SAMPLE_BILLING = [
-  {
-    id: '1',
-    customerName: 'John Doe',
-    amount: 1250.00,
-    status: 'paid',
-    dueDate: '2025-09-15',
-    invoiceNumber: 'INV-001',
-  },
-  {
-    id: '2',
-    customerName: 'Jane Smith',
-    amount: 890.50,
-    status: 'pending',
-    dueDate: '2025-10-01',
-    invoiceNumber: 'INV-002',
-  },
-  {
-    id: '3',
-    customerName: 'Bob Johnson',
-    amount: 2100.00,
-    status: 'overdue',
-    dueDate: '2025-09-01',
-    invoiceNumber: 'INV-003',
-  },
-  {
-    id: '4',
-    customerName: 'Alice Williams',
-    amount: 675.25,
-    status: 'paid',
-    dueDate: '2025-09-20',
-    invoiceNumber: 'INV-004',
-  },
-];
+import { useInvoices } from '../hooks';
+import { FilterBar, PaginationControls, StatusBadge, EmptyState } from '../components';
 
 const BillingScreen = ({ navigation }) => {
-  const [billingData, setBillingData] = useState(SAMPLE_BILLING);
-  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const { invoices, loading, pagination, fetchInvoices } = useInvoices();
+
+  const loadInvoices = useCallback(() => {
+    const params = {
+      page: currentPage,
+      limit: 20,
+      search: searchQuery || undefined,
+      status: statusFilter || undefined,
+      sortField: 'createdAt',
+      sortDirection: 'desc',
+    };
+    fetchInvoices(params);
+  }, [currentPage, searchQuery, statusFilter, fetchInvoices]);
+
+  useEffect(() => {
+    loadInvoices();
+  }, [loadInvoices]);
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (status) => {
+    setStatusFilter(status);
+    setCurrentPage(1);
+  };
 
   const handleRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    loadInvoices();
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'paid':
-        return '#4caf50';
-      case 'pending':
-        return '#ff9800';
-      case 'overdue':
-        return '#f44336';
-      default:
-        return '#757575';
-    }
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
-  const renderBillingCard = ({ item }) => (
+  const renderInvoiceCard = ({ item }) => (
     <Card
       style={styles.card}
       onPress={() => navigation.navigate(ROUTES.INVOICE, { invoiceId: item.id })}
     >
       <Card.Content>
         <View style={styles.cardHeader}>
-          <Title>{item.customerName}</Title>
-          <Chip
-            mode="flat"
-            style={[styles.statusChip, { backgroundColor: getStatusColor(item.status) }]}
-            textStyle={styles.chipText}
-          >
-            {item.status.toUpperCase()}
-          </Chip>
+          <Title>{item.invoiceNo}</Title>
+          <StatusBadge status={item.status} style={styles.statusBadge} />
         </View>
-        <Paragraph style={styles.invoiceNumber}>{item.invoiceNumber}</Paragraph>
+        
+        {item.customer && (
+          <Paragraph style={styles.customerName}>{item.customer.name}</Paragraph>
+        )}
+        
         <View style={styles.cardRow}>
           <Paragraph style={styles.label}>Amount:</Paragraph>
-          <Title style={styles.amount}>{formatCurrency(item.amount)}</Title>
+          <Title style={styles.amount}>{formatCurrency(item.totalAmount)}</Title>
         </View>
+        
         <View style={styles.cardRow}>
-          <Paragraph style={styles.label}>Due Date:</Paragraph>
-          <Paragraph>{formatDate(item.dueDate)}</Paragraph>
+          <Paragraph style={styles.label}>Issue Date:</Paragraph>
+          <Paragraph>{formatDate(item.issueDate)}</Paragraph>
         </View>
+        
+        {item.dueDate && (
+          <View style={styles.cardRow}>
+            <Paragraph style={styles.label}>Due Date:</Paragraph>
+            <Paragraph>{formatDate(item.dueDate)}</Paragraph>
+          </View>
+        )}
       </Card.Content>
     </Card>
   );
@@ -100,24 +89,57 @@ const BillingScreen = ({ navigation }) => {
           <Image source={require('../../assets/logo.png')} style={styles.logo} />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Billing" />
+        <Appbar.Content title="Invoices" />
+        <Appbar.Action icon="cart-outline" onPress={() => navigation.navigate(ROUTES.ORDERS)} />
       </Appbar.Header>
 
-      <FlatList
-        data={billingData}
-        renderItem={renderBillingCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
-      />
+      <View style={styles.content}>
+        <FilterBar
+          searchValue={searchQuery}
+          onSearchChange={handleSearch}
+          statusFilter={statusFilter}
+          statusOptions={[
+            { value: 'DRAFT', label: 'Draft' },
+            { value: 'SENT', label: 'Sent' },
+            { value: 'PAID', label: 'Paid' },
+            { value: 'CANCELLED', label: 'Cancelled' },
+          ]}
+          onStatusChange={handleStatusChange}
+        />
+
+        {invoices.length === 0 && !loading ? (
+          <EmptyState
+            icon="file-document-outline"
+            title="No invoices found"
+            message={searchQuery ? "Try adjusting your search" : "Create your first invoice to get started"}
+          />
+        ) : (
+          <FlatList
+            data={invoices}
+            renderItem={renderInvoiceCard}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+            }
+          />
+        )}
+
+        {pagination.totalPages > 1 && (
+          <PaginationControls
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+            loading={loading}
+          />
+        )}
+      </View>
 
       <FAB
         icon="plus"
         label="New Invoice"
         style={styles.fab}
-        onPress={() => navigation.navigate(ROUTES.INVOICE)}
+        onPress={() => navigation.navigate(ROUTES.INVOICE_CUSTOMER_SELECT)}
       />
     </View>
   );
@@ -137,6 +159,9 @@ const styles = StyleSheet.create({
     height: 32,
     resizeMode: 'contain',
   },
+  content: {
+    flex: 1,
+  },
   list: {
     padding: 16,
   },
@@ -150,15 +175,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  statusChip: {
+  statusBadge: {
     height: 28,
   },
-  chipText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 11,
-  },
-  invoiceNumber: {
+  customerName: {
     color: '#666',
     fontSize: 14,
     marginBottom: 12,
@@ -185,4 +205,3 @@ const styles = StyleSheet.create({
 });
 
 export default BillingScreen;
-

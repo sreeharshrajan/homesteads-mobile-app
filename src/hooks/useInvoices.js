@@ -1,0 +1,137 @@
+import { useState, useCallback } from 'react';
+import { invoicesApi } from '../api';
+
+/**
+ * Custom hook for managing invoices
+ */
+export const useInvoices = () => {
+  const [invoices, setInvoices] = useState([]);
+  const [invoice, setInvoice] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
+
+  /**
+   * Fetch invoices with filters
+   */
+  const fetchInvoices = useCallback(async (params = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await invoicesApi.getAll(params);
+      setInvoices(response.invoices || []);
+      setPagination(response.pagination || {});
+      return { success: true, data: response };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to fetch invoices';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Fetch single invoice by ID
+   */
+  const fetchInvoiceById = useCallback(async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await invoicesApi.getById(id);
+      setInvoice(response);
+      return { success: true, data: response };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to fetch invoice';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Create new invoice
+   */
+  const createInvoice = useCallback(async (data) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await invoicesApi.create(data);
+      return { success: true, data: response };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to create invoice';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Update existing invoice
+   */
+  const updateInvoice = useCallback(async (id, data) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await invoicesApi.update(id, data);
+      setInvoice(response);
+      return { success: true, data: response };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to update invoice';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Delete invoice
+   */
+  const deleteInvoice = useCallback(async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await invoicesApi.delete(id);
+      return { success: true };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to delete invoice';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Reset state
+   */
+  const reset = useCallback(() => {
+    setInvoices([]);
+    setInvoice(null);
+    setError(null);
+    setPagination({ page: 1, limit: 20, total: 0, totalPages: 0 });
+  }, []);
+
+  return {
+    invoices,
+    invoice,
+    loading,
+    error,
+    pagination,
+    fetchInvoices,
+    fetchInvoiceById,
+    createInvoice,
+    updateInvoice,
+    deleteInvoice,
+    reset,
+  };
+};
+

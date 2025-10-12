@@ -1,45 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Card, Title, Paragraph, Button, Appbar, Divider, DataTable } from 'react-native-paper';
+import { Card, Title, Paragraph, Button, Appbar, Divider, DataTable, ActivityIndicator } from 'react-native-paper';
 import { formatCurrency, formatDate } from '../utils/formatters';
-
-// Sample invoice data
-const SAMPLE_INVOICE = {
-  id: '1',
-  invoiceNumber: 'INV-001',
-  customerName: 'John Doe',
-  customerEmail: 'john.doe@example.com',
-  customerAddress: '123 Main St, City, State 12345',
-  issueDate: '2025-09-01',
-  dueDate: '2025-09-15',
-  status: 'paid',
-  items: [
-    { id: '1', description: 'Product A', quantity: 2, unitPrice: 250.00 },
-    { id: '2', description: 'Product B', quantity: 1, unitPrice: 500.00 },
-    { id: '3', description: 'Service C', quantity: 5, unitPrice: 50.00 },
-  ],
-  subtotal: 1250.00,
-  tax: 0,
-  total: 1250.00,
-};
+import { useInvoices } from '../hooks';
+import { useSnackbar } from '../hooks/useSnackbar';
+import { StatusBadge, EmptyState } from '../components';
 
 const InvoiceScreen = ({ navigation, route }) => {
   const invoiceId = route.params?.invoiceId;
-  const [invoice] = useState(SAMPLE_INVOICE);
-  const [loading, setLoading] = useState(false);
+  const [localInvoice, setLocalInvoice] = useState(null);
+  
+  const { invoice, loading, fetchInvoiceById, updateInvoice } = useInvoices();
+  const { showSnackbar } = useSnackbar();
 
-  const handleMarkAsPaid = () => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Invoice marked as paid');
-      setLoading(false);
-    }, 1000);
+  useEffect(() => {
+    if (invoiceId) {
+      loadInvoice();
+    }
+  }, [invoiceId]);
+
+  useEffect(() => {
+    if (invoice) {
+      setLocalInvoice(invoice);
+    }
+  }, [invoice]);
+
+  const loadInvoice = async () => {
+    const result = await fetchInvoiceById(invoiceId);
+    if (!result.success) {
+      showSnackbar(result.error || 'Failed to load invoice', 'error');
+      navigation.goBack();
+    }
+  };
+
+  const handleMarkAsPaid = async () => {
+    const result = await updateInvoice(invoiceId, { status: 'PAID' });
+    if (result.success) {
+      showSnackbar('Invoice marked as paid', 'success');
+      setLocalInvoice({ ...localInvoice, status: 'PAID' });
+    } else {
+      showSnackbar(result.error || 'Failed to update invoice', 'error');
+    }
   };
 
   const handleDownload = () => {
-    console.log('Download invoice');
+    showSnackbar('Download feature coming soon', 'info');
   };
+
+  if (loading && !localInvoice) {
+    return (
+      <View style={styles.container}>
+        <Appbar.Header>
+          <View style={styles.headerLogo}>
+            <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          </View>
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.Content title="Invoice Details" />
+        </Appbar.Header>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+        </View>
+      </View>
+    );
+  }
+
+  if (!localInvoice) {
+    return (
+      <View style={styles.container}>
+        <Appbar.Header>
+          <View style={styles.headerLogo}>
+            <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          </View>
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.Content title="Invoice Details" />
+        </Appbar.Header>
+        <EmptyState
+          icon="file-document-outline"
+          title="Invoice not found"
+          message="Unable to load invoice details"
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -55,75 +97,158 @@ const InvoiceScreen = ({ navigation, route }) => {
       <ScrollView style={styles.scrollView}>
         <Card style={styles.card}>
           <Card.Content>
-            <Title style={styles.invoiceNumber}>{invoice.invoiceNumber}</Title>
-            
-            <View style={styles.section}>
-              <Paragraph style={styles.sectionTitle}>Bill To:</Paragraph>
-              <Title>{invoice.customerName}</Title>
-              <Paragraph>{invoice.customerEmail}</Paragraph>
-              <Paragraph>{invoice.customerAddress}</Paragraph>
+            <View style={styles.headerRow}>
+              <Title style={styles.invoiceNumber}>{localInvoice.invoiceNo}</Title>
+              <StatusBadge status={localInvoice.status} />
             </View>
+            
+            {localInvoice.customer && (
+              <View style={styles.section}>
+                <Paragraph style={styles.sectionTitle}>Bill To:</Paragraph>
+                <Title>{localInvoice.customer.name}</Title>
+                {localInvoice.customer.email && (
+                  <Paragraph>{localInvoice.customer.email}</Paragraph>
+                )}
+                {localInvoice.customer.phone && (
+                  <Paragraph>{localInvoice.customer.phone}</Paragraph>
+                )}
+                {localInvoice.customer.companyName && (
+                  <Paragraph>{localInvoice.customer.companyName}</Paragraph>
+                )}
+                {localInvoice.customer.gstNumber && (
+                  <Paragraph>GST: {localInvoice.customer.gstNumber}</Paragraph>
+                )}
+              </View>
+            )}
 
             <Divider style={styles.divider} />
 
             <View style={styles.datesRow}>
               <View style={styles.dateColumn}>
                 <Paragraph style={styles.label}>Issue Date</Paragraph>
-                <Paragraph>{formatDate(invoice.issueDate)}</Paragraph>
+                <Paragraph>{formatDate(localInvoice.issueDate)}</Paragraph>
               </View>
-              <View style={styles.dateColumn}>
-                <Paragraph style={styles.label}>Due Date</Paragraph>
-                <Paragraph>{formatDate(invoice.dueDate)}</Paragraph>
-              </View>
+              {localInvoice.dueDate && (
+                <View style={styles.dateColumn}>
+                  <Paragraph style={styles.label}>Due Date</Paragraph>
+                  <Paragraph>{formatDate(localInvoice.dueDate)}</Paragraph>
+                </View>
+              )}
             </View>
+
+            {localInvoice.poNumber && (
+              <View style={styles.row}>
+                <Paragraph style={styles.label}>PO Number:</Paragraph>
+                <Paragraph>{localInvoice.poNumber}</Paragraph>
+              </View>
+            )}
+
+            {localInvoice.placeOfSupply && (
+              <View style={styles.row}>
+                <Paragraph style={styles.label}>Place of Supply:</Paragraph>
+                <Paragraph>{localInvoice.placeOfSupply}</Paragraph>
+              </View>
+            )}
 
             <Divider style={styles.divider} />
 
-            <Paragraph style={styles.sectionTitle}>Items</Paragraph>
-            <DataTable>
-              <DataTable.Header>
-                <DataTable.Title>Description</DataTable.Title>
-                <DataTable.Title numeric>Qty</DataTable.Title>
-                <DataTable.Title numeric>Price</DataTable.Title>
-                <DataTable.Title numeric>Total</DataTable.Title>
-              </DataTable.Header>
+            {localInvoice.order && localInvoice.order.orderItems && localInvoice.order.orderItems.length > 0 ? (
+              <>
+                <Paragraph style={styles.sectionTitle}>Items</Paragraph>
+                <DataTable>
+                  <DataTable.Header>
+                    <DataTable.Title>Product</DataTable.Title>
+                    <DataTable.Title numeric>Qty</DataTable.Title>
+                    <DataTable.Title numeric>Price</DataTable.Title>
+                    <DataTable.Title numeric>Total</DataTable.Title>
+                  </DataTable.Header>
 
-              {invoice.items.map((item) => (
-                <DataTable.Row key={item.id}>
-                  <DataTable.Cell>{item.description}</DataTable.Cell>
-                  <DataTable.Cell numeric>{item.quantity}</DataTable.Cell>
-                  <DataTable.Cell numeric>
-                    {formatCurrency(item.unitPrice)}
-                  </DataTable.Cell>
-                  <DataTable.Cell numeric>
-                    {formatCurrency(item.quantity * item.unitPrice)}
-                  </DataTable.Cell>
-                </DataTable.Row>
-              ))}
-            </DataTable>
+                  {localInvoice.order.orderItems.map((item) => (
+                    <DataTable.Row key={item.id}>
+                      <DataTable.Cell>
+                        {item.variant?.product?.name || item.productName || 'Product'}
+                      </DataTable.Cell>
+                      <DataTable.Cell numeric>{item.quantity}</DataTable.Cell>
+                      <DataTable.Cell numeric>
+                        {formatCurrency(item.unitPrice)}
+                      </DataTable.Cell>
+                      <DataTable.Cell numeric>
+                        {formatCurrency(item.netAmount || item.totalPrice)}
+                      </DataTable.Cell>
+                    </DataTable.Row>
+                  ))}
+                </DataTable>
+
+                <Divider style={styles.divider} />
+
+                <View style={styles.totalsSection}>
+                  <View style={styles.totalRow}>
+                    <Paragraph>Subtotal:</Paragraph>
+                    <Paragraph>{formatCurrency(localInvoice.order.subtotal || 0)}</Paragraph>
+                  </View>
+                  {localInvoice.order.discountAmt > 0 && (
+                    <View style={styles.totalRow}>
+                      <Paragraph>Discount:</Paragraph>
+                      <Paragraph>-{formatCurrency(localInvoice.order.discountAmt)}</Paragraph>
+                    </View>
+                  )}
+                  {localInvoice.order.taxAmount > 0 && (
+                    <View style={styles.totalRow}>
+                      <Paragraph>Tax:</Paragraph>
+                      <Paragraph>{formatCurrency(localInvoice.order.taxAmount)}</Paragraph>
+                    </View>
+                  )}
+                </View>
+              </>
+            ) : null}
 
             <Divider style={styles.divider} />
 
-            <View style={styles.totalsSection}>
-              <View style={styles.totalRow}>
-                <Paragraph>Subtotal:</Paragraph>
-                <Paragraph>{formatCurrency(invoice.subtotal)}</Paragraph>
-              </View>
-              <View style={styles.totalRow}>
-                <Paragraph>Tax:</Paragraph>
-                <Paragraph>{formatCurrency(invoice.tax)}</Paragraph>
-              </View>
-              <View style={styles.totalRow}>
-                <Title>Total:</Title>
-                <Title style={styles.totalAmount}>
-                  {formatCurrency(invoice.total)}
-                </Title>
-              </View>
+            <View style={styles.totalRow}>
+              <Title>Total:</Title>
+              <Title style={styles.totalAmount}>
+                {formatCurrency(localInvoice.totalAmount)}
+              </Title>
             </View>
+
+            {localInvoice.remarks && (
+              <>
+                <Divider style={styles.divider} />
+                <View style={styles.section}>
+                  <Paragraph style={styles.sectionTitle}>Remarks:</Paragraph>
+                  <Paragraph>{localInvoice.remarks}</Paragraph>
+                </View>
+              </>
+            )}
+
+            {localInvoice.payments && localInvoice.payments.length > 0 && (
+              <>
+                <Divider style={styles.divider} />
+                <View style={styles.section}>
+                  <Paragraph style={styles.sectionTitle}>Payment History:</Paragraph>
+                  {localInvoice.payments.map((payment) => (
+                    <View key={payment.id} style={styles.paymentRow}>
+                      <View>
+                        <Paragraph>{payment.method}</Paragraph>
+                        <Paragraph style={styles.label}>
+                          {payment.paidAt ? formatDate(payment.paidAt) : 'Pending'}
+                        </Paragraph>
+                      </View>
+                      <View style={styles.paymentRight}>
+                        <Paragraph style={styles.paymentAmount}>
+                          {formatCurrency(payment.amount)}
+                        </Paragraph>
+                        <StatusBadge status={payment.status} style={styles.paymentBadge} />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
           </Card.Content>
         </Card>
 
-        {invoice.status !== 'paid' && (
+        {localInvoice.status !== 'PAID' && localInvoice.status !== 'CANCELLED' && (
           <Button
             mode="contained"
             onPress={handleMarkAsPaid}
@@ -153,6 +278,11 @@ const styles = StyleSheet.create({
     height: 32,
     resizeMode: 'contain',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   scrollView: {
     flex: 1,
   },
@@ -160,10 +290,15 @@ const styles = StyleSheet.create({
     margin: 16,
     elevation: 2,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   invoiceNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
   },
   section: {
     marginBottom: 16,
@@ -181,9 +316,15 @@ const styles = StyleSheet.create({
   datesRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 8,
   },
   dateColumn: {
     flex: 1,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
   },
   label: {
     fontSize: 12,
@@ -201,6 +342,25 @@ const styles = StyleSheet.create({
   totalAmount: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#4CAF50',
+  },
+  paymentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  paymentRight: {
+    alignItems: 'flex-end',
+  },
+  paymentAmount: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  paymentBadge: {
+    height: 24,
   },
   button: {
     margin: 16,
@@ -210,4 +370,3 @@ const styles = StyleSheet.create({
 });
 
 export default InvoiceScreen;
-

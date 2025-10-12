@@ -1,73 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
-import { Card, Title, Paragraph, FAB, Appbar, Searchbar, Chip } from 'react-native-paper';
+import { Card, Title, Paragraph, FAB, Appbar, Chip } from 'react-native-paper';
 import { ROUTES } from '../utils/constants';
 import { formatPhoneNumber } from '../utils/formatters';
 import useAuthStore from '../store/authStore';
-
-// Sample data for demonstration
-const SAMPLE_CUSTOMERS = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '5551234567',
-    address: '123 Main St, City, State 12345',
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    email: 'jane.smith@example.com',
-    phone: '5559876543',
-    address: '456 Oak Ave, City, State 12345',
-    status: 'active',
-  },
-  {
-    id: '3',
-    name: 'Bob Johnson',
-    email: 'bob.johnson@example.com',
-    phone: '5555551234',
-    address: '789 Pine Rd, City, State 12345',
-    status: 'inactive',
-  },
-  {
-    id: '4',
-    name: 'Alice Williams',
-    email: 'alice.williams@example.com',
-    phone: '5554443333',
-    address: '321 Elm St, City, State 12345',
-    status: 'active',
-  },
-];
+import { useCustomers } from '../hooks';
+import { FilterBar, PaginationControls, EmptyState } from '../components';
 
 const CustomerListScreen = ({ navigation }) => {
-  const [customers, setCustomers] = useState(SAMPLE_CUSTOMERS);
-  const [filteredCustomers, setFilteredCustomers] = useState(SAMPLE_CUSTOMERS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [refreshing, setRefreshing] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const logout = useAuthStore((state) => state.logout);
+  const role = useAuthStore((state) => state.role);
+  
+  const { customers, loading, pagination, fetchCustomers } = useCustomers();
+
+  const loadCustomers = useCallback(() => {
+    const params = {
+      page: currentPage,
+      limit: 20,
+      search: searchQuery || undefined,
+      isActive: statusFilter === 'active' ? true : statusFilter === 'inactive' ? false : undefined,
+      sortField: 'createdAt',
+      sortDirection: 'desc',
+    };
+    fetchCustomers(params);
+  }, [currentPage, searchQuery, statusFilter, fetchCustomers]);
+
+  useEffect(() => {
+    loadCustomers();
+  }, [loadCustomers]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    if (query.trim() === '') {
-      setFilteredCustomers(customers);
-    } else {
-      const filtered = customers.filter(
-        (customer) =>
-          customer.name.toLowerCase().includes(query.toLowerCase()) ||
-          customer.email.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredCustomers(filtered);
-    }
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (status) => {
+    setStatusFilter(status);
+    setCurrentPage(1);
   };
 
   const handleRefresh = () => {
-    setRefreshing(true);
-    // In a real app, you would fetch data from API here
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    loadCustomers();
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const handleLogout = async () => {
@@ -87,15 +67,25 @@ const CustomerListScreen = ({ navigation }) => {
             mode="outlined"
             style={[
               styles.statusChip,
-              item.status === 'active' ? styles.activeChip : styles.inactiveChip,
+              item.isActive ? styles.activeChip : styles.inactiveChip,
             ]}
           >
-            {item.status}
+            {item.isActive ? 'Active' : 'Inactive'}
           </Chip>
         </View>
-        <Paragraph style={styles.email}>{item.email}</Paragraph>
-        <Paragraph style={styles.phone}>{formatPhoneNumber(item.phone)}</Paragraph>
-        <Paragraph style={styles.address}>{item.address}</Paragraph>
+        {item.email && <Paragraph style={styles.email}>{item.email}</Paragraph>}
+        {item.phone && <Paragraph style={styles.phone}>{formatPhoneNumber(item.phone)}</Paragraph>}
+        {item.companyName && <Paragraph style={styles.company}>{item.companyName}</Paragraph>}
+        {item._count && (
+          <View style={styles.countsRow}>
+            <Paragraph style={styles.count}>
+              Orders: {item._count.orders || 0}
+            </Paragraph>
+            <Paragraph style={styles.count}>
+              Invoices: {item._count.invoices || 0}
+            </Paragraph>
+          </View>
+        )}
       </Card.Content>
     </Card>
   );
@@ -108,26 +98,50 @@ const CustomerListScreen = ({ navigation }) => {
         </View>
         <Appbar.Content title="Customers" />
         <Appbar.Action icon="invoice-text-outline" onPress={() => navigation.navigate(ROUTES.BILLING)} />
+        {role?.slug === 'super-admin' && (
+          <Appbar.Action icon="key-variant" onPress={() => navigation.navigate(ROUTES.API_KEYS)} />
+        )}
         <Appbar.Action icon="logout" onPress={handleLogout} />
       </Appbar.Header>
 
       <View style={styles.content}>
-        <Searchbar
-          placeholder="Search customers..."
-          onChangeText={handleSearch}
-          value={searchQuery}
-          style={styles.searchBar}
+        <FilterBar
+          searchValue={searchQuery}
+          onSearchChange={handleSearch}
+          statusFilter={statusFilter}
+          statusOptions={[
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+          onStatusChange={handleStatusChange}
         />
 
-        <FlatList
-          data={filteredCustomers}
-          renderItem={renderCustomerCard}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
-        />
+        {customers.length === 0 && !loading ? (
+          <EmptyState
+            icon="account-group"
+            title="No customers found"
+            message={searchQuery ? "Try adjusting your search" : "Add your first customer to get started"}
+          />
+        ) : (
+          <FlatList
+            data={customers}
+            renderItem={renderCustomerCard}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+            }
+          />
+        )}
+
+        {pagination.totalPages > 1 && (
+          <PaginationControls
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+            loading={loading}
+          />
+        )}
       </View>
 
       <FAB
@@ -156,13 +170,8 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  searchBar: {
-    margin: 16,
-    marginBottom: 8,
-  },
   list: {
     padding: 16,
-    paddingTop: 8,
   },
   card: {
     marginBottom: 12,
@@ -191,9 +200,19 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 4,
   },
-  address: {
+  company: {
     color: '#888',
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  countsRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 8,
+  },
+  count: {
     fontSize: 12,
+    color: '#666',
   },
   fab: {
     position: 'absolute',
@@ -204,4 +223,3 @@ const styles = StyleSheet.create({
 });
 
 export default CustomerListScreen;
-

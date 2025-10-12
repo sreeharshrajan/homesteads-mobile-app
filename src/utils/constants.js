@@ -17,6 +17,14 @@ export const ROUTES = {
   CUSTOMER_FORM: 'CustomerForm',
   BILLING: 'Billing',
   INVOICE: 'Invoice',
+  INVOICE_CUSTOMER_SELECT: 'InvoiceCustomerSelect',
+  INVOICE_PRODUCT_SELECT: 'InvoiceProductSelect',
+  INVOICE_DISCOUNT: 'InvoiceDiscount',
+  INVOICE_REVIEW: 'InvoiceReview',
+  ORDERS: 'Orders',
+  ORDER_DETAIL: 'OrderDetail',
+  API_KEYS: 'ApiKeys',
+  API_KEY_FORM: 'ApiKeyForm',
 };
 
 // Invoice statuses
