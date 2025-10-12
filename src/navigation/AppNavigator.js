@@ -9,6 +9,7 @@ import CustomDrawer from '../components/CustomDrawer';
 
 // Import screens
 import LoginScreen from '../screens/LoginScreen';
+import DashboardScreen from '../screens/DashboardScreen';
 import CustomerListScreen from '../screens/CustomerListScreen';
 import CustomerFormScreen from '../screens/CustomerFormScreen';
 import BillingScreen from '../screens/BillingScreen';
@@ -25,6 +26,30 @@ import LoadingScreen from '../components/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+
+// Dashboard Stack Navigator
+const DashboardStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: true,
+    }}
+  >
+    <Stack.Screen 
+      name="DashboardMain" 
+      component={DashboardScreen}
+      options={({ navigation }) => ({
+        title: 'Dashboard',
+        headerLeft: () => (
+          <IconButton
+            icon="menu"
+            size={24}
+            onPress={() => navigation.openDrawer()}
+          />
+        ),
+      })}
+    />
+  </Stack.Navigator>
+);
 
 // Customer Stack Navigator
 const CustomerStack = () => (
@@ -176,7 +201,18 @@ const DrawerNavigator = () => {
           width: 280,
         },
       }}
+      initialRouteName={ROUTES.DASHBOARD}
     >
+      <Drawer.Screen 
+        name={ROUTES.DASHBOARD} 
+        component={DashboardStack}
+        options={{
+          drawerLabel: 'Dashboard',
+          drawerIcon: ({ color, size }) => (
+            <IconButton icon="view-dashboard" size={size} iconColor={color} />
+          ),
+        }}
+      />
       <Drawer.Screen 
         name={ROUTES.CUSTOMER_LIST} 
         component={CustomerStack}

@@ -58,8 +58,8 @@ const CustomDrawer = (props) => {
               <MaterialCommunityIcons name="view-dashboard" color={color} size={size} />
             )}
             label="Dashboard"
-            active={activeRoute === ROUTES.CUSTOMER_LIST}
-            onPress={() => props.navigation.navigate(ROUTES.CUSTOMER_LIST)}
+            active={activeRoute === ROUTES.DASHBOARD}
+            onPress={() => props.navigation.navigate(ROUTES.DASHBOARD)}
           />
           
           <DrawerItem
