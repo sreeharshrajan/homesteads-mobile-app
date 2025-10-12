@@ -11,25 +11,29 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor to add API key to headers
+// Request interceptor to add authentication headers
 apiClient.interceptors.request.use(
   async (requestConfig) => {
     try {
-      // Skip authorization header for login endpoint (returns JWT token)
+      // Skip authorization header for login endpoint
       if (requestConfig.url?.includes('/auth/login')) {
-        console.log('=== Login Request Debug ===');
-        console.log('URL:', requestConfig.url);
-        console.log('Method:', requestConfig.method);
-        console.log('Headers:', JSON.stringify(requestConfig.headers));
-        console.log('Data:', JSON.stringify(requestConfig.data));
-        console.log('=========================');
         return requestConfig;
       }
       
-      // For other endpoints, use JWT token from storage (not API key)
-      const token = await AsyncStorage.getItem('authToken');
-      if (token) {
-        requestConfig.headers.Authorization = `Bearer ${token}`;
+      // For admin-specific endpoints (like /admin/api-keys), use session token
+      if (requestConfig.url?.includes('/admin/')) {
+        const sessionToken = await AsyncStorage.getItem('authToken');
+        if (sessionToken) {
+          requestConfig.headers.Authorization = `Bearer ${sessionToken}`;
+        }
+      } else {
+        // For REST API endpoints (customers, invoices, orders, etc.), use API key
+        const apiKey = config.api.apiKey;
+        if (apiKey) {
+          requestConfig.headers.Authorization = `Bearer ${apiKey}`;
+        } else {
+          console.warn('No API key configured for request:', requestConfig.url);
+        }
       }
     } catch (error) {
       console.error('Error setting authorization header:', error);
@@ -66,8 +70,9 @@ apiClient.interceptors.response.use(
     console.log('===========================');
     
     if (error.response?.status === 401) {
-      // Token expired or invalid - clear storage
-      await AsyncStorage.removeItem('authToken');
+      // Token expired, invalid, or missing - clear all auth storage
+      console.log('401 Unauthorized - clearing auth storage');
+      await AsyncStorage.multiRemove(['authToken', 'sessionId', 'user', 'admin', 'role']);
       // You can add navigation to login here if needed
     }
     

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { customersApi } from '../api/customers';
 
 /**
@@ -66,10 +66,6 @@ export const useCustomers = () => {
       return { success: false, error: err.message || 'Failed to delete customer' };
     }
   };
-
-  useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
 
   return {
     customers,
