@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, Image, TouchableOpacity } from 'react-native';
-import { Card, Title, Paragraph, Appbar, Chip, Divider, Button, SegmentedButtons, List, Surface, Badge } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { Card, Title, Paragraph, Chip, Divider, Button, SegmentedButtons, List, Surface, Badge } from 'react-native-paper';
 import { ROUTES } from '../utils/constants';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import useAuthStore from '../store/authStore';
@@ -9,7 +9,6 @@ import { EmptyState } from '../components';
 
 const DashboardScreen = ({ navigation }) => {
   const [timeRange, setTimeRange] = useState('today');
-  const logout = useAuthStore((state) => state.logout);
   const role = useAuthStore((state) => state.role);
   const user = useAuthStore((state) => state.user);
   
@@ -25,11 +24,6 @@ const DashboardScreen = ({ navigation }) => {
 
   const handleRefresh = () => {
     loadDashboard();
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigation.replace(ROUTES.LOGIN);
   };
 
   const renderStatCard = (title, value, icon, color = '#2196F3', subValue = null) => (
@@ -243,19 +237,6 @@ const DashboardScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
-        <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
-        </View>
-        <Appbar.Content title="Dashboard" />
-        <Appbar.Action icon="account-group" onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)} />
-        <Appbar.Action icon="invoice-text-outline" onPress={() => navigation.navigate(ROUTES.BILLING)} />
-        {role?.slug === 'super-admin' && (
-          <Appbar.Action icon="key-variant" onPress={() => navigation.navigate(ROUTES.API_KEYS)} />
-        )}
-        <Appbar.Action icon="logout" onPress={handleLogout} />
-      </Appbar.Header>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -372,15 +353,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 8,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-    resizeMode: 'contain',
   },
   scrollView: {
     flex: 1,

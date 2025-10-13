@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
-import { Card, Title, Paragraph, FAB, Appbar, Chip } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { Card, Title, Paragraph, FAB, Chip } from 'react-native-paper';
 import { ROUTES } from '../utils/constants';
 import useAuthStore from '../store/authStore';
 import { useApiKeys } from '../hooks';
@@ -95,14 +95,6 @@ const ApiKeysScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
-        <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
-        </View>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="API Keys" subtitle="Super Admin Only" />
-      </Appbar.Header>
-
       <View style={styles.content}>
         {apiKeys.length === 0 && !loading ? (
           <EmptyState
@@ -137,15 +129,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 8,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-    resizeMode: 'contain',
   },
   content: {
     flex: 1,

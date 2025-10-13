@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
-import { Card, Title, Paragraph, FAB, Appbar, Chip } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { Card, Title, Paragraph, FAB, Chip } from 'react-native-paper';
 import { ROUTES } from '../utils/constants';
 import { formatPhoneNumber } from '../utils/formatters';
-import useAuthStore from '../store/authStore';
 import { useCustomers } from '../hooks';
 import { FilterBar, PaginationControls, EmptyState } from '../components';
 
@@ -11,8 +10,6 @@ const CustomerListScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const logout = useAuthStore((state) => state.logout);
-  const role = useAuthStore((state) => state.role);
   
   const { customers, loading, pagination, fetchCustomers } = useCustomers();
 
@@ -48,11 +45,6 @@ const CustomerListScreen = ({ navigation }) => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigation.replace(ROUTES.LOGIN);
   };
 
   const renderCustomerCard = ({ item }) => (
@@ -92,18 +84,6 @@ const CustomerListScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
-        <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
-        </View>
-        <Appbar.Content title="Customers" />
-        <Appbar.Action icon="invoice-text-outline" onPress={() => navigation.navigate(ROUTES.BILLING)} />
-        {role?.slug === 'super-admin' && (
-          <Appbar.Action icon="key-variant" onPress={() => navigation.navigate(ROUTES.API_KEYS)} />
-        )}
-        <Appbar.Action icon="logout" onPress={handleLogout} />
-      </Appbar.Header>
-
       <View style={styles.content}>
         <FilterBar
           searchValue={searchQuery}
@@ -157,15 +137,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 8,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-    resizeMode: 'contain',
   },
   content: {
     flex: 1,

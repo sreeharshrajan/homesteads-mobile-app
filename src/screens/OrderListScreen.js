@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { ROUTES } from '../utils/constants';
 import { useOrders } from '../hooks';
 import { FilterBar, PaginationControls, OrderCard, EmptyState } from '../components';
@@ -65,14 +64,6 @@ const OrderListScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
-        <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
-        </View>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Orders" />
-      </Appbar.Header>
-
       <View style={styles.content}>
         <FilterBar
           searchValue={searchQuery}
@@ -124,15 +115,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 8,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-    resizeMode: 'contain',
   },
   content: {
     flex: 1,
