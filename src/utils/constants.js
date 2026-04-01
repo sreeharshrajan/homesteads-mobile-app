@@ -26,6 +26,7 @@ export const ROUTES = {
   ORDER_DETAIL: 'OrderDetail',
   API_KEYS: 'ApiKeys',
   API_KEY_FORM: 'ApiKeyForm',
+  SETTINGS: 'Settings',
 };
 
 // Invoice statuses

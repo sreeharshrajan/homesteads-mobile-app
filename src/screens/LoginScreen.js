@@ -109,42 +109,46 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 32,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 64,
+    height: 64,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '600',
     textAlign: 'center',
-    marginBottom: 8,
+    color: '#1a1a1a',
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'center',
-    marginBottom: 32,
-    color: '#666',
+    marginBottom: 48,
+    color: '#757575',
+    fontWeight: '400',
   },
   form: {
     width: '100%',
   },
   input: {
     marginBottom: 4,
+    backgroundColor: '#ffffff',
   },
   button: {
-    marginTop: 16,
-    paddingVertical: 8,
+    marginTop: 32,
+    paddingVertical: 6,
+    borderRadius: 4,
   },
   errorText: {
     textAlign: 'center',

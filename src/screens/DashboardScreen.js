@@ -11,7 +11,7 @@ const DashboardScreen = ({ navigation }) => {
   const [timeRange, setTimeRange] = useState('today');
   const role = useAuthStore((state) => state.role);
   const user = useAuthStore((state) => state.user);
-  
+
   const { dashboard, loading, error, fetchDashboard } = useDashboard();
 
   const loadDashboard = useCallback(() => {
@@ -26,12 +26,11 @@ const DashboardScreen = ({ navigation }) => {
     loadDashboard();
   };
 
-  const renderStatCard = (title, value, icon, color = '#2196F3', subValue = null) => (
+  const renderStatCard = (title, value, color = '#1a1a1a', subValue = null) => (
     <Surface style={[styles.statCard, { borderLeftColor: color }]}>
       <View style={styles.statCardContent}>
         <View style={styles.statCardHeader}>
           <Paragraph style={styles.statCardTitle}>{title}</Paragraph>
-          <List.Icon icon={icon} color={color} style={styles.statCardIcon} />
         </View>
         <Title style={styles.statCardValue}>{value}</Title>
         {subValue && <Paragraph style={styles.statCardSubValue}>{subValue}</Paragraph>}
@@ -129,7 +128,6 @@ const DashboardScreen = ({ navigation }) => {
             {alerts.map((alert, index) => (
               alert.value > 0 && (
                 <Surface key={index} style={[styles.alertCard, { borderLeftColor: alert.color }]}>
-                  <List.Icon icon={alert.icon} color={alert.color} style={styles.alertIcon} />
                   <Paragraph style={styles.alertValue}>{alert.value}</Paragraph>
                   <Paragraph style={styles.alertLabel}>{alert.label}</Paragraph>
                 </Surface>
@@ -237,9 +235,9 @@ const DashboardScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated>
+      <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
         <Appbar.Content title="Dashboard" titleStyle={styles.headerTitle} />
@@ -280,26 +278,22 @@ const DashboardScreen = ({ navigation }) => {
             {renderStatCard(
               'Total Customers',
               dashboard.stats.customers.total.toLocaleString(),
-              'account-group',
-              '#2196F3'
+              '#1a1a1a'
             )}
             {renderStatCard(
               'Total Products',
               dashboard.stats.products.total.toLocaleString(),
-              'package-variant',
-              '#4CAF50'
+              '#1a1a1a'
             )}
             {renderStatCard(
               'Total Orders',
               dashboard.stats.orders.total.toLocaleString(),
-              'cart',
-              '#FF9800'
+              '#1a1a1a'
             )}
             {renderStatCard(
               'Total Revenue',
               formatCurrency(dashboard.stats.revenue.total),
-              'currency-inr',
-              '#9C27B0',
+              '#1a1a1a',
               `Monthly: ${formatCurrency(dashboard.stats.revenue.monthly)}`
             )}
           </View>
@@ -391,6 +385,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 16,
     elevation: 2,
+    backgroundColor: '#ffffff',
   },
   welcomeTitle: {
     fontSize: 20,
@@ -409,10 +404,11 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     minWidth: '47%',
-    borderRadius: 8,
+    borderRadius: 4,
     padding: 16,
-    borderLeftWidth: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#ffffff',
   },
   statCardContent: {
     flex: 1,
@@ -429,13 +425,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statCardIcon: {
-    margin: 0,
-    width: 24,
-    height: 24,
+    display: 'none',
   },
   statCardValue: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
+    color: '#1a1a1a',
     marginBottom: 4,
   },
   statCardSubValue: {
@@ -444,17 +439,23 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 16,
-    elevation: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#ffffff',
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 12,
   },
   cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   divider: {
     marginBottom: 12,
@@ -544,16 +545,15 @@ const styles = StyleSheet.create({
   alertCard: {
     flex: 1,
     minWidth: '47%',
-    borderRadius: 8,
+    borderRadius: 4,
     padding: 12,
-    borderLeftWidth: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
     alignItems: 'center',
-    elevation: 1,
+    backgroundColor: '#ffffff',
   },
   alertIcon: {
-    margin: 0,
-    width: 32,
-    height: 32,
+    display: 'none',
   },
   alertValue: {
     fontSize: 24,

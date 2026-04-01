@@ -41,9 +41,9 @@ const OrderDetailScreen = ({ navigation, route }) => {
   if (loading && !localOrder) {
     return (
       <View style={styles.container}>
-        <Appbar.Header elevated>
+        <Appbar.Header style={styles.header}>
           <View style={styles.headerLogo}>
-            <Image source={require('../../assets/logo.png')} style={styles.logo} />
+            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
           </View>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
           <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
@@ -58,9 +58,9 @@ const OrderDetailScreen = ({ navigation, route }) => {
   if (!localOrder) {
     return (
       <View style={styles.container}>
-        <Appbar.Header elevated>
+        <Appbar.Header style={styles.header}>
           <View style={styles.headerLogo}>
-            <Image source={require('../../assets/logo.png')} style={styles.logo} />
+            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
           </View>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
           <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
@@ -76,7 +76,7 @@ const OrderDetailScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated>
+      <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
           <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
@@ -296,7 +296,10 @@ const styles = StyleSheet.create({
   },
   card: {
     margin: 16,
-    elevation: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#ffffff',
   },
   headerRow: {
     flexDirection: 'row',

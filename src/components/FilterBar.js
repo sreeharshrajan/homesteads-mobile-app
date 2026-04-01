@@ -26,6 +26,9 @@ const FilterBar = ({
           onChangeText={onSearchChange}
           value={searchValue}
           style={styles.searchbar}
+          iconColor="#757575"
+          placeholderTextColor="#9e9e9e"
+          inputStyle={styles.searchInput}
         />
       )}
       
@@ -38,10 +41,10 @@ const FilterBar = ({
               <Chip
                 mode="outlined"
                 onPress={() => setStatusMenuVisible(true)}
-                icon="filter-variant"
                 style={styles.filterChip}
+                textStyle={styles.filterChipText}
               >
-                {statusFilter || 'All Status'}
+                {statusFilter || 'Status'}
               </Chip>
             }
           >
@@ -84,23 +87,40 @@ const FilterBar = ({
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    paddingBottom: 8,
-    backgroundColor: '#fff',
+    paddingBottom: 12,
+    backgroundColor: '#ffffff',
   },
   searchbar: {
-    marginBottom: 8,
+    marginBottom: 12,
     elevation: 0,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 4,
+    height: 44,
+  },
+  searchInput: {
+    fontSize: 14,
+    color: '#1a1a1a',
   },
   filtersRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    alignItems: 'center',
   },
   filterChip: {
-    marginRight: 8,
+    backgroundColor: '#ffffff',
+    borderColor: '#eeeeee',
+    borderRadius: 4,
+    height: 32,
+  },
+  filterChipText: {
+    fontSize: 12,
+    color: '#757575',
   },
   dateButton: {
-    borderRadius: 16,
+    borderRadius: 4,
+    borderColor: '#eeeeee',
+    height: 32,
   },
 });
 

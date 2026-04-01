@@ -1,26 +1,26 @@
 import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 
-// Custom color palette for Homesteads Viands
+// Custom minimal color palette for Homesteads Viands
 const customColors = {
-  primary: '#2e7d32', // Green for food/fresh theme
-  primaryContainer: '#a5d6a7',
-  secondary: '#ff6f00', // Orange accent
-  secondaryContainer: '#ffb74d',
-  tertiary: '#1976d2',
-  tertiaryContainer: '#64b5f6',
-  error: '#d32f2f',
-  errorContainer: '#ffcdd2',
-  success: '#388e3c',
+  primary: '#1a1a1a', // Minimal deep charcoal
+  primaryContainer: '#f0f0f0',
+  secondary: '#757575',
+  secondaryContainer: '#eeeeee',
+  tertiary: '#455a64',
+  tertiaryContainer: '#e1e2e1',
+  error: '#b71c1c',
+  errorContainer: '#f9ebee',
+  success: '#2e7d32',
   warning: '#f57c00',
-  info: '#1976d2',
-  background: '#f5f5f5',
+  info: '#455a64',
+  background: '#ffffff', // Pure white background
   surface: '#ffffff',
-  surfaceVariant: '#e0e0e0',
+  surfaceVariant: '#f9f9f9',
   onPrimary: '#ffffff',
   onSecondary: '#ffffff',
-  onBackground: '#212121',
-  onSurface: '#212121',
-  outline: '#9e9e9e',
+  onBackground: '#1a1a1a',
+  onSurface: '#1a1a1a',
+  outline: '#eeeeee', // Very light borders
 };
 
 export const lightTheme = {
@@ -29,7 +29,7 @@ export const lightTheme = {
     ...MD3LightTheme.colors,
     ...customColors,
   },
-  roundness: 8,
+  roundness: 4, // More "stay put" and professional
 };
 
 export const darkTheme = {

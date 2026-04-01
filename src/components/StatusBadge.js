@@ -7,43 +7,49 @@ import { Chip } from 'react-native-paper';
  */
 const StatusBadge = ({ status, label, style }) => {
   const getStatusColor = (status) => {
+    // Quiet, minimal status colors (monochromatic gray-scale with subtle differences)
     const statusColors = {
-      // Invoice statuses
-      DRAFT: '#9E9E9E',
-      SENT: '#2196F3',
-      PAID: '#4CAF50',
-      CANCELLED: '#F44336',
+      // Invoice & Order statuses
+      DRAFT: '#f5f5f5',
+      SENT: '#eeeeee',
+      PAID: '#f0f4f0', // Very subtle green tint
+      CANCELLED: '#fdf2f2', // Very subtle red tint
+      PENDING: '#fff8e1', // Very subtle yellow tint
+      CONFIRMED: '#e3f2fd', // Very subtle blue tint
+      PROCESSING: '#f3e5f5', // Very subtle purple tint
+      SHIPPED: '#fff3e0',
+      DELIVERED: '#e8f5e9',
+      REFUNDED: '#eceff1',
       
-      // Order statuses
-      PENDING: '#FFA500',
-      CONFIRMED: '#2196F3',
-      PROCESSING: '#9C27B0',
-      SHIPPED: '#FF9800',
-      DELIVERED: '#4CAF50',
-      REFUNDED: '#607D8B',
-      
-      // Customer statuses
-      active: '#4CAF50',
-      inactive: '#F44336',
-      
-      // Payment statuses
-      SUCCESS: '#4CAF50',
-      FAILED: '#F44336',
-      PENDING: '#FFA500',
+      // Customer & Payment
+      active: '#e8f5e9',
+      inactive: '#fdf2f2',
+      SUCCESS: '#e8f5e9',
+      FAILED: '#fdf2f2',
     };
-    return statusColors[status] || '#757575';
+    return statusColors[status] || '#f5f5f5';
+  };
+
+  const statusTextColors = {
+    PAID: '#2e7d32',
+    CANCELLED: '#c62828',
+    active: '#2e7d32',
+    inactive: '#c62828',
+    SUCCESS: '#2e7d32',
+    FAILED: '#c62828',
   };
 
   const backgroundColor = getStatusColor(status);
+  const textColor = statusTextColors[status] || '#1a1a1a';
   const displayLabel = label || status?.replace(/_/g, ' ') || 'Unknown';
 
   return (
     <Chip
       mode="flat"
-      style={[{ backgroundColor }, style]}
-      textStyle={{ color: '#fff', fontWeight: 'bold', fontSize: 11 }}
+      style={[{ backgroundColor, borderRadius: 2, height: 24 }, style]}
+      textStyle={{ color: textColor, fontWeight: '500', fontSize: 10 }}
     >
-      {displayLabel.toUpperCase()}
+      {displayLabel}
     </Chip>
   );
 };

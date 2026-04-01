@@ -89,6 +89,15 @@ const CustomDrawer = (props) => {
             onPress={() => props.navigation.navigate(ROUTES.ORDERS)}
           />
 
+          <DrawerItem
+            icon={({ color, size }) => (
+              <MaterialCommunityIcons name="cog-outline" color={color} size={size} />
+            )}
+            label="Settings"
+            active={activeRoute === ROUTES.SETTINGS}
+            onPress={() => props.navigation.navigate(ROUTES.SETTINGS)}
+          />
+
           {isSuperuser && (
             <>
               <Divider style={styles.sectionDivider} />

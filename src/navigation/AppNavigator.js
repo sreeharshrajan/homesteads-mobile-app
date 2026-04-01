@@ -22,6 +22,7 @@ import OrderListScreen from '../screens/OrderListScreen';
 import OrderDetailScreen from '../screens/OrderDetailScreen';
 import ApiKeysScreen from '../screens/ApiKeysScreen';
 import ApiKeyFormScreen from '../screens/ApiKeyFormScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import LoadingScreen from '../components/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
@@ -158,6 +159,20 @@ const OrdersStack = () => (
   </Stack.Navigator>
 );
 
+// Settings Stack Navigator
+const SettingsStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Stack.Screen 
+      name="SettingsMain" 
+      component={SettingsScreen}
+    />
+  </Stack.Navigator>
+);
+
 // API Keys Stack Navigator
 const ApiKeysStack = () => (
   <Stack.Navigator
@@ -240,6 +255,16 @@ const DrawerNavigator = () => {
           drawerLabel: 'Orders',
           drawerIcon: ({ color, size }) => (
             <IconButton icon="package-variant" size={size} iconColor={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name={ROUTES.SETTINGS} 
+        component={SettingsStack}
+        options={{
+          drawerLabel: 'Settings',
+          drawerIcon: ({ color, size }) => (
+            <IconButton icon="cog" size={size} iconColor={color} />
           ),
         }}
       />

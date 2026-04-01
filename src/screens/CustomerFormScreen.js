@@ -100,7 +100,7 @@ const CustomerFormScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated>
+      <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
           <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
@@ -241,19 +241,24 @@ const CustomerFormScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#ffffff',
+  },
+  header: {
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   headerLogo: {
     marginLeft: 8,
     marginRight: 4,
   },
   logo: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#1a1a1a',
   },
   keyboardView: {
