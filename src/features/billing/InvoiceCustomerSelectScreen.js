@@ -1,27 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, Image } from 'react-native';
-import { Card, Title, Paragraph, Appbar, Searchbar } from 'react-native-paper';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { Card, Text, Appbar, Searchbar, useTheme } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
 import { useCustomers } from '@hooks';
-import { EmptyState, PaginationControls } from '@components';
+import { EmptyState, PaginationControls, LoadingScreen } from '@components';
 import { formatPhoneNumber } from '@utils/formatters';
 
 const InvoiceCustomerSelectScreen = ({ navigation }) => {
+  const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   
-  const { customers, loading, pagination, fetchCustomers } = useCustomers();
+  // Destructure with defaults to prevent "is not a function" or "undefined" crashes
+  const { 
+    customers = [], 
+    loading = false, 
+    pagination = {}, 
+    fetchCustomers = () => {} 
+  } = useCustomers();
 
   const loadCustomers = useCallback(() => {
-    const params = {
+    fetchCustomers({
       page: currentPage,
       limit: 20,
       search: searchQuery || undefined,
       isActive: true,
       sortField: 'name',
       sortDirection: 'asc',
-    };
-    fetchCustomers(params);
+    });
   }, [currentPage, searchQuery, fetchCustomers]);
 
   useEffect(() => {
@@ -33,70 +39,83 @@ const InvoiceCustomerSelectScreen = ({ navigation }) => {
     setCurrentPage(1);
   };
 
-  const handleCustomerSelect = (customer) => {
-    navigation.navigate(ROUTES.INVOICE_PRODUCT_SELECT, { customer });
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
   const renderCustomerCard = ({ item }) => (
     <Card
-      style={styles.card}
-      onPress={() => handleCustomerSelect(item)}
+      style={[styles.card, { backgroundColor: theme.colors.surface }]}
+      mode="outlined"
+      onPress={() => navigation.navigate(ROUTES.INVOICE_PRODUCT_SELECT, { customer: item })}
     >
       <Card.Content>
-        <Title>{item.name}</Title>
-        {item.email && <Paragraph style={styles.text}>{item.email}</Paragraph>}
-        {item.phone && <Paragraph style={styles.text}>{formatPhoneNumber(item.phone)}</Paragraph>}
-        {item.companyName && <Paragraph style={styles.company}>{item.companyName}</Paragraph>}
+        <Text variant="titleMedium" style={styles.boldText}>{item.name}</Text>
+        
+        {/* Conditional rendering wrapped strictly to avoid stray text nodes */}
+        {!!item.email && (
+          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
+            {item.email}
+          </Text>
+        )}
+        
+        {!!item.phone && (
+          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2 }}>
+            {formatPhoneNumber(item.phone)}
+          </Text>
+        )}
+        
+        {!!item.companyName && (
+          <Text variant="labelSmall" style={[styles.company, { color: theme.colors.primary }]}>
+            {item.companyName}
+          </Text>
+        )}
       </Card.Content>
     </Card>
   );
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
-        </View>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header elevated>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Select Customer" subtitle="Step 1 of 4" titleStyle={styles.headerTitle} />
+        <Appbar.Content 
+          title="Select Customer" 
+          subtitle="Step 1 of 4 • Choose recipient" 
+        />
       </Appbar.Header>
 
-      <View style={styles.content}>
-        <Searchbar
-          placeholder="Search customers..."
-          onChangeText={handleSearch}
-          value={searchQuery}
-          style={styles.searchbar}
-        />
+      <Searchbar
+        placeholder="Search customers..."
+        onChangeText={handleSearch}
+        value={searchQuery}
+        style={styles.searchbar}
+        elevation={0}
+      />
 
-        {customers.length === 0 && !loading ? (
+      <View style={styles.content}>
+        {loading && customers.length === 0 ? (
+          <LoadingScreen fullScreen={false} />
+        ) : (customers?.length === 0) ? (
           <EmptyState
-            icon="account-group"
+            icon="account-search"
             title="No customers found"
-            message={searchQuery ? "Try adjusting your search" : "Create a customer first to create invoices"}
+            message={searchQuery ? "Try adjusting your filters" : "Create a customer to get started"}
           />
         ) : (
           <FlatList
             data={customers}
             renderItem={renderCustomerCard}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.list}
-          />
-        )}
-
-        {pagination.totalPages > 1 && (
-          <PaginationControls
-            currentPage={pagination.page}
-            totalPages={pagination.totalPages}
-            onPageChange={handlePageChange}
-            loading={loading}
+            initialNumToRender={10}
           />
         )}
       </View>
+
+      {pagination?.totalPages > 1 && (
+        <PaginationControls
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          onPageChange={setCurrentPage}
+          loading={loading}
+        />
+      )}
     </View>
   );
 };
@@ -104,56 +123,31 @@ const InvoiceCustomerSelectScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  header: {
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 28,
-    height: 28,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
   },
   content: {
     flex: 1,
   },
   searchbar: {
     margin: 16,
-    elevation: 0,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 4,
+    borderRadius: 8,
   },
   list: {
-    padding: 16,
-    paddingTop: 0,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   card: {
     marginBottom: 12,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#ffffff',
+    borderRadius: 12,
   },
-  text: {
-    color: '#666',
-    marginTop: 4,
+  boldText: {
+    fontWeight: '700',
   },
   company: {
-    color: '#888',
-    fontSize: 14,
-    marginTop: 4,
+    marginTop: 8,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });
 
 export default InvoiceCustomerSelectScreen;
-

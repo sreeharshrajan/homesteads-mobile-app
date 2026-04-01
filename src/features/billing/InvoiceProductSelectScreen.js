@@ -1,19 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, FlatList, Image } from 'react-native';
-import { Appbar, Button, Badge } from 'react-native-paper';
+import { Appbar, Button, Badge, useTheme, Surface } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
 import { useProducts } from '@hooks';
-import { ProductCard, EmptyState, PaginationControls, FilterBar } from '@components';
+import { ProductCard, EmptyState, PaginationControls, FilterBar, LoadingScreen } from '@components';
 
 const InvoiceProductSelectScreen = ({ navigation, route }) => {
+  const theme = useTheme();
   const { customer } = route.params;
+  
+  // State
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [cart, setCart] = useState([]);
   const [selectedVariants, setSelectedVariants] = useState({});
   
-  const { products, loading, pagination, fetchProducts, searchProducts } = useProducts();
+  const { products = [], loading, pagination = {}, fetchProducts, searchProducts } = useProducts();
 
+  // Memoized Load Logic
   const loadProducts = useCallback(() => {
     const params = {
       page: currentPage,
@@ -36,39 +40,32 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
     loadProducts();
   }, [loadProducts]);
 
-  const handleSearch = (query) => {
+  // Handlers
+  const handleSearch = useCallback((query) => {
     setSearchQuery(query);
     setCurrentPage(1);
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+  }, []);
 
   const handleVariantSelect = (productId, variant) => {
-    setSelectedVariants({
-      ...selectedVariants,
-      [productId]: variant,
-    });
+    setSelectedVariants(prev => ({ ...prev, [productId]: variant }));
   };
 
   const handleAddToCart = (product) => {
     const variant = selectedVariants[product.id] || product.variants?.[0];
     if (!variant) return;
 
-    const existingItemIndex = cart.findIndex(
-      (item) => item.variantId === variant.id
-    );
-
-    if (existingItemIndex >= 0) {
-      const updatedCart = [...cart];
-      updatedCart[existingItemIndex].quantity += 1;
-      updatedCart[existingItemIndex].totalPrice =
-        updatedCart[existingItemIndex].unitPrice * updatedCart[existingItemIndex].quantity;
-      setCart(updatedCart);
-    } else {
+    setCart(prevCart => {
+      const existingIndex = prevCart.findIndex(item => item.variantId === variant.id);
       const price = variant.offerPrice || variant.price || product.basePrice;
-      const newItem = {
+
+      if (existingIndex >= 0) {
+        const newCart = [...prevCart];
+        newCart[existingIndex].quantity += 1;
+        newCart[existingIndex].totalPrice = newCart[existingIndex].unitPrice * newCart[existingIndex].quantity;
+        return newCart;
+      }
+
+      return [...prevCart, {
         productId: product.id,
         variantId: variant.id,
         productName: product.name,
@@ -77,44 +74,31 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
         quantity: 1,
         unitPrice: price,
         totalPrice: price,
-        taxAmount: 0, // Will be calculated on backend
-      };
-      setCart([...cart, newItem]);
-    }
+        taxAmount: 0,
+      }];
+    });
   };
 
   const handleQuantityChange = (variantId, quantity) => {
-    if (quantity === 0) {
-      setCart(cart.filter((item) => item.variantId !== variantId));
-    } else {
-      const updatedCart = cart.map((item) => {
-        if (item.variantId === variantId) {
-          return {
-            ...item,
-            quantity,
-            totalPrice: item.unitPrice * quantity,
-          };
-        }
-        return item;
-      });
-      setCart(updatedCart);
-    }
+    setCart(prevCart => {
+      if (quantity <= 0) return prevCart.filter(item => item.variantId !== variantId);
+      return prevCart.map(item => item.variantId === variantId 
+        ? { ...item, quantity, totalPrice: item.unitPrice * quantity } 
+        : item
+      );
+    });
   };
 
-  const getProductQuantity = (productId) => {
-    const variant = selectedVariants[productId] || products.find(p => p.id === productId)?.variants?.[0];
+  // Helper to sync Cart State with UI
+  const getProductQuantity = useCallback((productId) => {
+    const variant = selectedVariants[productId] || products?.find(p => p.id === productId)?.variants?.[0];
     if (!variant) return 0;
-    
-    const item = cart.find((i) => i.variantId === variant.id);
-    return item ? item.quantity : 0;
-  };
+    return cart.find(i => i.variantId === variant.id)?.quantity || 0;
+  }, [cart, selectedVariants, products]);
 
-  const handleContinue = () => {
-    navigation.navigate(ROUTES.INVOICE_DISCOUNT, { customer, cart });
-  };
+  const cartItemsCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
-  const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-
+  // Renderers
   const renderProductCard = ({ item }) => {
     const selectedVariant = selectedVariants[item.id] || item.variants?.[0];
     const quantity = getProductQuantity(item.id);
@@ -124,48 +108,43 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
         product={item}
         selectedVariant={selectedVariant}
         quantity={quantity}
-        onVariantSelect={(variant) => handleVariantSelect(item.id, variant)}
-        onQuantityChange={(newQty) => {
-          const variantToUse = selectedVariant || item.variants?.[0];
-          if (variantToUse) {
-            handleQuantityChange(variantToUse.id, newQty);
-          }
-        }}
+        onVariantSelect={(v) => handleVariantSelect(item.id, v)}
+        onQuantityChange={(newQty) => handleQuantityChange(selectedVariant?.id || item.variants?.[0]?.id, newQty)}
         onAddToCart={() => handleAddToCart(item)}
       />
     );
   };
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
-        </View>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Appbar.Header elevated style={{ backgroundColor: theme.colors.surface }}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content 
           title="Select Products" 
-          subtitle={`Step 2 of 4 • ${customer.name}`}
-          titleStyle={styles.headerTitle}
+          subtitle={`Step 2 of 4 • ${customer?.name || 'Customer'}`}
         />
-        {cartItemsCount > 0 && (
-          <View style={styles.cartBadgeContainer}>
-            <Badge style={styles.cartBadge}>{cartItemsCount}</Badge>
-          </View>
-        )}
+        <View style={styles.badgeAnchor}>
+          <Appbar.Action icon="cart-outline" onPress={() => {}} />
+          {cartItemsCount > 0 && (
+            <Badge style={styles.badge} size={18}>{cartItemsCount}</Badge>
+          )}
+        </View>
       </Appbar.Header>
 
-      <View style={styles.content}>
-        <FilterBar
-          searchValue={searchQuery}
-          onSearchChange={handleSearch}
-        />
+      <FilterBar
+        searchValue={searchQuery}
+        onSearchChange={handleSearch}
+        placeholder="Search product name or SKU..."
+      />
 
-        {products.length === 0 && !loading ? (
+      <View style={styles.content}>
+        {loading && products.length === 0 ? (
+          <LoadingScreen fullScreen={false} />
+        ) : products?.length === 0 ? (
           <EmptyState
-            icon="package-variant"
+            icon="package-variant-closed"
             title="No products found"
-            message={searchQuery ? "Try adjusting your search" : "No products available"}
+            message={searchQuery ? "Try a different search term" : "Your inventory is currently empty"}
           />
         ) : (
           <FlatList
@@ -173,29 +152,34 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
             renderItem={renderProductCard}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
-          />
-        )}
-
-        {pagination.totalPages > 1 && (
-          <PaginationControls
-            currentPage={pagination.page}
-            totalPages={pagination.totalPages}
-            onPageChange={handlePageChange}
-            loading={loading}
+            initialNumToRender={6}
           />
         )}
       </View>
 
+      {/* Footer Navigation */}
+      {pagination?.totalPages > 1 && (
+        <PaginationControls
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          onPageChange={setCurrentPage}
+          loading={loading}
+        />
+      )}
+
       {cart.length > 0 && (
-        <View style={styles.footer}>
+        <Surface style={styles.footer} elevation={4}>
           <Button
             mode="contained"
-            onPress={handleContinue}
+            onPress={() => navigation.navigate(ROUTES.INVOICE_DISCOUNT, { customer, cart })}
             style={styles.continueButton}
+            contentStyle={styles.btnContent}
+            icon="arrow-right"
+            contentReverse
           >
-            Continue ({cartItemsCount} items)
+            Review {cartItemsCount} {cartItemsCount === 1 ? 'Item' : 'Items'}
           </Button>
-        </View>
+        </Surface>
       )}
     </View>
   );
@@ -204,49 +188,37 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  header: {
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 28,
-    height: 28,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  cartBadgeContainer: {
-    marginRight: 16,
-  },
-  cartBadge: {
-    backgroundColor: '#4CAF50',
   },
   content: {
     flex: 1,
   },
   list: {
-    padding: 16,
+    paddingBottom: 100, // Space for the floating footer
+  },
+  badgeAnchor: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
   },
   footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     padding: 16,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    paddingBottom: 32, // Safe area padding
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   continueButton: {
-    paddingVertical: 8,
-    borderRadius: 4,
+    borderRadius: 12,
+  },
+  btnContent: {
+    height: 48,
   },
 });
 
 export default InvoiceProductSelectScreen;
-
