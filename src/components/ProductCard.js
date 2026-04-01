@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
-import { Card, Title, Paragraph, Button, IconButton, Text } from 'react-native-paper';
+import {
+  Card,
+  Text,
+  Button,
+  IconButton,
+  useTheme,
+  Surface,
+  TouchableRipple
+} from 'react-native-paper';
 import { formatCurrency } from '@utils/formatters';
 
 /**
  * ProductCard Component
- * Product selection card with variants
+ * Refactored for performance, theming, and MD3 standards.
  */
 const ProductCard = ({
   product,
@@ -16,86 +24,132 @@ const ProductCard = ({
   onAddToCart,
   style,
 }) => {
-  const variant = selectedVariant || product.variants?.[0];
-  const price = variant?.offerPrice || variant?.price || product.basePrice || 0;
-  const mrp = variant?.mrp;
-  const hasDiscount = mrp && price < mrp;
+  const theme = useTheme();
+
+  // Logic calculation memoized to prevent re-calc on every render
+  const { currentVariant, price, mrp, hasDiscount, discountPercentage } = useMemo(() => {
+    const variant = selectedVariant || product.variants?.[0];
+    const priceValue = variant?.offerPrice || variant?.price || product.basePrice || 0;
+    const mrpValue = variant?.mrp;
+    const discounted = mrpValue && priceValue < mrpValue;
+
+    return {
+      currentVariant: variant,
+      price: priceValue,
+      mrp: mrpValue,
+      hasDiscount: discounted,
+      discountPercentage: discounted ? Math.round(((mrpValue - priceValue) / mrpValue) * 100) : 0,
+    };
+  }, [product, selectedVariant]);
 
   return (
-    <Card style={[styles.card, style]}>
-      <Card.Content>
-        <View style={styles.row}>
-          {product.defaultImage && (
-            <Image
-              source={{ uri: product.defaultImage }}
-              style={styles.image}
-              resizeMode="cover"
-            />
-          )}
-          
-          <View style={styles.info}>
-            <Title style={styles.title} numberOfLines={2}>
-              {product.name}
-            </Title>
-            
-            {variant && (
-              <Paragraph style={styles.variant}>{variant.name}</Paragraph>
+    <Card
+      style={[styles.card, { backgroundColor: theme.colors.surface }, style]}
+      mode="outlined"
+    >
+      <Card.Content style={styles.content}>
+        <View style={styles.headerRow}>
+          {/* Image with placeholder background */}
+          <Surface style={[styles.imageContainer, { backgroundColor: theme.colors.surfaceVariant }]} elevation={0}>
+            {product.defaultImage ? (
+              <Image
+                source={{ uri: product.defaultImage }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            ) : (
+              <IconButton icon="image-off-outline" size={24} style={styles.placeholderIcon} />
             )}
-            
-            <View style={styles.priceRow}>
-              <Title style={styles.price}>{formatCurrency(price)}</Title>
-              {hasDiscount && (
-                <Text style={styles.mrp}>{formatCurrency(mrp)}</Text>
-              )}
-            </View>
-            
-            {hasDiscount && (
-              <Text style={styles.discount}>
-                {Math.round(((mrp - price) / mrp) * 100)}% OFF
+          </Surface>
+
+          <View style={styles.info}>
+            <Text variant="titleMedium" numberOfLines={2} style={styles.title}>
+              {product.name}
+            </Text>
+
+            {currentVariant && (
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                {currentVariant.name}
               </Text>
             )}
+
+            <View style={styles.priceContainer}>
+              <Text variant="titleLarge" style={[styles.price, { color: theme.colors.primary }]}>
+                {formatCurrency(price)}
+              </Text>
+              {hasDiscount && (
+                <View style={styles.discountBadge}>
+                  <Text style={styles.mrpText}>{formatCurrency(mrp)}</Text>
+                  <Text variant="labelSmall" style={[styles.discountText, { color: theme.colors.error }]}>
+                    {discountPercentage}% OFF
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
 
-        {product.variants && product.variants.length > 1 && (
-          <View style={styles.variantsRow}>
-            {product.variants.map((v) => (
-              <Button
-                key={v.id}
-                mode={v.id === variant?.id ? 'contained' : 'outlined'}
-                compact
-                onPress={() => onVariantSelect(v)}
-                style={styles.variantButton}
-              >
-                {v.name}
-              </Button>
-            ))}
+        {/* Variant Selection Chips */}
+        {product.variants?.length > 1 && (
+          <View style={styles.variantsWrapper}>
+            <Text variant="labelSmall" style={styles.sectionLabel}>Select Variant</Text>
+            <View style={styles.variantsRow}>
+              {product.variants.map((v) => (
+                <TouchableRipple
+                  key={v.id}
+                  onPress={() => onVariantSelect(v)}
+                  style={[
+                    styles.variantChip,
+                    {
+                      borderColor: v.id === currentVariant?.id ? theme.colors.primary : theme.colors.outlineVariant,
+                      backgroundColor: v.id === currentVariant?.id ? theme.colors.primaryContainer : 'transparent'
+                    }
+                  ]}
+                >
+                  <Text
+                    variant="labelMedium"
+                    style={{ color: v.id === currentVariant?.id ? theme.colors.onPrimaryContainer : theme.colors.onSurface }}
+                  >
+                    {v.name}
+                  </Text>
+                </TouchableRipple>
+              ))}
+            </View>
           </View>
         )}
 
-        {quantity > 0 ? (
-          <View style={styles.quantityRow}>
-            <IconButton
-              icon="minus"
-              size={20}
-              onPress={() => onQuantityChange(Math.max(0, quantity - 1))}
-            />
-            <Text style={styles.quantityText}>{quantity}</Text>
-            <IconButton
-              icon="plus"
-              size={20}
-              onPress={() => onQuantityChange(quantity + 1)}
-            />
-          </View>
-        ) : (
-          <Button
-            mode="contained"
-            onPress={() => onAddToCart()}
-            style={styles.addButton}
-          >
-            Add to Cart
-          </Button>
-        )}
+        {/* Action Area */}
+        <View style={styles.actionArea}>
+          {quantity > 0 ? (
+            <Surface style={[styles.quantitySelector, { backgroundColor: theme.colors.secondaryContainer }]} elevation={0}>
+              <IconButton
+                icon="minus"
+                size={18}
+                iconColor={theme.colors.onSecondaryContainer}
+                onPress={() => onQuantityChange(Math.max(0, quantity - 1))}
+              />
+              <Text variant="titleMedium" style={{ color: theme.colors.onSecondaryContainer }}>
+                {quantity}
+              </Text>
+              <IconButton
+                icon="plus"
+                size={18}
+                iconColor={theme.colors.onSecondaryContainer}
+                onPress={() => onQuantityChange(quantity + 1)}
+              />
+            </Surface>
+          ) : (
+            <Button
+              mode="contained"
+              icon="cart-plus"
+              onPress={onAddToCart}
+              style={styles.addButton}
+              contentStyle={styles.addButtonContent}
+            >
+              Add to Cart
+            </Button>
+          )}
+        </View>
       </Card.Content>
     </Card>
   );
@@ -103,89 +157,96 @@ const ProductCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: 12,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#ffffff',
+    marginHorizontal: 12,
+    marginVertical: 6,
+    borderRadius: 12,
   },
-  row: {
+  content: {
+    paddingVertical: 12,
+  },
+  headerRow: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: 16,
+  },
+  imageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 16,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
-    width: 60,
-    height: 60,
-    borderRadius: 4,
-    marginRight: 12,
-    backgroundColor: '#f8f9fa',
+    width: '100%',
+    height: '100%',
   },
   info: {
     flex: 1,
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '700',
     marginBottom: 2,
-    color: '#1a1a1a',
   },
-  variant: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  priceRow: {
+  priceContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'baseline',
+    marginTop: 4,
     gap: 8,
   },
   price: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
+    fontWeight: '800',
   },
-  mrp: {
+  discountBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  mrpText: {
     fontSize: 12,
-    color: '#999',
     textDecorationLine: 'line-through',
+    opacity: 0.6,
   },
-  discount: {
-    fontSize: 11,
-    color: '#4CAF50',
-    fontWeight: 'bold',
-    marginTop: 2,
+  discountText: {
+    fontWeight: '700',
+  },
+  variantsWrapper: {
+    marginBottom: 16,
+  },
+  sectionLabel: {
+    marginBottom: 6,
+    opacity: 0.7,
+    textTransform: 'uppercase',
   },
   variantsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
+    gap: 6,
   },
-  variantButton: {
-    marginRight: 4,
-    borderRadius: 4,
-    height: 32,
+  variantChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
   },
-  quantityRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingTop: 8,
-  },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginHorizontal: 16,
-    minWidth: 32,
-    textAlign: 'center',
+  actionArea: {
+    marginTop: 4,
   },
   addButton: {
-    marginTop: 8,
-    borderRadius: 4,
+    borderRadius: 8,
+  },
+  addButtonContent: {
+    height: 44,
+  },
+  quantitySelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 8,
+    height: 44,
+    paddingHorizontal: 4,
   },
 });
 
-export default ProductCard;
-
+export default React.memo(ProductCard);

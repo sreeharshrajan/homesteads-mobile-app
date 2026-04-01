@@ -1,58 +1,92 @@
-import React from 'react';
-import { Chip } from 'react-native-paper';
+import React, { useMemo } from 'react';
+import { StyleSheet } from 'react-native';
+import { Chip, useTheme } from 'react-native-paper';
 
 /**
- * StatusBadge Component
- * Colored status indicators
+ * Configuration for status variants.
+ * Centralizing this makes it easier to maintain or move to a separate config file.
  */
-const StatusBadge = ({ status, label, style }) => {
-  const getStatusColor = (status) => {
-    // Quiet, minimal status colors (monochromatic gray-scale with subtle differences)
-    const statusColors = {
-      // Invoice & Order statuses
-      DRAFT: '#f5f5f5',
-      SENT: '#eeeeee',
-      PAID: '#f0f4f0', // Very subtle green tint
-      CANCELLED: '#fdf2f2', // Very subtle red tint
-      PENDING: '#fff8e1', // Very subtle yellow tint
-      CONFIRMED: '#e3f2fd', // Very subtle blue tint
-      PROCESSING: '#f3e5f5', // Very subtle purple tint
-      SHIPPED: '#fff3e0',
-      DELIVERED: '#e8f5e9',
-      REFUNDED: '#eceff1',
-      
-      // Customer & Payment
-      active: '#e8f5e9',
-      inactive: '#fdf2f2',
-      SUCCESS: '#e8f5e9',
-      FAILED: '#fdf2f2',
+const STATUS_VARIANTS = {
+  // Positive
+  PAID: { bg: '#e8f5e9', text: '#2e7d32' },
+  SUCCESS: { bg: '#e8f5e9', text: '#2e7d32' },
+  DELIVERED: { bg: '#e8f5e9', text: '#2e7d32' },
+  active: { bg: '#e8f5e9', text: '#2e7d32' },
+
+  // Negative / Warning
+  CANCELLED: { bg: '#fdf2f2', text: '#c62828' },
+  FAILED: { bg: '#fdf2f2', text: '#c62828' },
+  inactive: { bg: '#fdf2f2', text: '#c62828' },
+
+  // Pending / Neutral
+  PENDING: { bg: '#fff8e1', text: '#f57f17' },
+  PROCESSING: { bg: '#f3e5f5', text: '#7b1fa2' },
+  CONFIRMED: { bg: '#e3f2fd', text: '#1976d2' },
+
+  // Default / Draft
+  DRAFT: { bg: '#f5f5f5', text: '#616161' },
+  SENT: { bg: '#eeeeee', text: '#424242' },
+};
+
+const StatusBadge = ({
+  status,
+  label,
+  style,
+  onPress,
+  testID = 'status-badge'
+}) => {
+  const theme = useTheme();
+
+  // Memoize styles to prevent recalculation unless status or theme changes
+  const badgeStyle = useMemo(() => {
+    const variant = STATUS_VARIANTS[status] || {
+      bg: theme.colors.surfaceVariant,
+      text: theme.colors.onSurfaceVariant
     };
-    return statusColors[status] || '#f5f5f5';
-  };
 
-  const statusTextColors = {
-    PAID: '#2e7d32',
-    CANCELLED: '#c62828',
-    active: '#2e7d32',
-    inactive: '#c62828',
-    SUCCESS: '#2e7d32',
-    FAILED: '#c62828',
-  };
+    return {
+      container: {
+        backgroundColor: variant.bg,
+        borderRadius: theme.roundness / 2, // Use theme roundness for consistency
+        height: 24,
+        justifyContent: 'center',
+      },
+      text: {
+        color: variant.text,
+        fontWeight: '600',
+        fontSize: 10,
+        lineHeight: 12,
+      },
+    };
+  }, [status, theme]);
 
-  const backgroundColor = getStatusColor(status);
-  const textColor = statusTextColors[status] || '#1a1a1a';
-  const displayLabel = label || status?.replace(/_/g, ' ') || 'Unknown';
+  // Fallback label logic: Label prop -> Formatted Status -> "Unknown"
+  const displayLabel = useMemo(() => {
+    if (label) return label;
+    if (!status) return 'Unknown';
+    return status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  }, [label, status]);
 
   return (
     <Chip
+      testID={testID}
       mode="flat"
-      style={[{ backgroundColor, borderRadius: 2, height: 24 }, style]}
-      textStyle={{ color: textColor, fontWeight: '500', fontSize: 10 }}
+      onPress={onPress} // Added for interactivity if needed
+      disabled={!onPress} // Visually indicates if it's just a badge or a button
+      style={[styles.baseChip, badgeStyle.container, style]}
+      textStyle={badgeStyle.text}
+      compact
     >
       {displayLabel}
     </Chip>
   );
 };
 
-export default StatusBadge;
+const styles = StyleSheet.create({
+  baseChip: {
+    alignSelf: 'flex-start', // Prevent chip from stretching to full width
+    borderWidth: 0,
+  },
+});
 
+export default React.memo(StatusBadge);

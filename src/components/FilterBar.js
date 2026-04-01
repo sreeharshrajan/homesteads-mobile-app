@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Searchbar, Chip, Menu, Button, IconButton } from 'react-native-paper';
+import { Searchbar, Chip, Menu, Button, useTheme } from 'react-native-paper';
 
 /**
  * FilterBar Component
- * Universal filter bar with search, status filter, and date range
+ * Refactored for Material Design 3 and semantic theming.
  */
 const FilterBar = ({
   searchValue = '',
@@ -15,65 +15,87 @@ const FilterBar = ({
   showDateFilter = false,
   onDateRangePress,
   style,
+  placeholder = "Search...",
 }) => {
+  const theme = useTheme();
   const [statusMenuVisible, setStatusMenuVisible] = useState(false);
 
+  const openMenu = useCallback(() => setStatusMenuVisible(true), []);
+  const closeMenu = useCallback(() => setStatusMenuVisible(false), []);
+
+  // Determine if a filter is currently active for visual feedback
+  const isFilterActive = useMemo(() => !!statusFilter, [statusFilter]);
+
+  const handleStatusSelect = useCallback((value) => {
+    onStatusChange(value);
+    closeMenu();
+  }, [onStatusChange]);
+
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }, style]}>
+      {/* Search Section */}
       {onSearchChange && (
         <Searchbar
-          placeholder="Search..."
+          placeholder={placeholder}
           onChangeText={onSearchChange}
           value={searchValue}
-          style={styles.searchbar}
-          iconColor="#757575"
-          placeholderTextColor="#9e9e9e"
+          style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
           inputStyle={styles.searchInput}
+          mode="bar" // MD3 style preference
+          elevation={0}
         />
       )}
       
       <View style={styles.filtersRow}>
+        {/* Status Filter Menu */}
         {statusOptions.length > 0 && (
           <Menu
             visible={statusMenuVisible}
-            onDismiss={() => setStatusMenuVisible(false)}
+            onDismiss={closeMenu}
+            anchorPosition="bottom"
             anchor={
               <Chip
-                mode="outlined"
-                onPress={() => setStatusMenuVisible(true)}
-                style={styles.filterChip}
-                textStyle={styles.filterChipText}
+                mode={isFilterActive ? "flat" : "outlined"}
+                onPress={openMenu}
+                style={[
+                  styles.filterChip,
+                  isFilterActive && { backgroundColor: theme.colors.secondaryContainer }
+                ]}
+                selected={isFilterActive}
+                showSelectedOverlay
+                icon={isFilterActive ? "check" : "filter-variant"}
+                onClose={isFilterActive ? () => onStatusChange(null) : undefined}
+                textStyle={{ fontSize: 12, color: theme.colors.onSurfaceVariant }}
               >
-                {statusFilter || 'Status'}
+                {statusOptions.find(opt => opt.value === statusFilter)?.label || 'Status'}
               </Chip>
             }
           >
             <Menu.Item
-              onPress={() => {
-                onStatusChange(null);
-                setStatusMenuVisible(false);
-              }}
+              onPress={() => handleStatusSelect(null)}
               title="All Status"
+              leadingIcon="layers-outline"
             />
             {statusOptions.map((option) => (
               <Menu.Item
                 key={option.value}
-                onPress={() => {
-                  onStatusChange(option.value);
-                  setStatusMenuVisible(false);
-                }}
+                onPress={() => handleStatusSelect(option.value)}
                 title={option.label}
+                trailingIcon={statusFilter === option.value ? "check" : undefined}
               />
             ))}
           </Menu>
         )}
 
+        {/* Date Range Action */}
         {showDateFilter && (
           <Button
             mode="outlined"
             icon="calendar-range"
             onPress={onDateRangePress}
             style={styles.dateButton}
+            contentStyle={styles.dateButtonContent}
+            labelStyle={{ fontSize: 12 }}
             compact
           >
             Date Range
@@ -87,19 +109,15 @@ const FilterBar = ({
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    paddingBottom: 12,
-    backgroundColor: '#ffffff',
+    gap: 12, // Modern spacing using gap
   },
   searchbar: {
-    marginBottom: 12,
-    elevation: 0,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 4,
-    height: 44,
+    borderRadius: 8,
+    height: 48,
   },
   searchInput: {
-    fontSize: 14,
-    color: '#1a1a1a',
+    fontSize: 15,
+    minHeight: 0, // Fixes vertical alignment on some Android versions
   },
   filtersRow: {
     flexDirection: 'row',
@@ -108,21 +126,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterChip: {
-    backgroundColor: '#ffffff',
-    borderColor: '#eeeeee',
-    borderRadius: 4,
-    height: 32,
-  },
-  filterChipText: {
-    fontSize: 12,
-    color: '#757575',
+    height: 34,
+    borderRadius: 8,
   },
   dateButton: {
-    borderRadius: 4,
-    borderColor: '#eeeeee',
-    height: 32,
+    height: 34,
+    borderRadius: 8,
+    justifyContent: 'center',
+  },
+  dateButtonContent: {
+    height: 34,
+    flexDirection: 'row-reverse', // Matches MD3 icon placement for trailing icons
   },
 });
 
-export default FilterBar;
-
+export default React.memo(FilterBar);

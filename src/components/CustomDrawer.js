@@ -1,129 +1,105 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-import { Avatar, Title, Caption, Drawer, Divider, Text } from 'react-native-paper';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useCallback } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { DrawerContentScrollView } from '@react-navigation/drawer';
+import { 
+  Avatar, 
+  Text, 
+  Drawer, 
+  Divider, 
+  useTheme, 
+  TouchableRipple 
+} from 'react-native-paper';
 import useAuthStore from '@store/authStore';
 import { ROUTES } from '@utils/constants';
 
+/**
+ * CustomDrawer Component
+ * Refactored for Material Design 3 and performance.
+ */
 const CustomDrawer = (props) => {
+  const theme = useTheme();
   const { user, admin, role, logout } = useAuthStore();
+  
   const isSuperuser = admin?.is_superuser || false;
+  const activeRoute = props.state.routes[props.state.index].name;
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await logout();
-  };
+  }, [logout]);
 
-  const getActiveRoute = () => {
-    const state = props.state;
-    const route = state.routes[state.index];
-    return route.name;
-  };
-
-  const activeRoute = getActiveRoute();
+  // Helper to render navigation items using Paper's Drawer.Item
+  const NavItem = ({ label, icon, route }) => (
+    <Drawer.Item
+      label={label}
+      icon={icon}
+      active={activeRoute === route}
+      onPress={() => props.navigation.navigate(route)}
+      style={styles.drawerItem}
+    />
+  );
 
   return (
-    <View style={styles.container}>
-      <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
-        {/* User Info Section */}
-        <View style={styles.userInfoSection}>
-          <View style={styles.avatarContainer}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+      <DrawerContentScrollView {...props} contentContainerStyle={styles.scrollContent}>
+        
+        {/* User Profile Header */}
+        <TouchableRipple 
+          onPress={() => props.navigation.navigate(ROUTES.SETTINGS)}
+          rippleColor="rgba(0, 0, 0, .02)"
+        >
+          <View style={styles.userInfoSection}>
             <Avatar.Icon
-              size={60}
+              size={56}
               icon="account"
-              style={styles.avatar}
+              style={{ backgroundColor: theme.colors.primaryContainer }}
+              color={theme.colors.onPrimaryContainer}
             />
+            <View style={styles.userDetails}>
+              <Text variant="titleMedium" style={styles.userName}>
+                {admin?.name || user?.name || 'User'}
+              </Text>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                {user?.email || 'user@homesteadsviands.com'}
+              </Text>
+              {role && (
+                <Text 
+                  variant="labelSmall" 
+                  style={[styles.roleBadge, { color: theme.colors.primary }]}
+                >
+                  {role.name.toUpperCase()}
+                </Text>
+              )}
+            </View>
           </View>
-          <View style={styles.userDetails}>
-            <Title style={styles.title}>
-              {admin?.name || user?.name || 'User'}
-            </Title>
-            <Caption style={styles.caption}>
-              {user?.email || 'user@homesteadsviands.com'}
-            </Caption>
-            {role && (
-              <Caption style={styles.roleCaption}>
-                {role.name}
-              </Caption>
-            )}
-          </View>
-        </View>
+        </TouchableRipple>
 
         <Divider style={styles.divider} />
 
-        {/* Navigation Menu */}
-        <Drawer.Section style={styles.drawerSection}>
-          <DrawerItem
-            icon={({ color, size }) => (
-              <MaterialCommunityIcons name="view-dashboard" color={color} size={size} />
-            )}
-            label="Dashboard"
-            active={activeRoute === ROUTES.DASHBOARD}
-            onPress={() => props.navigation.navigate(ROUTES.DASHBOARD)}
-          />
-
-          <DrawerItem
-            icon={({ color, size }) => (
-              <MaterialCommunityIcons name="account-group" color={color} size={size} />
-            )}
-            label="Customers"
-            active={activeRoute === ROUTES.CUSTOMER_LIST}
-            onPress={() => props.navigation.navigate(ROUTES.CUSTOMER_LIST)}
-          />
-
-          <DrawerItem
-            icon={({ color, size }) => (
-              <MaterialCommunityIcons name="file-document" color={color} size={size} />
-            )}
-            label="Billing & Invoices"
-            active={activeRoute === ROUTES.BILLING}
-            onPress={() => props.navigation.navigate(ROUTES.BILLING)}
-          />
-
-          <DrawerItem
-            icon={({ color, size }) => (
-              <MaterialCommunityIcons name="package-variant" color={color} size={size} />
-            )}
-            label="Orders"
-            active={activeRoute === ROUTES.ORDERS}
-            onPress={() => props.navigation.navigate(ROUTES.ORDERS)}
-          />
-
-          <DrawerItem
-            icon={({ color, size }) => (
-              <MaterialCommunityIcons name="cog-outline" color={color} size={size} />
-            )}
-            label="Settings"
-            active={activeRoute === ROUTES.SETTINGS}
-            onPress={() => props.navigation.navigate(ROUTES.SETTINGS)}
-          />
-
-          {isSuperuser && (
-            <>
-              <Divider style={styles.sectionDivider} />
-              <Text style={styles.sectionTitle}>Administration</Text>
-              <DrawerItem
-                icon={({ color, size }) => (
-                  <MaterialCommunityIcons name="key" color={color} size={size} />
-                )}
-                label="API Keys"
-                active={activeRoute === ROUTES.API_KEYS}
-                onPress={() => props.navigation.navigate(ROUTES.API_KEYS)}
-              />
-            </>
-          )}
+        {/* Main Navigation */}
+        <Drawer.Section title="Menu" showDivider={false}>
+          <NavItem label="Dashboard" icon="view-dashboard" route={ROUTES.DASHBOARD} />
+          <NavItem label="Customers" icon="account-group" route={ROUTES.CUSTOMER_LIST} />
+          <NavItem label="Billing" icon="file-document" route={ROUTES.BILLING} />
+          <NavItem label="Orders" icon="package-variant" route={ROUTES.ORDERS} />
+          <NavItem label="Settings" icon="cog" route={ROUTES.SETTINGS} />
         </Drawer.Section>
+
+        {/* Superuser Section */}
+        {isSuperuser && (
+          <Drawer.Section title="Administration" style={styles.adminSection}>
+            <NavItem label="API Keys" icon="key" route={ROUTES.API_KEYS} />
+          </Drawer.Section>
+        )}
       </DrawerContentScrollView>
 
-      {/* Logout Section at Bottom */}
-      <View style={styles.bottomSection}>
+      {/* Footer / Logout */}
+      <View style={styles.footer}>
         <Divider />
-        <DrawerItem
-          icon={({ color, size }) => (
-            <MaterialCommunityIcons name="logout" color={color} size={size} />
-          )}
+        <Drawer.Item
           label="Logout"
+          icon="logout"
           onPress={handleLogout}
+          style={styles.logoutItem}
         />
       </View>
     </View>
@@ -134,64 +110,43 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  drawerContent: {
-    flex: 1,
+  scrollContent: {
+    paddingTop: 0, // Profile header should touch the top or follow safe area
   },
   userInfoSection: {
-    paddingLeft: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
-  avatarContainer: {
-    marginBottom: 10,
-  },
-  avatar: {
-    backgroundColor: '#6200ee',
+    paddingHorizontal: 24,
+    paddingVertical: 24,
   },
   userDetails: {
-    marginTop: 5,
+    marginTop: 12,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 3,
-    marginBottom: 2,
+  userName: {
+    fontWeight: '700',
   },
-  caption: {
-    fontSize: 13,
-    lineHeight: 16,
-    color: '#666',
-  },
-  roleCaption: {
-    fontSize: 12,
-    lineHeight: 14,
-    color: '#6200ee',
-    fontWeight: '600',
+  roleBadge: {
     marginTop: 4,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   divider: {
-    marginVertical: 10,
+    marginHorizontal: 16,
+    height: 1,
   },
-  drawerSection: {
+  drawerItem: {
+    borderRadius: 28, // Material 3 Pill shape
+    marginHorizontal: 12,
+    marginVertical: 2,
+  },
+  adminSection: {
     marginTop: 10,
   },
-  sectionDivider: {
-    marginVertical: 8,
+  footer: {
+    paddingBottom: 12,
   },
-  sectionTitle: {
-    paddingHorizontal: 28,
-    paddingVertical: 10,
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#666',
-    textTransform: 'uppercase',
-  },
-  bottomSection: {
-    marginBottom: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#f4f4f4',
-  },
+  logoutItem: {
+    marginHorizontal: 12,
+    marginTop: 12,
+  }
 });
 
 export default CustomDrawer;
-
