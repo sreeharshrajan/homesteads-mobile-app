@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Image } from 'react-native';
-import { Text, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, Animated, Image, Easing } from 'react-native';
+import { Text } from 'react-native-paper';
 import * as SplashScreen from 'expo-splash-screen';
 
 // Keep the native splash screen visible until we hide it
@@ -17,112 +17,92 @@ SplashScreen.preventAutoHideAsync().catch(() => {
  */
 const AnimatedSplashScreen = ({ isAppReady, children }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.3)).current;
-  const logoRotateAnim = useRef(new Animated.Value(0)).current;
-  const contentOpacity = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Start the animations
+    // Initial Entrance
     Animated.parallel([
-      // Logo fade in and scale up
       Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        tension: 10,
-        friction: 2,
-        useNativeDriver: true,
-      }),
-      // Subtle rotation
-      Animated.timing(logoRotateAnim, {
         toValue: 1,
         duration: 1000,
         useNativeDriver: true,
+        easing: Easing.out(Easing.cubic),
       }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 1200,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.back(1)),
+      }),
+      // Subtle progress bar simulation
+      Animated.timing(progressAnim, {
+        toValue: 0.6,
+        duration: 2000,
+        useNativeDriver: false,
+      })
     ]).start();
   }, []);
 
   useEffect(() => {
     if (isAppReady) {
-      // Fade out splash, fade in content
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 400,
-          delay: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(contentOpacity, {
+      // Finalize progress then fade out
+      Animated.sequence([
+        Animated.timing(progressAnim, {
           toValue: 1,
           duration: 400,
-          delay: 300,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }),
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1.05,
+            duration: 500,
+            useNativeDriver: true,
+          })
+        ])
       ]).start(async () => {
-        // Hide the native splash screen
         await SplashScreen.hideAsync();
       });
     }
   }, [isAppReady]);
 
-  const spin = logoRotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
   return (
     <View style={styles.container}>
-      {/* Splash Screen Overlay */}
-      {!isAppReady && (
-        <Animated.View
-          style={[
-            styles.splashContainer,
-            {
-              opacity: fadeAnim,
-            },
-          ]}
-        >
-          <Animated.View
-            style={{
-              transform: [
-                { scale: scaleAnim },
-                { rotate: spin },
-              ],
-            }}
-          >
-            <Image
-              source={require('@assets/logo.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </Animated.View>
-          
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Homesteads Viands</Text>
-            <Text style={styles.subtitle}>Billing & Customer Management</Text>
-          </View>
+      {children}
 
-          <ActivityIndicator
-            size="large"
-            color="#2e7d32"
-            style={styles.loader}
-          />
-        </Animated.View>
-      )}
-
-      {/* App Content */}
       <Animated.View
-        style={[
-          styles.contentContainer,
-          {
-            opacity: contentOpacity,
-          },
-        ]}
+        pointerEvents={isAppReady ? 'none' : 'auto'}
+        style={[styles.splashOverlay, { opacity: fadeAnim }]}
       >
-        {children}
+        <Animated.View style={{ transform: [{ scale: scaleAnim }], alignItems: 'center' }}>
+          <Image
+            source={require('@assets/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.brandText}>HOMESTEADS VIANDS</Text>
+          <Text style={styles.tagline}>Made with love & care</Text>
+        </Animated.View>
+
+        {/* Minimal Progress Line */}
+        <View style={styles.progressTrack}>
+          <Animated.View
+            style={[
+              styles.progressBar,
+              {
+                width: progressAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['0%', '100%']
+                })
+              }
+            ]}
+          />
+        </View>
       </Animated.View>
     </View>
   );
@@ -131,43 +111,47 @@ const AnimatedSplashScreen = ({ isAppReady, children }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
   },
-  splashContainer: {
+  splashOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1000,
+    zIndex: 9999,
   },
   logo: {
-    width: 180,
-    height: 180,
-    marginBottom: 24,
+    width: 100,
+    height: 100,
+    marginBottom: 20,
+    // Greyscale or Tint color can be applied here if needed
   },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: 48,
+  brandText: {
+    fontSize: 22,
+    letterSpacing: 6,
+    fontWeight: '300',
+    color: '#1A1A1A',
+    marginBottom: 4,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#2e7d32',
-    marginBottom: 8,
+  tagline: {
+    fontSize: 12,
+    letterSpacing: 1.5,
+    color: '#999',
+    textTransform: 'uppercase',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+  progressTrack: {
+    position: 'absolute',
+    bottom: 80,
+    width: 140,
+    height: 2,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 1,
+    overflow: 'hidden',
   },
-  loader: {
-    marginTop: 24,
-  },
-  contentContainer: {
-    flex: 1,
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#2e7d32', // Brand accent
   },
 });
 
 export default AnimatedSplashScreen;
-
-
-
