@@ -1,47 +1,27 @@
-import { useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '../api';
 
 /**
- * Custom hook for managing dashboard data
+ * Custom hook for managing dashboard data using TanStack Query
  */
-export const useDashboard = () => {
-  const [dashboard, setDashboard] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  /**
-   * Fetch dashboard data
-   */
-  const fetchDashboard = useCallback(async (params = {}) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await dashboardApi.getDashboard(params);
-      setDashboard(response);
-      return { success: true, data: response };
-    } catch (err) {
-      const errorMessage = err.message || 'Failed to fetch dashboard data';
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  /**
-   * Reset state
-   */
-  const reset = useCallback(() => {
-    setDashboard(null);
-    setError(null);
-  }, []);
+export const useDashboard = (params = {}) => {
+  const { 
+    data: dashboard, 
+    isLoading: loading, 
+    error, 
+    refetch: fetchDashboard 
+  } = useQuery({
+    queryKey: ['dashboard', params],
+    queryFn: () => dashboardApi.getDashboard(params),
+    // Standardizing on 5 minutes stale time as defined in App.js defaultOptions
+    // but allowing per-hook overrides if needed.
+  });
 
   return {
     dashboard,
     loading,
-    error,
+    error: error ? (error.message || 'Failed to fetch dashboard data') : null,
     fetchDashboard,
-    reset,
+    // Note: React Query handles reset/invalidation automatically via queryKey
   };
 };
-

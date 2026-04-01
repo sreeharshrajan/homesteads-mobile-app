@@ -6,37 +6,25 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 import useAuthStore from '../store/authStore';
 import { useDashboard } from '../hooks';
 import { EmptyState } from '../components';
+import StatCard from '../components/dashboard/StatCard';
+import AlertSection from '../components/dashboard/AlertSection';
 
 const DashboardScreen = ({ navigation }) => {
   const [timeRange, setTimeRange] = useState('today');
   const role = useAuthStore((state) => state.role);
   const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
-  const { dashboard, loading, error, fetchDashboard } = useDashboard();
+  // Using the modernized hook with TanStack Query
+  const { dashboard, loading, error, fetchDashboard: refetch } = useDashboard({ timeRange });
 
-  const loadDashboard = useCallback(() => {
-    fetchDashboard({ timeRange });
-  }, [timeRange, fetchDashboard]);
-
-  useEffect(() => {
-    loadDashboard();
-  }, [loadDashboard]);
-
-  const handleRefresh = () => {
-    loadDashboard();
+  const handleLogout = async () => {
+    await logout();
   };
 
-  const renderStatCard = (title, value, color = '#1a1a1a', subValue = null) => (
-    <Surface style={[styles.statCard, { borderLeftColor: color }]}>
-      <View style={styles.statCardContent}>
-        <View style={styles.statCardHeader}>
-          <Paragraph style={styles.statCardTitle}>{title}</Paragraph>
-        </View>
-        <Title style={styles.statCardValue}>{value}</Title>
-        {subValue && <Paragraph style={styles.statCardSubValue}>{subValue}</Paragraph>}
-      </View>
-    </Surface>
-  );
+  const handleRefresh = () => {
+    refetch();
+  };
 
   const renderOrdersByStatus = () => {
     if (!dashboard?.salesAnalytics?.ordersByStatus) return null;
@@ -101,39 +89,6 @@ const DashboardScreen = ({ navigation }) => {
               </Paragraph>
             </View>
           ))}
-        </Card.Content>
-      </Card>
-    );
-  };
-
-  const renderAlerts = () => {
-    if (!dashboard?.alerts) return null;
-
-    const alerts = [
-      { label: 'Pending Orders', value: dashboard.alerts.pendingOrders, icon: 'package-variant', color: '#FF9800' },
-      { label: 'Pending Invoices', value: dashboard.alerts.pendingInvoices, icon: 'file-document-outline', color: '#2196F3' },
-      { label: 'Due Today', value: dashboard.alerts.invoicesDueToday, icon: 'calendar-alert', color: '#F44336' },
-      { label: 'Low Stock', value: dashboard.alerts.lowStockAlerts, icon: 'package-down', color: '#F44336' },
-    ];
-
-    const hasAlerts = alerts.some(alert => alert.value > 0);
-    if (!hasAlerts) return null;
-
-    return (
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title style={styles.cardTitle}>⚠️ Alerts</Title>
-          <Divider style={styles.divider} />
-          <View style={styles.alertsGrid}>
-            {alerts.map((alert, index) => (
-              alert.value > 0 && (
-                <Surface key={index} style={[styles.alertCard, { borderLeftColor: alert.color }]}>
-                  <Paragraph style={styles.alertValue}>{alert.value}</Paragraph>
-                  <Paragraph style={styles.alertLabel}>{alert.label}</Paragraph>
-                </Surface>
-              )
-            ))}
-          </View>
         </Card.Content>
       </Card>
     );
@@ -275,27 +230,23 @@ const DashboardScreen = ({ navigation }) => {
         {/* Stats Grid */}
         {dashboard?.stats && (
           <View style={styles.statsGrid}>
-            {renderStatCard(
-              'Total Customers',
-              dashboard.stats.customers.total.toLocaleString(),
-              '#1a1a1a'
-            )}
-            {renderStatCard(
-              'Total Products',
-              dashboard.stats.products.total.toLocaleString(),
-              '#1a1a1a'
-            )}
-            {renderStatCard(
-              'Total Orders',
-              dashboard.stats.orders.total.toLocaleString(),
-              '#1a1a1a'
-            )}
-            {renderStatCard(
-              'Total Revenue',
-              formatCurrency(dashboard.stats.revenue.total),
-              '#1a1a1a',
-              `Monthly: ${formatCurrency(dashboard.stats.revenue.monthly)}`
-            )}
+            <StatCard
+              title="Total Customers"
+              value={dashboard.stats.customers.total.toLocaleString()}
+            />
+            <StatCard
+              title="Total Products"
+              value={dashboard.stats.products.total.toLocaleString()}
+            />
+            <StatCard
+              title="Total Orders"
+              value={dashboard.stats.orders.total.toLocaleString()}
+            />
+            <StatCard
+              title="Total Revenue"
+              value={formatCurrency(dashboard.stats.revenue.total)}
+              subValue={`Monthly: ${formatCurrency(dashboard.stats.revenue.monthly)}`}
+            />
           </View>
         )}
 
@@ -331,8 +282,17 @@ const DashboardScreen = ({ navigation }) => {
           </Card>
         )}
 
-        {/* Alerts */}
-        {renderAlerts()}
+        {/* Alerts Section */}
+        {dashboard?.alerts && (
+          <AlertSection 
+            alerts={[
+              { label: 'Pending Orders', value: dashboard.alerts.pendingOrders, color: '#FF9800' },
+              { label: 'Pending Invoices', value: dashboard.alerts.pendingInvoices, color: '#2196F3' },
+              { label: 'Due Today', value: dashboard.alerts.invoicesDueToday, color: '#F44336' },
+              { label: 'Low Stock', value: dashboard.alerts.lowStockAlerts, color: '#F44336' },
+            ]}
+          />
+        )}
 
         {/* Orders by Status */}
         {renderOrdersByStatus()}

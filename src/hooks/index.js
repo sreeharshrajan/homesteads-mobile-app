@@ -5,6 +5,6 @@ export { useDashboard } from './useDashboard';
 export { useSnackbar } from './useSnackbar';
 export { useInvoices } from './useInvoices';
 export { useOrders } from './useOrders';
-export { useProducts } from './useProducts';
+export { useProducts, useFeaturedProducts, useProduct, useSearchProducts } from './useProducts';
 export { useApiKeys } from './useApiKeys';
 

@@ -4,6 +4,18 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import AppNavigator from './src/navigation/AppNavigator';
 import AnimatedSplashScreen from './src/components/AnimatedSplashScreen';
 import { lightTheme } from './src/config/theme';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
+
 
 export default function App() {
   const [isAppReady, setIsAppReady] = useState(false);
@@ -32,11 +44,13 @@ export default function App() {
   }, []);
 
   return (
-    <PaperProvider theme={lightTheme}>
-      <StatusBar barStyle="dark-content" backgroundColor={lightTheme.colors.primary} />
-      <AnimatedSplashScreen isAppReady={isAppReady}>
-        <AppNavigator />
-      </AnimatedSplashScreen>
-    </PaperProvider>
+    <QueryClientProvider client={queryClient}>
+      <PaperProvider theme={lightTheme}>
+        <StatusBar barStyle="dark-content" backgroundColor={lightTheme.colors.primary} />
+        <AnimatedSplashScreen isAppReady={isAppReady}>
+          <AppNavigator />
+        </AnimatedSplashScreen>
+      </PaperProvider>
+    </QueryClientProvider>
   );
 }
