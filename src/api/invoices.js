@@ -22,20 +22,18 @@ export const invoicesApi = {
    * @returns {Promise<{invoices: Array, pagination: Object}>}
    */
   getAll: async (params = {}) => {
-    const response = await apiClient.get('/invoices', { params });
-    return response;
+    return await apiClient.get('/invoices', { params });
   },
-  
+
   /**
    * Get invoice by ID
    * @param {string} id - Invoice ID
    * @returns {Promise<Object>} Invoice details
    */
   getById: async (id) => {
-    const response = await apiClient.get(`/invoices/${id}`);
-    return response;
+    return await apiClient.get(`/invoices/${id}`);
   },
-  
+
   /**
    * Create a new invoice
    * @param {Object} invoiceData - Invoice data
@@ -54,10 +52,20 @@ export const invoicesApi = {
    * @returns {Promise<Object>} Created invoice
    */
   create: async (invoiceData) => {
-    const response = await apiClient.post('/invoices', invoiceData);
+    // Sanitization: Ensure totalAmount is a number if it exists
+    const payload = {
+      ...invoiceData,
+      totalAmount: typeof invoiceData.totalAmount === 'number'
+        ? invoiceData.totalAmount
+        : parseFloat(invoiceData.totalAmount)
+    };
+
+    // If parsing fails, the API might still return a 400, 
+    // but this prevents sending "NaN" or empty strings.
+    const response = await apiClient.post('/invoices', payload);
     return response;
   },
-  
+
   /**
    * Update an existing invoice
    * Note: Only DRAFT invoices can be fully updated.
@@ -70,7 +78,7 @@ export const invoicesApi = {
     const response = await apiClient.put(`/invoices/${id}`, invoiceData);
     return response;
   },
-  
+
   /**
    * Delete an invoice (soft delete)
    * Note: Only DRAFT invoices can be deleted

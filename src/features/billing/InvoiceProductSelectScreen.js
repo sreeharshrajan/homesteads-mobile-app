@@ -8,13 +8,13 @@ import { ProductCard, EmptyState, PaginationControls, FilterBar, LoadingScreen }
 const InvoiceProductSelectScreen = ({ navigation, route }) => {
   const theme = useTheme();
   const { customer } = route.params;
-  
+
   // State
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [cart, setCart] = useState([]);
   const [selectedVariants, setSelectedVariants] = useState({});
-  
+
   const { products = [], loading, pagination = {}, fetchProducts, searchProducts } = useProducts();
 
   // Memoized Load Logic
@@ -28,7 +28,7 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
       includePricing: true,
       includeDiscounts: true,
     };
-    
+
     if (searchQuery) {
       searchProducts({ ...params, q: searchQuery });
     } else {
@@ -58,10 +58,17 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
       const existingIndex = prevCart.findIndex(item => item.variantId === variant.id);
       const price = variant.offerPrice || variant.price || product.basePrice;
 
+      // Calculate Tax if the product has tax information
+      // Most Indian GST is calculated as: Price * (Rate / 100)
+      const taxRate = product.taxGroup?.taxes?.reduce((sum, t) => sum + t.rate, 0) || 0;
+      const unitTax = parseFloat((price * (taxRate / 100)).toFixed(2));
+
       if (existingIndex >= 0) {
         const newCart = [...prevCart];
-        newCart[existingIndex].quantity += 1;
-        newCart[existingIndex].totalPrice = newCart[existingIndex].unitPrice * newCart[existingIndex].quantity;
+        const newQty = newCart[existingIndex].quantity + 1;
+        newCart[existingIndex].quantity = newQty;
+        newCart[existingIndex].taxAmount = unitTax * newQty;
+        newCart[existingIndex].totalPrice = price * newQty;
         return newCart;
       }
 
@@ -73,8 +80,8 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
         sku: variant.sku,
         quantity: 1,
         unitPrice: price,
+        taxAmount: unitTax, // Important for the final API call
         totalPrice: price,
-        taxAmount: 0,
       }];
     });
   };
@@ -82,8 +89,8 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
   const handleQuantityChange = (variantId, quantity) => {
     setCart(prevCart => {
       if (quantity <= 0) return prevCart.filter(item => item.variantId !== variantId);
-      return prevCart.map(item => item.variantId === variantId 
-        ? { ...item, quantity, totalPrice: item.unitPrice * quantity } 
+      return prevCart.map(item => item.variantId === variantId
+        ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
         : item
       );
     });
@@ -119,12 +126,12 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated style={{ backgroundColor: theme.colors.surface }}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content 
-          title="Select Products" 
+        <Appbar.Content
+          title="Select Products"
           subtitle={`Step 2 of 4 • ${customer?.name || 'Customer'}`}
         />
         <View style={styles.badgeAnchor}>
-          <Appbar.Action icon="cart-outline" onPress={() => {}} />
+          <Appbar.Action icon="cart-outline" onPress={() => { }} />
           {cartItemsCount > 0 && (
             <Badge style={styles.badge} size={18}>{cartItemsCount}</Badge>
           )}

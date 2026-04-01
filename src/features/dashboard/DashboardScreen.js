@@ -204,20 +204,6 @@ const DashboardScreen = ({ navigation }) => {
           <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
         }
       >
-        {/* Time Range Selector */}
-        <View style={styles.timeRangeContainer}>
-          <SegmentedButtons
-            value={timeRange}
-            onValueChange={setTimeRange}
-            buttons={[
-              { value: 'today', label: 'Today' },
-              { value: 'week', label: 'Week' },
-              { value: 'month', label: 'Month' },
-              { value: 'year', label: 'Year' },
-            ]}
-            style={styles.timeRangeButtons}
-          />
-        </View>
 
         {/* User Welcome */}
         {!!user && (
