@@ -101,7 +101,7 @@ const InvoiceScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       <Appbar.Header elevated>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title="Invoice Details" titleStyle={styles.headerTitle} />
@@ -290,21 +290,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 32,
     height: 32,
-    resizeMode: 'contain',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1a1a1a',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 8,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-    resizeMode: 'contain',
   },
   loadingContainer: {
     flex: 1,

@@ -77,7 +77,7 @@ const InvoiceDiscountScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       <Appbar.Header>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content
@@ -181,7 +181,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 32,
     height: 32,
-    resizeMode: 'contain',
   },
   content: {
     flex: 1,
