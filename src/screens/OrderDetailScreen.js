@@ -41,12 +41,12 @@ const OrderDetailScreen = ({ navigation, route }) => {
   if (loading && !localOrder) {
     return (
       <View style={styles.container}>
-        <Appbar.Header>
+        <Appbar.Header elevated>
           <View style={styles.headerLogo}>
             <Image source={require('../../assets/logo.png')} style={styles.logo} />
           </View>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Order Details" />
+          <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
         </Appbar.Header>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" />
@@ -58,12 +58,12 @@ const OrderDetailScreen = ({ navigation, route }) => {
   if (!localOrder) {
     return (
       <View style={styles.container}>
-        <Appbar.Header>
+        <Appbar.Header elevated>
           <View style={styles.headerLogo}>
             <Image source={require('../../assets/logo.png')} style={styles.logo} />
           </View>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Order Details" />
+          <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
         </Appbar.Header>
         <EmptyState
           icon="cart-outline"
@@ -76,12 +76,12 @@ const OrderDetailScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
+      <Appbar.Header elevated>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Order Details" />
+        <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
       </Appbar.Header>
 
       <ScrollView style={styles.scrollView}>
@@ -271,16 +271,20 @@ const OrderDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
   },
   headerLogo: {
     marginLeft: 8,
-    marginRight: 8,
+    marginRight: 4,
   },
   logo: {
     width: 32,
     height: 32,
-    resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
   },
   loadingContainer: {
     flex: 1,

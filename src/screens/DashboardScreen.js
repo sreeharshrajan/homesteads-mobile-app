@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
-import { Card, Title, Paragraph, Chip, Divider, Button, SegmentedButtons, List, Surface, Badge } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Image } from 'react-native';
+import { Card, Title, Paragraph, Chip, Divider, Button, SegmentedButtons, List, Surface, Badge, Appbar } from 'react-native-paper';
 import { ROUTES } from '../utils/constants';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import useAuthStore from '../store/authStore';
@@ -221,7 +221,7 @@ const DashboardScreen = ({ navigation }) => {
       <View style={styles.container}>
         <Appbar.Header>
           <View style={styles.headerLogo}>
-            <Image source={require('../../assets/logo.png')} style={styles.logo} />
+            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
           </View>
           <Appbar.Content title="Dashboard" />
           <Appbar.Action icon="logout" onPress={handleLogout} />
@@ -237,6 +237,13 @@ const DashboardScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Appbar.Header elevated>
+        <View style={styles.headerLogo}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        </View>
+        <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+        <Appbar.Content title="Dashboard" titleStyle={styles.headerTitle} />
+      </Appbar.Header>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -260,9 +267,9 @@ const DashboardScreen = ({ navigation }) => {
         </View>
 
         {/* User Welcome */}
-        {user && (
+        {!!user && (
           <Surface style={styles.welcomeCard}>
-            <Title style={styles.welcomeTitle}>Welcome back, {user.name || user.email}</Title>
+            <Title style={styles.welcomeTitle}>{`Welcome back, ${user.name || user.email}`}</Title>
             <Paragraph style={styles.welcomeSubtitle}>{role?.name || 'Admin'}</Paragraph>
           </Surface>
         )}
@@ -352,7 +359,20 @@ const DashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 4,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
   },
   scrollView: {
     flex: 1,

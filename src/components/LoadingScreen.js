@@ -5,7 +5,7 @@ import { ActivityIndicator, Text } from 'react-native-paper';
 const LoadingScreen = ({ message = 'Loading...' }) => {
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/logo.png')} style={styles.logo} />
+      <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
       <ActivityIndicator size="large" style={styles.loader} />
       <Text style={styles.message}>{message}</Text>
     </View>
@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 80,
     height: 80,
-    resizeMode: 'contain',
     marginBottom: 24,
   },
   loader: {

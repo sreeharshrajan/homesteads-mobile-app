@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Card, Title, Paragraph, FAB, Chip } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
+import { Card, Title, Paragraph, FAB, Chip, Appbar } from 'react-native-paper';
 import { ROUTES } from '../utils/constants';
 import { formatPhoneNumber } from '../utils/formatters';
 import { useCustomers } from '../hooks';
@@ -65,10 +65,10 @@ const CustomerListScreen = ({ navigation }) => {
             {item.isActive ? 'Active' : 'Inactive'}
           </Chip>
         </View>
-        {item.email && <Paragraph style={styles.email}>{item.email}</Paragraph>}
-        {item.phone && <Paragraph style={styles.phone}>{formatPhoneNumber(item.phone)}</Paragraph>}
-        {item.companyName && <Paragraph style={styles.company}>{item.companyName}</Paragraph>}
-        {item._count && (
+        {!!item.email && <Paragraph style={styles.email}>{item.email}</Paragraph>}
+        {!!item.phone && <Paragraph style={styles.phone}>{formatPhoneNumber(item.phone)}</Paragraph>}
+        {!!item.companyName && <Paragraph style={styles.company}>{item.companyName}</Paragraph>}
+        {!!item._count && (
           <View style={styles.countsRow}>
             <Paragraph style={styles.count}>
               Orders: {item._count.orders || 0}
@@ -84,6 +84,13 @@ const CustomerListScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Appbar.Header elevated>
+        <View style={styles.headerLogo}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        </View>
+        <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+        <Appbar.Content title="Customers" titleStyle={styles.headerTitle} />
+      </Appbar.Header>
       <View style={styles.content}>
         <FilterBar
           searchValue={searchQuery}
@@ -136,7 +143,21 @@ const CustomerListScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 4,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
   },
   content: {
     flex: 1,

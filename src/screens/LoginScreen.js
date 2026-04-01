@@ -42,7 +42,7 @@ const LoginScreen = ({ navigation }) => {
     >
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Title style={styles.title}>Homesteads Viands</Title>
         <Text style={styles.subtitle}>Billing & Customer Management</Text>
@@ -123,7 +123,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 120,
-    resizeMode: 'contain',
   },
   title: {
     fontSize: 28,

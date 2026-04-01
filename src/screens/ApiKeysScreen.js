@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Card, Title, Paragraph, FAB, Chip } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
+import { Card, Title, Paragraph, FAB, Chip, Appbar } from 'react-native-paper';
 import { ROUTES } from '../utils/constants';
 import useAuthStore from '../store/authStore';
 import { useApiKeys } from '../hooks';
@@ -95,6 +95,13 @@ const ApiKeysScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Appbar.Header elevated>
+        <View style={styles.headerLogo}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        </View>
+        <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+        <Appbar.Content title="API Keys" titleStyle={styles.headerTitle} />
+      </Appbar.Header>
       <View style={styles.content}>
         {apiKeys.length === 0 && !loading ? (
           <EmptyState
@@ -128,7 +135,21 @@ const ApiKeysScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 4,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
   },
   content: {
     flex: 1,

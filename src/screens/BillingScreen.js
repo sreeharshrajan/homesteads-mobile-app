@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
-import { Card, Title, Paragraph, FAB } from 'react-native-paper';
+import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
+import { Card, Title, Paragraph, FAB, Appbar } from 'react-native-paper';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { ROUTES } from '../utils/constants';
 import { useInvoices } from '../hooks';
@@ -86,6 +86,13 @@ const BillingScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Appbar.Header elevated>
+        <View style={styles.headerLogo}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        </View>
+        <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+        <Appbar.Content title="Billing & Invoices" titleStyle={styles.headerTitle} />
+      </Appbar.Header>
       <View style={styles.content}>
         <FilterBar
           searchValue={searchQuery}
@@ -141,7 +148,21 @@ const BillingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 4,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
   },
   content: {
     flex: 1,

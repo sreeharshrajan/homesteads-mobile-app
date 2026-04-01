@@ -137,12 +137,15 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
+      <Appbar.Header elevated>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={isEditMode ? 'Edit API Key' : 'New API Key'} />
+        <Appbar.Content 
+          title={isEditMode ? 'Edit API Key' : 'New API Key'} 
+          titleStyle={styles.headerTitle} 
+        />
         {isEditMode && (
           <Appbar.Action
             icon="delete"
@@ -252,16 +255,20 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
   },
   headerLogo: {
     marginLeft: 8,
-    marginRight: 8,
+    marginRight: 4,
   },
   logo: {
     width: 32,
     height: 32,
-    resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
   },
   keyboardView: {
     flex: 1,

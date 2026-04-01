@@ -55,12 +55,12 @@ const InvoiceScreen = ({ navigation, route }) => {
   if (loading && !localInvoice) {
     return (
       <View style={styles.container}>
-        <Appbar.Header>
+        <Appbar.Header elevated>
           <View style={styles.headerLogo}>
             <Image source={require('../../assets/logo.png')} style={styles.logo} />
           </View>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Invoice Details" />
+          <Appbar.Content title="Invoice Details" titleStyle={styles.headerTitle} />
         </Appbar.Header>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" />
@@ -72,12 +72,12 @@ const InvoiceScreen = ({ navigation, route }) => {
   if (!localInvoice) {
     return (
       <View style={styles.container}>
-        <Appbar.Header>
+        <Appbar.Header elevated>
           <View style={styles.headerLogo}>
             <Image source={require('../../assets/logo.png')} style={styles.logo} />
           </View>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Invoice Details" />
+          <Appbar.Content title="Invoice Details" titleStyle={styles.headerTitle} />
         </Appbar.Header>
         <EmptyState
           icon="file-document-outline"
@@ -99,12 +99,12 @@ const InvoiceScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
+      <Appbar.Header elevated>
         <View style={styles.headerLogo}>
           <Image source={require('../../assets/logo.png')} style={styles.logo} />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Invoice Details" />
+        <Appbar.Content title="Invoice Details" titleStyle={styles.headerTitle} />
         <Appbar.Action icon="download" onPress={handleDownload} />
       </Appbar.Header>
 
@@ -281,7 +281,21 @@ const InvoiceScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
+  },
+  headerLogo: {
+    marginLeft: 8,
+    marginRight: 4,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
   },
   headerLogo: {
     marginLeft: 8,

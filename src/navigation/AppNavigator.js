@@ -31,7 +31,7 @@ const Drawer = createDrawerNavigator();
 const DashboardStack = () => (
   <Stack.Navigator
     screenOptions={{
-      headerShown: true,
+      headerShown: false,
     }}
   >
     <Stack.Screen 
@@ -55,7 +55,7 @@ const DashboardStack = () => (
 const CustomerStack = () => (
   <Stack.Navigator
     screenOptions={{
-      headerShown: true,
+      headerShown: false,
     }}
   >
     <Stack.Screen 
@@ -84,7 +84,7 @@ const CustomerStack = () => (
 const BillingStack = () => (
   <Stack.Navigator
     screenOptions={{
-      headerShown: true,
+      headerShown: false,
     }}
   >
     <Stack.Screen 
@@ -133,7 +133,7 @@ const BillingStack = () => (
 const OrdersStack = () => (
   <Stack.Navigator
     screenOptions={{
-      headerShown: true,
+      headerShown: false,
     }}
   >
     <Stack.Screen 
@@ -162,7 +162,7 @@ const OrdersStack = () => (
 const ApiKeysStack = () => (
   <Stack.Navigator
     screenOptions={{
-      headerShown: true,
+      headerShown: false,
     }}
   >
     <Stack.Screen 
