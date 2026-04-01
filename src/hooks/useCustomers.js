@@ -27,25 +27,48 @@ export const useCustomers = () => {
         total: 0,
         totalPages: 0,
       });
+      return { success: true, data };
     } catch (err) {
-      setError(err.message || 'Failed to fetch customers');
+      const errorMessage = err.message || 'Failed to fetch customers';
+      setError(errorMessage);
       console.error('Error fetching customers:', err);
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const createCustomer = async (customerData) => {
+  const fetchCustomerById = useCallback(async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await customersApi.getById(id);
+      return { success: true, data };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to fetch customer';
+      setError(errorMessage);
+      console.error('Error fetching customer by id:', err);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createCustomer = useCallback(async (customerData) => {
+    setLoading(true);
     try {
       const newCustomer = await customersApi.create(customerData);
       setCustomers((prev) => [...prev, newCustomer]);
       return { success: true, data: newCustomer };
     } catch (err) {
       return { success: false, error: err.message || 'Failed to create customer' };
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const updateCustomer = async (id, customerData) => {
+  const updateCustomer = useCallback(async (id, customerData) => {
+    setLoading(true);
     try {
       const updatedCustomer = await customersApi.update(id, customerData);
       setCustomers((prev) =>
@@ -54,18 +77,23 @@ export const useCustomers = () => {
       return { success: true, data: updatedCustomer };
     } catch (err) {
       return { success: false, error: err.message || 'Failed to update customer' };
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const deleteCustomer = async (id) => {
+  const deleteCustomer = useCallback(async (id) => {
+    setLoading(true);
     try {
       await customersApi.delete(id);
       setCustomers((prev) => prev.filter((customer) => customer.id !== id));
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message || 'Failed to delete customer' };
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   return {
     customers,
@@ -74,6 +102,7 @@ export const useCustomers = () => {
     pagination,
     fetchCustomers,
     refetch: fetchCustomers,
+    fetchCustomerById,
     createCustomer,
     updateCustomer,
     deleteCustomer,
