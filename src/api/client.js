@@ -1,11 +1,11 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import config from '@/config';
+import { API_BASE_URL } from '@/utils/constants';
 
 // Create axios instance
 const apiClient = axios.create({
-  baseURL: config.api.baseURL,
-  timeout: config.api.timeout,
+  baseURL: API_BASE_URL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -28,7 +28,7 @@ apiClient.interceptors.request.use(
         }
       } else {
         // For REST API endpoints (customers, invoices, orders, etc.), use API key
-        const apiKey = config.api.apiKey;
+        const apiKey = process.env.EXPO_PUBLIC_API_KEY;
         if (apiKey) {
           requestConfig.headers.Authorization = `Bearer ${apiKey}`;
         } else {
