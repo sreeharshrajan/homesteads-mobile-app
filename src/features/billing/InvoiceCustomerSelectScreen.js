@@ -1,17 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Card, Text, Appbar, Searchbar, useTheme } from 'react-native-paper';
+import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, Text } from 'react-native';
+import { IconButton, Surface, Avatar } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
 import { useCustomers } from '@hooks';
 import { EmptyState, PaginationControls, LoadingScreen } from '@components';
-import { formatPhoneNumber } from '@utils/formatters';
 
 const InvoiceCustomerSelectScreen = ({ navigation }) => {
-  const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   
-  // Destructure with defaults to prevent "is not a function" or "undefined" crashes
   const { 
     customers = [], 
     loading = false, 
@@ -40,114 +37,220 @@ const InvoiceCustomerSelectScreen = ({ navigation }) => {
   };
 
   const renderCustomerCard = ({ item }) => (
-    <Card
-      style={[styles.card, { backgroundColor: theme.colors.surface }]}
-      mode="outlined"
-      onPress={() => navigation.navigate(ROUTES.INVOICE_PRODUCT_SELECT, { customer: item })}
-    >
-      <Card.Content>
-        <Text variant="titleMedium" style={styles.boldText}>{item.name}</Text>
+    <Surface style={styles.card} elevation={1}>
+      <TouchableOpacity 
+        style={styles.cardContent}
+        onPress={() => navigation.navigate(ROUTES.INVOICE_PRODUCT_SELECT, { customer: item })}
+      >
+        <Avatar.Text 
+          size={44} 
+          label={item.name.substring(0, 2).toUpperCase()} 
+          style={styles.avatar}
+          labelStyle={styles.avatarLabel}
+        />
         
-        {/* Conditional rendering wrapped strictly to avoid stray text nodes */}
-        {!!item.email && (
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
-            {item.email}
-          </Text>
-        )}
-        
-        {!!item.phone && (
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 2 }}>
-            {formatPhoneNumber(item.phone)}
-          </Text>
-        )}
-        
-        {!!item.companyName && (
-          <Text variant="labelSmall" style={[styles.company, { color: theme.colors.primary }]}>
-            {item.companyName}
-          </Text>
-        )}
-      </Card.Content>
-    </Card>
+        <View style={styles.textContainer}>
+          <Text style={styles.userName}>{item.name}</Text>
+          <Text style={styles.companyName}>{item.companyName || 'Private Customer'}</Text>
+          {!!item.email && <Text style={styles.userEmail}>{item.email}</Text>}
+        </View>
+
+        <View style={styles.selectCircle}>
+           <IconButton icon="chevron-right" size={20} iconColor="#CCC" />
+        </View>
+      </TouchableOpacity>
+    </Surface>
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header elevated>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content 
-          title="Select Customer" 
-          subtitle="Step 1 of 4 • Choose recipient" 
-        />
-      </Appbar.Header>
+    <View style={styles.container}>
+      {/* 1. BRANDED HEADER WITH PROGRESS */}
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
+          <View style={styles.stepIndicator}>
+            <Text style={styles.stepText}>Step 1 of 4</Text>
+          </View>
+        </View>
 
-      <Searchbar
-        placeholder="Search customers..."
-        onChangeText={handleSearch}
-        value={searchQuery}
-        style={styles.searchbar}
-        elevation={0}
-      />
+        <View style={styles.headerTextGroup}>
+          <Text style={styles.subTitle}>Create New Invoice</Text>
+          <Text style={styles.mainTitle}>Select Customer</Text>
+        </View>
 
-      <View style={styles.content}>
+        {/* 2. FLOATING SEARCH BAR */}
+        <Surface style={styles.searchContainer} elevation={2}>
+          <TextInput
+            placeholder="Search customers..."
+            placeholderTextColor="#AAA"
+            value={searchQuery}
+            onChangeText={handleSearch}
+            style={styles.input}
+          />
+          <IconButton icon="magnify" iconColor="#4FD3B5" size={24} />
+        </Surface>
+      </View>
+
+      {/* 3. LIST CONTENT AREA */}
+      <View style={styles.contentSheet}>
         {loading && customers.length === 0 ? (
           <LoadingScreen fullScreen={false} />
-        ) : (customers?.length === 0) ? (
+        ) : customers.length === 0 ? (
           <EmptyState
             icon="account-search"
             title="No customers found"
-            message={searchQuery ? "Try adjusting your filters" : "Create a customer to get started"}
+            message="Please try a different search term"
           />
         ) : (
           <FlatList
             data={customers}
             renderItem={renderCustomerCard}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={styles.list}
-            initialNumToRender={10}
+            contentContainerStyle={styles.listPadding}
+            showsVerticalScrollIndicator={false}
+            ListFooterComponent={
+              pagination?.totalPages > 1 && (
+                <PaginationControls
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={setCurrentPage}
+                  loading={loading}
+                />
+              )
+            }
           />
         )}
       </View>
-
-      {pagination?.totalPages > 1 && (
-        <PaginationControls
-          currentPage={pagination.page}
-          totalPages={pagination.totalPages}
-          onPageChange={setCurrentPage}
-          loading={loading}
-        />
-      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { 
+    flex: 1, 
+    backgroundColor: '#fff' 
+  },
+  headerBackground: {
+    backgroundColor: '#61F2D5',
+    height: 250,
+    paddingTop: 45,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    zIndex: 10,
+  },
+  topNav: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+    paddingHorizontal: 10 
+  },
+  stepIndicator: {
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginRight: 20,
+  },
+  stepText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#333',
+    textTransform: 'uppercase',
+  },
+  headerTextGroup: { 
+    paddingHorizontal: 25, 
+    marginTop: 5 
+  },
+  subTitle: { 
+    fontSize: 13, 
+    color: '#444', 
+    opacity: 0.7 
+  },
+  mainTitle: { 
+    fontSize: 26, 
+    fontWeight: 'bold', 
+    color: '#222', 
+    fontFamily: 'serif' 
+  },
+  searchContainer: {
+    backgroundColor: '#fff',
+    marginHorizontal: 25,
+    marginTop: 20,
+    borderRadius: 15,
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 20,
+    paddingRight: 5,
+  },
+  input: { 
+    flex: 1, 
+    fontSize: 15, 
+    color: '#333' 
+  },
+  contentSheet: {
     flex: 1,
+    marginTop: -40,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    zIndex: 5,
   },
-  content: {
-    flex: 1,
-  },
-  searchbar: {
-    margin: 16,
-    borderRadius: 8,
-  },
-  list: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+  listPadding: { 
+    paddingHorizontal: 25, 
+    paddingTop: 60, 
+    paddingBottom: 40 
   },
   card: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
     marginBottom: 12,
-    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FDFDFD',
   },
-  boldText: {
+  cardContent: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    padding: 12 
+  },
+  avatar: { 
+    backgroundColor: '#F0FFFC' 
+  },
+  avatarLabel: { 
+    color: '#4FD3B5', 
+    fontSize: 16, 
+    fontWeight: 'bold' 
+  },
+  textContainer: { 
+    flex: 1, 
+    marginLeft: 15 
+  },
+  userName: { 
+    fontSize: 15, 
+    fontWeight: 'bold', 
+    color: '#333' 
+  },
+  companyName: { 
+    fontSize: 11, 
+    color: '#FF4B7D', // Brand accent for secondary info
     fontWeight: '700',
-  },
-  company: {
-    marginTop: 8,
-    fontWeight: 'bold',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    marginTop: 2
   },
+  userEmail: { 
+    fontSize: 12, 
+    color: '#999', 
+    marginTop: 2 
+  },
+  selectCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#EEE',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });
 
 export default InvoiceCustomerSelectScreen;

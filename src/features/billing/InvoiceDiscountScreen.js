@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Appbar, TextInput, Button, Card, Paragraph, HelperText } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput as RNTextInput } from 'react-native';
+import { IconButton, Surface, Button, Divider, HelperText } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
 import { discountsApi } from '@api';
 import { CartSummary } from '@components';
@@ -15,7 +15,6 @@ const InvoiceDiscountScreen = ({ navigation, route }) => {
   const [error, setError] = useState('');
   
   const { showSnackbar } = useSnackbar();
-
   const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
 
   const handleValidateCoupon = async () => {
@@ -23,7 +22,6 @@ const InvoiceDiscountScreen = ({ navigation, route }) => {
       setError('Please enter a coupon code');
       return;
     }
-
     setLoading(true);
     setError('');
     
@@ -57,212 +55,190 @@ const InvoiceDiscountScreen = ({ navigation, route }) => {
 
   const handleContinue = () => {
     navigation.navigate(ROUTES.INVOICE_REVIEW, {
-      customer,
-      cart,
-      coupon: appliedCoupon,
-      discountAmount,
+      customer, cart, coupon: appliedCoupon, discountAmount,
     });
   };
 
   const handleSkip = () => {
     navigation.navigate(ROUTES.INVOICE_REVIEW, {
-      customer,
-      cart,
-      coupon: null,
-      discountAmount: 0,
+      customer, cart, coupon: null, discountAmount: 0,
     });
   };
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
+      {/* 1. BRANDED HEADER */}
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
+          <View style={styles.stepIndicator}>
+            <Text style={styles.stepText}>Step 3 of 4</Text>
+          </View>
         </View>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content
-          title="Apply Discount"
-          subtitle={`Step 3 of 4 • ${customer.name}`}
-          titleStyle={styles.headerTitle}
-        />
-      </Appbar.Header>
 
-      <ScrollView style={styles.content}>
-        <Card style={styles.card}>
-          <Card.Content>
-            <Paragraph style={styles.sectionTitle}>Have a coupon code?</Paragraph>
-            
+        <View style={styles.headerTextGroup}>
+          <Text style={styles.subTitle}>{customer.name}</Text>
+          <Text style={styles.mainTitle}>Apply Discount</Text>
+        </View>
+      </View>
+
+      {/* 2. CONTENT AREA */}
+      <View style={styles.contentSheet}>
+        <ScrollView 
+          style={styles.scroll} 
+          contentContainerStyle={styles.scrollPadding}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.sectionTitle}>Promo Code</Text>
+          
+          <Surface style={styles.inputCard} elevation={1}>
             {!appliedCoupon ? (
-              <>
-                <TextInput
-                  label="Coupon Code"
-                  mode="outlined"
+              <View style={styles.inputRow}>
+                <RNTextInput
+                  placeholder="Enter code (e.g. SAVE20)"
+                  placeholderTextColor="#AAA"
                   value={couponCode}
-                  onChangeText={setCouponCode}
+                  onChangeText={(val) => { setCouponCode(val); setError(''); }}
                   autoCapitalize="characters"
-                  error={!!error}
-                  style={styles.input}
+                  style={styles.rawInput}
                 />
-                <HelperText type="error" visible={!!error}>
-                  {error}
-                </HelperText>
-                
-                <Button
-                  mode="contained"
+                <TouchableOpacity 
                   onPress={handleValidateCoupon}
-                  loading={loading}
                   disabled={loading || !couponCode.trim()}
-                  style={styles.applyButton}
+                  style={[styles.applyBtn, (!couponCode.trim() || loading) && styles.applyBtnDisabled]}
                 >
-                  Apply Coupon
-                </Button>
-              </>
+                  <Text style={styles.applyBtnText}>{loading ? '...' : 'Apply'}</Text>
+                </TouchableOpacity>
+              </View>
             ) : (
-              <Card mode="outlined" style={styles.appliedCouponCard}>
-                <Card.Content>
-                  <View style={styles.appliedCouponHeader}>
-                    <Paragraph style={styles.appliedCouponCode}>
-                      {appliedCoupon.code}
-                    </Paragraph>
-                    <Button mode="text" onPress={handleRemoveCoupon}>
-                      Remove
-                    </Button>
+              <View style={styles.appliedContainer}>
+                <View style={styles.appliedInfo}>
+                  <View style={styles.badge}>
+                    <IconButton icon="ticket-percent" size={16} iconColor="#4FD3B5" />
+                    <Text style={styles.appliedCodeText}>{appliedCoupon.code}</Text>
                   </View>
-                  <Paragraph style={styles.appliedCouponDesc}>
-                    {appliedCoupon.description}
-                  </Paragraph>
-                  {appliedCoupon.type === 'PERCENTAGE' && (
-                    <Paragraph style={styles.discountValue}>
-                      {appliedCoupon.value}% off
-                    </Paragraph>
-                  )}
-                </Card.Content>
-              </Card>
+                  <Text style={styles.appliedDesc}>{appliedCoupon.description}</Text>
+                </View>
+                <TouchableOpacity onPress={handleRemoveCoupon}>
+                  <Text style={styles.removeText}>Remove</Text>
+                </TouchableOpacity>
+              </View>
             )}
-          </Card.Content>
-        </Card>
+          </Surface>
+          
+          <HelperText type="error" visible={!!error} style={styles.errorText}>
+            {error}
+          </HelperText>
 
-        <CartSummary
-          items={cart}
-          discount={discountAmount}
-          couponCode={appliedCoupon?.code}
-          style={styles.summary}
-        />
-      </ScrollView>
+          <View style={styles.summarySection}>
+             <Text style={styles.sectionTitle}>Order Summary</Text>
+             <CartSummary
+                items={cart}
+                discount={discountAmount}
+                couponCode={appliedCoupon?.code}
+                style={styles.summary}
+              />
+          </View>
+        </ScrollView>
+      </View>
 
-      <View style={styles.footer}>
+      {/* 3. PREMIUM FOOTER */}
+      <Surface style={styles.footer} elevation={4}>
         <Button
-          mode="outlined"
+          mode="text"
           onPress={handleSkip}
+          textColor="#999"
           style={styles.skipButton}
         >
-          Skip
+          Skip Discount
         </Button>
-        <Button
-          mode="contained"
-          onPress={handleContinue}
-          style={styles.continueButton}
-        >
-          Continue
-        </Button>
-      </View>
+        <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+          <Text style={styles.continueText}>Review Invoice</Text>
+          <IconButton icon="chevron-right" iconColor="#fff" size={20} />
+        </TouchableOpacity>
+      </Surface>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerBackground: {
+    backgroundColor: '#61F2D5',
+    height: 200,
+    paddingTop: 45,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    zIndex: 10,
+  },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
+  stepIndicator: { backgroundColor: 'rgba(255,255,255,0.3)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginRight: 20 },
+  stepText: { fontSize: 11, fontWeight: 'bold', color: '#333', textTransform: 'uppercase' },
+  headerTextGroup: { paddingHorizontal: 25, marginTop: 10 },
+  subTitle: { fontSize: 13, color: '#444', opacity: 0.7 },
+  mainTitle: { fontSize: 26, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  
+  contentSheet: {
     flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  header: {
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 28,
-    height: 28,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  card: {
-    marginBottom: 16,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#ffffff',
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  input: {
-    marginBottom: 4,
-  },
-  applyButton: {
-    marginTop: 8,
-    borderRadius: 4,
-  },
-  appliedCouponCard: {
-    backgroundColor: '#e8f5e9',
-    borderColor: '#4CAF50',
-    borderRadius: 4,
-  },
-  appliedCouponHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  appliedCouponCode: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  appliedCouponDesc: {
-    marginTop: 4,
-    color: '#666',
-  },
-  discountValue: {
-    marginTop: 8,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  summary: {
-    marginBottom: 16,
-  },
-  footer: {
-    flexDirection: 'row',
-    padding: 16,
+    marginTop: -40,
     backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    gap: 12,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    zIndex: 5,
   },
-  skipButton: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: 4,
+  scroll: { flex: 1 },
+  scrollPadding: { paddingHorizontal: 25, paddingTop: 40, paddingBottom: 100 },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#222', marginBottom: 15 },
+  
+  inputCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
+  inputRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: 12 },
+  rawInput: { flex: 1, height: 45, fontSize: 15, color: '#333', fontWeight: '600' },
+  applyBtn: { backgroundColor: '#4FD3B5', paddingHorizontal: 20, height: 40, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
+  applyBtnDisabled: { backgroundColor: '#EEE' },
+  applyBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
+  
+  appliedContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 8 },
+  appliedInfo: { flex: 1 },
+  badge: { flexDirection: 'row', alignItems: 'center', marginLeft: -10 },
+  appliedCodeText: { fontSize: 16, fontWeight: 'bold', color: '#222', marginLeft: -8 },
+  appliedDesc: { fontSize: 12, color: '#888', marginLeft: 8 },
+  removeText: { color: '#FF4B7D', fontWeight: 'bold', marginRight: 10 },
+  
+  errorText: { marginLeft: 10 },
+  summarySection: { marginTop: 20 },
+  summary: { backgroundColor: 'transparent' },
+
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 90,
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 25,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+  },
+  skipButton: { flex: 1 },
   continueButton: {
     flex: 2,
-    paddingVertical: 8,
-    borderRadius: 4,
+    backgroundColor: '#333',
+    height: 55,
+    borderRadius: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingLeft: 15,
   },
+  continueText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
 
 export default InvoiceDiscountScreen;
-

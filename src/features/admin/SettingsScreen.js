@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { List, Divider, Text, Appbar, Avatar } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
+import { IconButton, Surface, Divider, Avatar } from 'react-native-paper';
 import useAuthStore from '@store/authStore';
 import { ROUTES } from '@utils/constants';
 
@@ -8,186 +8,163 @@ const SettingsScreen = ({ navigation }) => {
   const { user, admin, role, logout } = useAuthStore();
   const isSuperuser = admin?.is_superuser || false;
 
-  const handleLogout = async () => {
-    await logout();
-  };
+  const NavRow = ({ label, icon, onPress, color = '#666', showDivider = true }) => (
+    <View>
+      <TouchableOpacity style={styles.navRow} onPress={onPress} activeOpacity={0.7}>
+        <View style={styles.navLeft}>
+          <IconButton icon={icon} size={22} iconColor={color} style={styles.navIcon} />
+          <Text style={[styles.navLabel, { color: color === '#666' ? '#222' : color }]}>{label}</Text>
+        </View>
+        <IconButton icon="chevron-right" size={20} iconColor="#CCC" />
+      </TouchableOpacity>
+      {showDivider && <Divider style={styles.rowDivider} />}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
+      {/* 1. PREMIUM HEADER WITH PROFILE */}
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="menu" iconColor="#333" onPress={() => navigation.openDrawer()} />
+          <Text style={styles.headerText}>Account Settings</Text>
+          <IconButton icon="bell-outline" iconColor="#333" />
         </View>
-        <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
-        <Appbar.Content title="Settings" titleStyle={styles.headerTitle} />
-      </Appbar.Header>
 
-      <ScrollView style={styles.scrollView}>
         <View style={styles.profileSection}>
-          <Avatar.Icon size={64} icon="account" style={styles.avatar} color="#ffffff" />
-          <View style={styles.profileInfo}>
+          <Surface style={styles.avatarSurface} elevation={4}>
+            <Avatar.Text
+              size={70}
+              label={(admin?.name || user?.name || 'U').substring(0, 2).toUpperCase()}
+              style={styles.avatar}
+              labelStyle={styles.avatarLabel}
+            />
+          </Surface>
+          <View style={styles.profileText}>
             <Text style={styles.userName}>{admin?.name || user?.name || 'User'}</Text>
-            <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
-            {role && <Text style={styles.roleBadge}>{role.name}</Text>}
+            <Text style={styles.userRole}>{role?.name || 'Super Admin'}</Text>
           </View>
         </View>
+      </View>
 
-        <Divider style={styles.divider} />
+      {/* 2. SETTINGS CONTENT SHEET */}
+      <View style={styles.contentSheet}>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollPadding} showsVerticalScrollIndicator={false}>
 
-        <List.Section>
-          <List.Subheader style={styles.subheader}>Account</List.Subheader>
-          <List.Item
-            title="Edit Profile"
-            description="Manage your account details"
-            left={props => <List.Icon {...props} icon="account-edit-outline" />}
-            onPress={() => {}}
-            titleStyle={styles.listTitle}
-          />
-          <List.Item
-            title="Update Password"
-            left={props => <List.Icon {...props} icon="lock-outline" />}
-            onPress={() => {}}
-            titleStyle={styles.listTitle}
-          />
-        </List.Section>
+          <Text style={styles.sectionLabel}>General Settings</Text>
+          <Surface style={styles.menuCard} elevation={1}>
+            <NavRow label="Edit Profile" icon="account-circle-outline" onPress={() => { }} />
+            <NavRow label="Change Password" icon="lock-open-outline" onPress={() => { }} />
+            <NavRow label="Notification Settings" icon="bell-ring-outline" onPress={() => { }} showDivider={false} />
+          </Surface>
 
-        <Divider style={styles.divider} />
+          {isSuperuser && (
+            <>
+              <Text style={[styles.sectionLabel, { marginTop: 25 }]}>Administration</Text>
+              <Surface style={styles.menuCard} elevation={1}>
+                <NavRow label="API Keys" icon="key-chain-outline" onPress={() => navigation.navigate(ROUTES.API_KEYS)} />
+                <NavRow label="Team Management" icon="shield-account-outline" onPress={() => { }} showDivider={false} />
+              </Surface>
+            </>
+          )}
 
-        {isSuperuser && (
-          <>
-            <List.Section>
-              <List.Subheader style={styles.subheader}>Administrative</List.Subheader>
-              <List.Item
-                title="API Keys"
-                description="Manage tokens for integrations"
-                left={props => <List.Icon {...props} icon="key-outline" />}
-                onPress={() => navigation.navigate(ROUTES.API_KEYS)}
-                titleStyle={styles.listTitle}
-              />
-            </List.Section>
-            <Divider style={styles.divider} />
-          </>
-        )}
+          <Text style={[styles.sectionLabel, { marginTop: 25 }]}>App Details</Text>
+          <Surface style={styles.infoCard} elevation={1}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoKey}>Version</Text>
+              <Text style={styles.infoValue}>2.4.0 (Build 2026)</Text>
+            </View>
+            <Divider style={styles.rowDivider} />
+            <View style={styles.infoRow}>
+              <Text style={styles.infoKey}>Environment</Text>
+              <Text style={styles.infoValue}>Production</Text>
+            </View>
+          </Surface>
 
-        <List.Section>
-          <List.Subheader style={styles.subheader}>App Information</List.Subheader>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Version</Text>
-            <Text style={styles.infoValue}>1.0.0 (Minimal)</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Build</Text>
-            <Text style={styles.infoValue}>Production</Text>
-          </View>
-        </List.Section>
+          <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+            <IconButton icon="logout" iconColor="#FF4B7D" size={20} />
+            <Text style={styles.logoutText}>Sign Out of Session</Text>
+          </TouchableOpacity>
 
-        <View style={styles.logoutContainer}>
-          <List.Item
-            title="Logout"
-            titleStyle={[styles.listTitle, { color: '#b71c1c' }]}
-            left={props => <List.Icon {...props} icon="logout" color="#b71c1c" />}
-            onPress={handleLogout}
-          />
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      </View>
+
+      {/* FLOATING BOTTOM NAV INDICATOR */}
+      <Surface style={styles.bottomNav} elevation={4}>
+        <IconButton icon="home-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.DASHBOARD)} />
+        <IconButton icon="account-group-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)} />
+        <View style={styles.activeTabContainer}>
+          <IconButton icon="cog" iconColor="#4FD3B5" />
+          <View style={styles.activeDot} />
         </View>
-      </ScrollView>
+      </Surface>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerBackground: {
+    backgroundColor: '#61F2D5',
+    height: 280,
+    paddingTop: 45,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    zIndex: 10,
+  },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15 },
+  headerText: { fontSize: 16, fontWeight: '700', color: '#222', opacity: 0.8 },
+  profileSection: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 30, marginTop: 30 },
+  avatarSurface: { borderRadius: 25, padding: 4, backgroundColor: '#fff' },
+  avatar: { backgroundColor: '#FF4B7D' },
+  avatarLabel: { fontWeight: 'bold', color: '#fff' },
+  profileText: { marginLeft: 20 },
+  userName: { fontSize: 24, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  userRole: { fontSize: 12, color: '#333', textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600', marginTop: 4 },
+
+  contentSheet: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    marginTop: -40,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    zIndex: 5,
   },
-  header: {
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 28,
-    height: 28,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  profileSection: {
+  scroll: { flex: 1 },
+  scrollPadding: { paddingHorizontal: 25, paddingTop: 40 },
+  sectionLabel: { fontSize: 12, fontWeight: 'bold', color: '#BBB', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginLeft: 5 },
+
+  menuCard: { borderRadius: 22, backgroundColor: '#fff', borderWidth: 1, borderColor: '#F8F8F8', overflow: 'hidden', marginBottom: 5 },
+  navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 60, paddingRight: 10 },
+  navLeft: { flexDirection: 'row', alignItems: 'center' },
+  navIcon: { marginRight: 0 },
+  navLabel: { fontSize: 15, fontWeight: '600' },
+  rowDivider: { backgroundColor: '#F5F5F5', marginHorizontal: 20 },
+
+  infoCard: { borderRadius: 22, backgroundColor: '#F9F9F9', paddingVertical: 10 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 12 },
+  infoKey: { fontSize: 14, color: '#999' },
+  infoValue: { fontSize: 14, fontWeight: '700', color: '#333' },
+
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 35, height: 60, borderRadius: 20, borderWidth: 1, borderColor: '#FFE5EC' },
+  logoutText: { color: '#FF4B7D', fontWeight: 'bold', fontSize: 15 },
+
+  bottomNav: {
+    position: 'absolute',
+    bottom: 25,
+    left: 25,
+    right: 25,
+    height: 65,
+    borderRadius: 22,
+    backgroundColor: '#fff',
     flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#ffffff',
+    zIndex: 100
   },
-  avatar: {
-    backgroundColor: '#1a1a1a',
-  },
-  profileInfo: {
-    marginLeft: 20,
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1a1a1a',
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#757575',
-    marginTop: 2,
-  },
-  roleBadge: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#455a64',
-    textTransform: 'uppercase',
-    marginTop: 6,
-    letterSpacing: 0.5,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#f9f9f9',
-  },
-  subheader: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#9e9e9e',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-  listTitle: {
-    fontSize: 15,
-    color: '#1a1a1a',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: '#757575',
-  },
-  infoValue: {
-    fontSize: 14,
-    color: '#1a1a1a',
-    fontWeight: '500',
-  },
-  logoutContainer: {
-    marginTop: 16,
-    marginBottom: 32,
-    borderTopWidth: 1,
-    borderTopColor: '#f9f9f9',
-  },
+  activeTabContainer: { alignItems: 'center' },
+  activeDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#4FD3B5', marginTop: -8 }
 });
 
 export default SettingsScreen;

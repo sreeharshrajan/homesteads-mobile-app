@@ -1,582 +1,173 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Image } from 'react-native';
-import { Card, Title, Paragraph, Chip, Divider, Button, SegmentedButtons, List, Surface, Badge, Appbar } from 'react-native-paper';
+import React from 'react';
+import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Text } from 'react-native';
+import { IconButton, Surface, Avatar } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
 import { formatCurrency, formatDate } from '@utils/formatters';
 import useAuthStore from '@store/authStore';
 import { useDashboard } from '@hooks';
-import { EmptyState } from '@components';
-import StatCard from './components/StatCard';
-import AlertSection from './components/AlertSection';
 
 const DashboardScreen = ({ navigation }) => {
-  const [timeRange, setTimeRange] = useState('today');
-  const role = useAuthStore((state) => state.role);
-  const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
+  const { user, role } = useAuthStore();
+  const { dashboard, loading, fetchDashboard: refetch } = useDashboard({ timeRange: 'today' });
 
-  // Using the modernized hook with TanStack Query
-  const { dashboard, loading, error, fetchDashboard: refetch } = useDashboard({ timeRange });
+  const renderInventoryStatus = () => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Inventory Status</Text>
+      <View style={styles.inventoryGrid}>
+        <Surface style={[styles.invBox, { backgroundColor: '#F0FFFC' }]} elevation={0}>
+          <Text style={[styles.invValue, { color: '#4FD3B5' }]}>{dashboard?.inventory?.availableStock || 0}</Text>
+          <Text style={styles.invLabel}>In Stock</Text>
+        </Surface>
+        <Surface style={[styles.invBox, { backgroundColor: '#FFF5F7' }]} elevation={0}>
+          <Text style={[styles.invValue, { color: '#FF4B7D' }]}>{dashboard?.inventory?.lowStockItems || 0}</Text>
+          <Text style={styles.invLabel}>Low Stock</Text>
+        </Surface>
+      </View>
+    </View>
+  );
 
-  const handleLogout = async () => {
-    await logout();
-  };
-
-  const handleRefresh = () => {
-    refetch();
-  };
-
-  const renderOrdersByStatus = () => {
-    if (!dashboard?.salesAnalytics?.ordersByStatus) return null;
-
-    const statusColors = {
-      COMPLETED: '#4CAF50',
-      PENDING: '#FF9800',
-      PROCESSING: '#2196F3',
-      SHIPPED: '#9C27B0',
-      DELIVERED: '#4CAF50',
-      CANCELLED: '#F44336',
-    };
-
+  const renderPendingInvoices = () => {
+    if (!dashboard?.pendingInvoices?.length) return null;
     return (
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title style={styles.cardTitle}>Orders by Status</Title>
-          <Divider style={styles.divider} />
-          {dashboard.salesAnalytics.ordersByStatus.map((item, index) => (
-            <View key={index} style={styles.statusRow}>
-              <View style={styles.statusInfo}>
-                <Chip
-                  mode="outlined"
-                  style={[styles.statusChip, { borderColor: statusColors[item.status] || '#666' }]}
-                  textStyle={{ color: statusColors[item.status] || '#666' }}
-                >
-                  {item.status}
-                </Chip>
-                <Paragraph style={styles.statusCount}>{item.count} orders</Paragraph>
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Pending Invoices</Text>
+        {dashboard.pendingInvoices.map((inv) => (
+          <Surface key={inv.id} style={styles.itemCard} elevation={1}>
+            <TouchableOpacity style={styles.cardContent} onPress={() => navigation.navigate(ROUTES.BILLING)}>
+              <View style={[styles.itemIconContainer, { backgroundColor: '#FFF9F0' }]}>
+                <IconButton icon="file-clock-outline" iconColor="#FFB347" size={22} />
               </View>
-              <Paragraph style={styles.statusAmount}>
-                {formatCurrency(item.totalAmount)}
-              </Paragraph>
-            </View>
-          ))}
-        </Card.Content>
-      </Card>
-    );
-  };
-
-  const renderTopProducts = () => {
-    if (!dashboard?.salesAnalytics?.topProducts || dashboard.salesAnalytics.topProducts.length === 0) {
-      return null;
-    }
-
-    return (
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title style={styles.cardTitle}>Top Products</Title>
-          <Divider style={styles.divider} />
-          {dashboard.salesAnalytics.topProducts.map((product, index) => (
-            <View key={index} style={styles.productRow}>
-              <View style={styles.productInfo}>
-                <Badge style={styles.productBadge}>{index + 1}</Badge>
-                <View style={styles.productDetails}>
-                  <Paragraph style={styles.productName}>{product.name}</Paragraph>
-                  <Paragraph style={styles.productQuantity}>Qty: {product.quantity}</Paragraph>
-                </View>
+              <View style={styles.itemDetails}>
+                <Text style={styles.itemName}>{inv.invoiceNo}</Text>
+                <Text style={styles.itemSub}>{inv.customer.name}</Text>
               </View>
-              <Paragraph style={styles.productRevenue}>
-                {formatCurrency(product.revenue)}
-              </Paragraph>
-            </View>
-          ))}
-        </Card.Content>
-      </Card>
-    );
-  };
-
-  const renderRecentOrders = () => {
-    if (!dashboard?.recentActivities?.orders || dashboard.recentActivities.orders.length === 0) {
-      return null;
-    }
-
-    return (
-      <Card style={styles.card}>
-        <Card.Content>
-          <View style={styles.cardHeader}>
-            <Title style={styles.cardTitle}>Recent Orders</Title>
-            <Button mode="text" onPress={() => navigation.navigate(ROUTES.ORDERS)}>
-              View All
-            </Button>
-          </View>
-          <Divider style={styles.divider} />
-          {dashboard.recentActivities.orders.slice(0, 5).map((order) => (
-            <TouchableOpacity
-              key={order.id}
-              onPress={() => navigation.navigate(ROUTES.ORDER_DETAIL, { orderId: order.id })}
-            >
-              <View style={styles.orderRow}>
-                <View style={styles.orderInfo}>
-                  <Paragraph style={styles.orderNumber}>{order.orderNumber}</Paragraph>
-                  <Paragraph style={styles.orderCustomer}>{order.customer.name}</Paragraph>
-                  <Paragraph style={styles.orderDate}>{formatDate(order.createdAt)}</Paragraph>
-                </View>
-                <View style={styles.orderRight}>
-                  <Paragraph style={styles.orderAmount}>{formatCurrency(order.amount)}</Paragraph>
-                  <Chip
-                    mode="outlined"
-                    style={styles.orderStatusChip}
-                    textStyle={{ fontSize: 10 }}
-                  >
-                    {order.status}
-                  </Chip>
-                </View>
+              <View style={styles.itemRight}>
+                <Text style={styles.itemAmount}>{formatCurrency(inv.amount)}</Text>
+                <Text style={[styles.itemDate, { color: '#FFB347' }]}>Draft</Text>
               </View>
-              <Divider style={styles.orderDivider} />
             </TouchableOpacity>
-          ))}
-        </Card.Content>
-      </Card>
+          </Surface>
+        ))}
+      </View>
     );
   };
 
   const renderRecentCustomers = () => {
-    if (!dashboard?.recentActivities?.customers || dashboard.recentActivities.customers.length === 0) {
-      return null;
-    }
-
+    if (!dashboard?.recentActivities?.customers?.length) return null;
     return (
-      <Card style={styles.card}>
-        <Card.Content>
-          <View style={styles.cardHeader}>
-            <Title style={styles.cardTitle}>New Customers</Title>
-            <Button mode="text" onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)}>
-              View All
-            </Button>
-          </View>
-          <Divider style={styles.divider} />
-          {dashboard.recentActivities.customers.slice(0, 5).map((customer) => (
-            <View key={customer.id} style={styles.customerRow}>
-              <List.Icon icon="account-circle" color="#2196F3" style={styles.customerIcon} />
-              <View style={styles.customerInfo}>
-                <Paragraph style={styles.customerName}>{customer.name}</Paragraph>
-                <Paragraph style={styles.customerEmail}>{customer.email}</Paragraph>
-                <Paragraph style={styles.customerDate}>{formatDate(customer.createdAt)}</Paragraph>
+      <View style={styles.sectionContainer}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recent Customers</Text>
+          <TouchableOpacity onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)}>
+            <Text style={styles.viewAllText}>View All</Text>
+          </TouchableOpacity>
+        </View>
+        {dashboard.recentActivities.customers.map((cust) => (
+          <Surface key={cust.id} style={styles.itemCard} elevation={1}>
+            <View style={styles.cardContent}>
+              <Avatar.Text 
+                size={40} 
+                label={cust.name.substring(0,2).toUpperCase()} 
+                style={{ backgroundColor: '#4FD3B5' }} 
+                labelStyle={{ fontSize: 14 }}
+              />
+              <View style={styles.itemDetails}>
+                <Text style={styles.itemName}>{cust.name}</Text>
+                <Text style={styles.itemSub}>{cust.email}</Text>
+              </View>
+              <View style={styles.itemRight}>
+                <Text style={styles.itemDate}>{formatDate(cust.createdAt)}</Text>
               </View>
             </View>
-          ))}
-        </Card.Content>
-      </Card>
+          </Surface>
+        ))}
+      </View>
     );
   };
 
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Appbar.Header>
-          <View style={styles.headerLogo}>
-            <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
-          </View>
-          <Appbar.Content title="Dashboard" />
-          <Appbar.Action icon="logout" onPress={handleLogout} />
-        </Appbar.Header>
-        <EmptyState
-          icon="alert-circle"
-          title="Error loading dashboard"
-          message={error}
-        />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="menu" iconColor="#333" onPress={() => navigation.openDrawer()} />
+          <IconButton icon="bell-outline" iconColor="#333" />
         </View>
-        <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
-        <Appbar.Content title="Dashboard" titleStyle={styles.headerTitle} />
-      </Appbar.Header>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
-        }
-      >
-
-        {/* User Welcome */}
-        {!!user && (
-          <Surface style={styles.welcomeCard}>
-            <Title style={styles.welcomeTitle}>{`Welcome back, ${user.name || user.email}`}</Title>
-            <Paragraph style={styles.welcomeSubtitle}>{role?.name || 'Admin'}</Paragraph>
-          </Surface>
-        )}
-
-        {/* Stats Grid */}
-        {dashboard?.stats && (
-          <View style={styles.statsGrid}>
-            <StatCard
-              title="Total Customers"
-              value={dashboard.stats.customers.total.toLocaleString()}
-            />
-            <StatCard
-              title="Total Products"
-              value={dashboard.stats.products.total.toLocaleString()}
-            />
-            <StatCard
-              title="Total Orders"
-              value={dashboard.stats.orders.total.toLocaleString()}
-            />
-            <StatCard
-              title="Total Revenue"
-              value={formatCurrency(dashboard.stats.revenue.total)}
-              subValue={`Monthly: ${formatCurrency(dashboard.stats.revenue.monthly)}`}
-            />
+        <View style={styles.welcomeSection}>
+          <Text style={styles.welcomeSub}>Good morning,</Text>
+          <View style={styles.profileRow}>
+            <View>
+              <Text style={styles.welcomeTitle}>{user?.name?.split(' ')[0] || 'Admin'}</Text>
+              <Text style={styles.roleText}>{role?.name || 'Super Admin'}</Text>
+            </View>
+            <Avatar.Text size={50} label="NU" style={{ backgroundColor: '#FF4B7D' }} labelStyle={{ color: '#fff' }} />
           </View>
-        )}
-
-        {/* Inventory Summary */}
-        {dashboard?.inventory && (
-          <Card style={styles.card}>
-            <Card.Content>
-              <Title style={styles.cardTitle}>Inventory</Title>
-              <Divider style={styles.divider} />
-              <View style={styles.inventoryGrid}>
-                <View style={styles.inventoryItem}>
-                  <Paragraph style={styles.inventoryLabel}>Total Items</Paragraph>
-                  <Title style={styles.inventoryValue}>{dashboard.inventory.totalItems}</Title>
-                </View>
-                <View style={styles.inventoryItem}>
-                  <Paragraph style={styles.inventoryLabel}>Available Stock</Paragraph>
-                  <Title style={styles.inventoryValue}>{dashboard.inventory.availableStock}</Title>
-                </View>
-                <View style={styles.inventoryItem}>
-                  <Paragraph style={styles.inventoryLabel}>Low Stock</Paragraph>
-                  <Title style={[styles.inventoryValue, styles.inventoryWarning]}>
-                    {dashboard.inventory.lowStockItems}
-                  </Title>
-                </View>
-                <View style={styles.inventoryItem}>
-                  <Paragraph style={styles.inventoryLabel}>Out of Stock</Paragraph>
-                  <Title style={[styles.inventoryValue, styles.inventoryDanger]}>
-                    {dashboard.inventory.outOfStockItems}
-                  </Title>
-                </View>
-              </View>
-            </Card.Content>
-          </Card>
-        )}
-
-        {/* Alerts Section */}
-        {dashboard?.alerts && (
-          <AlertSection 
-            alerts={[
-              { label: 'Pending Orders', value: dashboard.alerts.pendingOrders, color: '#FF9800' },
-              { label: 'Pending Invoices', value: dashboard.alerts.pendingInvoices, color: '#2196F3' },
-              { label: 'Due Today', value: dashboard.alerts.invoicesDueToday, color: '#F44336' },
-              { label: 'Low Stock', value: dashboard.alerts.lowStockAlerts, color: '#F44336' },
-            ]}
-          />
-        )}
-
-        {/* Orders by Status */}
-        {renderOrdersByStatus()}
-
-        {/* Top Products */}
-        {renderTopProducts()}
-
-        {/* Recent Orders */}
-        {renderRecentOrders()}
-
-        {/* Recent Customers */}
-        {renderRecentCustomers()}
-      </ScrollView>
+        </View>
+        <Surface style={styles.statsBar} elevation={4}>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Revenue</Text>
+            <Text style={styles.statValue}>₹{dashboard?.stats?.revenue?.total || 0}</Text>
+          </View>
+          <View style={styles.verticalDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Total Orders</Text>
+            <Text style={styles.statValue}>{dashboard?.stats?.orders?.total || 0}</Text>
+          </View>
+        </Surface>
+      </View>
+      <View style={styles.contentSheet}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollPadding}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}
+          showsVerticalScrollIndicator={false}
+        >
+          {renderInventoryStatus()}
+          {renderPendingInvoices()}
+          {renderRecentCustomers()}
+        </ScrollView>
+      </View>
+      <Surface style={styles.bottomNav} elevation={4}>
+        <IconButton icon="home" iconColor="#4FD3B5" />
+        <IconButton icon="account-group-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)} />
+        <IconButton icon="briefcase-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.BILLING)} />
+      </Surface>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-  },
-  timeRangeContainer: {
-    marginBottom: 16,
-  },
-  timeRangeButtons: {
-    backgroundColor: 'white',
-  },
-  welcomeCard: {
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    elevation: 2,
-    backgroundColor: '#ffffff',
-  },
-  welcomeTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  welcomeSubtitle: {
-    color: '#666',
-    marginTop: 4,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 16,
-  },
-  statCard: {
-    flex: 1,
-    minWidth: '47%',
-    borderRadius: 4,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#ffffff',
-  },
-  statCardContent: {
-    flex: 1,
-  },
-  statCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  statCardTitle: {
-    fontSize: 12,
-    color: '#666',
-    flex: 1,
-  },
-  statCardIcon: {
-    display: 'none',
-  },
-  statCardValue: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 4,
-  },
-  statCardSubValue: {
-    fontSize: 11,
-    color: '#888',
-  },
-  card: {
-    marginBottom: 16,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#ffffff',
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  cardTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  divider: {
-    marginBottom: 12,
-  },
-  inventoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-  },
-  inventoryItem: {
-    flex: 1,
-    minWidth: '45%',
-    alignItems: 'center',
-  },
-  inventoryLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  inventoryValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  inventoryWarning: {
-    color: '#FF9800',
-  },
-  inventoryDanger: {
-    color: '#F44336',
-  },
-  statusRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  statusInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  statusChip: {
-    height: 28,
-  },
-  statusCount: {
-    fontSize: 12,
-    color: '#666',
-  },
-  statusAmount: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  productRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  productInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  productBadge: {
-    backgroundColor: '#2196F3',
-  },
-  productDetails: {
-    flex: 1,
-  },
-  productName: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  productQuantity: {
-    fontSize: 12,
-    color: '#666',
-  },
-  productRevenue: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  alertsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  alertCard: {
-    flex: 1,
-    minWidth: '47%',
-    borderRadius: 4,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-  },
-  alertIcon: {
-    display: 'none',
-  },
-  alertValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 4,
-  },
-  alertLabel: {
-    fontSize: 11,
-    color: '#666',
-    textAlign: 'center',
-  },
-  orderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  orderInfo: {
-    flex: 1,
-  },
-  orderNumber: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  orderCustomer: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
-  },
-  orderDate: {
-    fontSize: 11,
-    color: '#888',
-    marginTop: 2,
-  },
-  orderRight: {
-    alignItems: 'flex-end',
-  },
-  orderAmount: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  orderStatusChip: {
-    height: 24,
-  },
-  orderDivider: {
-    marginVertical: 4,
-  },
-  customerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  customerIcon: {
-    margin: 0,
-    marginRight: 12,
-  },
-  customerInfo: {
-    flex: 1,
-  },
-  customerName: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  customerEmail: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
-  },
-  customerDate: {
-    fontSize: 11,
-    color: '#888',
-    marginTop: 2,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerBackground: { backgroundColor: '#61F2D5', height: 300, paddingTop: 45, borderBottomLeftRadius: 60, borderBottomRightRadius: 60, zIndex: 10 },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 },
+  welcomeSection: { paddingHorizontal: 25 },
+  welcomeSub: { fontSize: 16, color: '#444', opacity: 0.8 },
+  profileRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 5 },
+  welcomeTitle: { fontSize: 32, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  roleText: { fontSize: 12, color: '#333', textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600' },
+  statsBar: { backgroundColor: '#fff', marginHorizontal: 25, marginTop: 30, borderRadius: 20, height: 85, flexDirection: 'row', alignItems: 'center', zIndex: 20 },
+  statItem: { flex: 1, alignItems: 'center' },
+  statLabel: { fontSize: 11, color: '#999', textTransform: 'uppercase', marginBottom: 4 },
+  statValue: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  verticalDivider: { width: 1, height: '40%', backgroundColor: '#EEE' },
+  contentSheet: { flex: 1, marginTop: -40, backgroundColor: '#fff', borderTopLeftRadius: 40, borderTopRightRadius: 40, zIndex: 5 },
+  scrollPadding: { paddingHorizontal: 25, paddingTop: 60, paddingBottom: 100 },
+  sectionContainer: { marginBottom: 25 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  sectionTitle: { fontSize: 17, fontWeight: 'bold', color: '#222', marginBottom: 12 },
+  viewAllText: { color: '#4FD3B5', fontWeight: '700', fontSize: 13 },
+  inventoryGrid: { flexDirection: 'row', gap: 15 },
+  invBox: { flex: 1, paddingVertical: 18, borderRadius: 20, alignItems: 'center' },
+  invValue: { fontSize: 22, fontWeight: 'bold' },
+  invLabel: { fontSize: 12, color: '#666', marginTop: 4 },
+  itemCard: { borderRadius: 18, backgroundColor: '#fff', marginBottom: 10, borderWidth: 1, borderColor: '#F8F8F8' },
+  cardContent: { flexDirection: 'row', alignItems: 'center', padding: 12 },
+  itemIconContainer: { width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  itemDetails: { flex: 1, marginLeft: 12 },
+  itemName: { fontSize: 14, fontWeight: 'bold', color: '#333' },
+  itemSub: { fontSize: 11, color: '#999', marginTop: 2 },
+  itemRight: { alignItems: 'flex-end' },
+  itemAmount: { fontSize: 14, fontWeight: 'bold', color: '#222' },
+  itemDate: { fontSize: 10, color: '#BBB', marginTop: 2 },
+  bottomNav: { position: 'absolute', bottom: 25, left: 25, right: 25, height: 65, borderRadius: 22, backgroundColor: '#fff', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', zIndex: 100 }
 });
 
 export default DashboardScreen;
-

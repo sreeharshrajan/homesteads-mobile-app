@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Card, Title, Paragraph, Button, Appbar, Divider, DataTable, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
+import { IconButton, Surface, Divider, Avatar, ActivityIndicator } from 'react-native-paper';
 import { formatCurrency, formatDate } from '@utils/formatters';
 import { useInvoices } from '@hooks';
 import { useSnackbar } from '@hooks/useSnackbar';
@@ -9,29 +9,22 @@ import { StatusBadge, EmptyState } from '@components';
 const InvoiceScreen = ({ navigation, route }) => {
   const invoiceId = route.params?.invoiceId;
   const [localInvoice, setLocalInvoice] = useState(null);
-  
+
   const { invoice, loading, fetchInvoiceById, updateInvoice } = useInvoices();
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
-    if (invoiceId) {
-      loadInvoice();
-    }
+    if (invoiceId) loadInvoice();
   }, [invoiceId]);
 
   useEffect(() => {
-    if (invoice) {
-      setLocalInvoice(invoice);
-    }
+    if (invoice) setLocalInvoice(invoice);
   }, [invoice]);
 
   const loadInvoice = async () => {
     const result = await fetchInvoiceById(invoiceId);
     if (!result.success) {
-      const errorMsg = result.error || 'Failed to load invoice';
-      showSnackbar(errorMsg, 'error');
-      
-      // Don't automatically go back for server errors - give user chance to retry
+      showSnackbar(result.error || 'Failed to load invoice', 'error');
       if (result.status !== 500 && result.status !== 503) {
         setTimeout(() => navigation.goBack(), 2000);
       }
@@ -43,28 +36,13 @@ const InvoiceScreen = ({ navigation, route }) => {
     if (result.success) {
       showSnackbar('Invoice marked as paid', 'success');
       setLocalInvoice({ ...localInvoice, status: 'PAID' });
-    } else {
-      showSnackbar(result.error || 'Failed to update invoice', 'error');
     }
-  };
-
-  const handleDownload = () => {
-    showSnackbar('Download feature coming soon', 'info');
   };
 
   if (loading && !localInvoice) {
     return (
-      <View style={styles.container}>
-        <Appbar.Header style={styles.header}>
-          <View style={styles.headerLogo}>
-            <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
-          </View>
-          <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Invoice Details" titleStyle={styles.headerTitle} />
-        </Appbar.Header>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
-        </View>
+      <View style={styles.loadingFull}>
+        <ActivityIndicator size="large" color="#4FD3B5" />
       </View>
     );
   }
@@ -72,326 +50,203 @@ const InvoiceScreen = ({ navigation, route }) => {
   if (!localInvoice) {
     return (
       <View style={styles.container}>
-        <Appbar.Header style={styles.header}>
-          <View style={styles.headerLogo}>
-            <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
-          </View>
-          <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Invoice Details" titleStyle={styles.headerTitle} />
-        </Appbar.Header>
-        <EmptyState
-          icon="file-document-outline"
-          title="Invoice not found"
-          message="Unable to load invoice details"
-        />
-        <Button
-          mode="outlined"
-          onPress={loadInvoice}
-          loading={loading}
-          disabled={loading}
-          style={styles.retryButton}
-        >
-          Retry
-        </Button>
+        <EmptyState icon="file-document-outline" title="Not Found" message="Unable to load invoice" />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
+      {/* 1. PREMIUM HEADER */}
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
+          <IconButton icon="download-outline" iconColor="#333" onPress={() => { }} />
         </View>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Invoice Details" titleStyle={styles.headerTitle} />
-        <Appbar.Action icon="download" onPress={handleDownload} />
-      </Appbar.Header>
 
-      <ScrollView style={styles.scrollView}>
-        <Card style={styles.card}>
-          <Card.Content>
-            <View style={styles.headerRow}>
-              <Title style={styles.invoiceNumber}>{localInvoice.invoiceNo}</Title>
+        <View style={styles.headerTextGroup}>
+          <View style={styles.titleRow}>
+            <Text style={styles.mainTitle}>{localInvoice.invoiceNo}</Text>
+            <View style={styles.badgeWrapper}>
               <StatusBadge status={localInvoice.status} />
             </View>
-            
-            {localInvoice.customer && (
-              <View style={styles.section}>
-                <Paragraph style={styles.sectionTitle}>Bill To:</Paragraph>
-                <Title>{localInvoice.customer.name}</Title>
-                {localInvoice.customer.email && (
-                  <Paragraph>{localInvoice.customer.email}</Paragraph>
-                )}
-                {localInvoice.customer.phone && (
-                  <Paragraph>{localInvoice.customer.phone}</Paragraph>
-                )}
-                {localInvoice.customer.companyName && (
-                  <Paragraph>{localInvoice.customer.companyName}</Paragraph>
-                )}
-                {localInvoice.customer.gstNumber && (
-                  <Paragraph>GST: {localInvoice.customer.gstNumber}</Paragraph>
-                )}
-              </View>
-            )}
+          </View>
+          <Text style={styles.subTitle}>Invoice details and history</Text>
+        </View>
+      </View>
 
-            <Divider style={styles.divider} />
+      {/* 2. CONTENT SHEET */}
+      <View style={styles.contentSheet}>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollPadding} showsVerticalScrollIndicator={false}>
 
-            <View style={styles.datesRow}>
-              <View style={styles.dateColumn}>
-                <Paragraph style={styles.label}>Issue Date</Paragraph>
-                <Paragraph>{formatDate(localInvoice.issueDate)}</Paragraph>
+          {/* Customer Summary Card */}
+          <Text style={styles.sectionLabel}>Customer</Text>
+          <Surface style={styles.infoCard} elevation={1}>
+            <View style={styles.customerRow}>
+              <Avatar.Text
+                size={45}
+                label={localInvoice.customer?.name?.substring(0, 2).toUpperCase() || 'CU'}
+                style={styles.avatar}
+                labelStyle={styles.avatarLabel}
+              />
+              <View style={styles.customerDetails}>
+                <Text style={styles.customerName}>{localInvoice.customer?.name}</Text>
+                <Text style={styles.customerEmail}>{localInvoice.customer?.email}</Text>
               </View>
-              {localInvoice.dueDate && (
-                <View style={styles.dateColumn}>
-                  <Paragraph style={styles.label}>Due Date</Paragraph>
-                  <Paragraph>{formatDate(localInvoice.dueDate)}</Paragraph>
-                </View>
-              )}
             </View>
+          </Surface>
 
-            {localInvoice.poNumber && (
-              <View style={styles.row}>
-                <Paragraph style={styles.label}>PO Number:</Paragraph>
-                <Paragraph>{localInvoice.poNumber}</Paragraph>
-              </View>
-            )}
-
-            {localInvoice.placeOfSupply && (
-              <View style={styles.row}>
-                <Paragraph style={styles.label}>Place of Supply:</Paragraph>
-                <Paragraph>{localInvoice.placeOfSupply}</Paragraph>
-              </View>
-            )}
-
-            <Divider style={styles.divider} />
-
-            {localInvoice.order && Array.isArray(localInvoice.order.orderItems) && localInvoice.order.orderItems.length > 0 ? (
-              <>
-                <Paragraph style={styles.sectionTitle}>Items</Paragraph>
-                <DataTable>
-                  <DataTable.Header>
-                    <DataTable.Title>Product</DataTable.Title>
-                    <DataTable.Title numeric>Qty</DataTable.Title>
-                    <DataTable.Title numeric>Price</DataTable.Title>
-                    <DataTable.Title numeric>Total</DataTable.Title>
-                  </DataTable.Header>
-
-                  {localInvoice.order.orderItems.map((item) => (
-                    <DataTable.Row key={item.id}>
-                      <DataTable.Cell>
-                        {item.variant?.product?.name || item.productName || 'Product'}
-                      </DataTable.Cell>
-                      <DataTable.Cell numeric>{item.quantity || 0}</DataTable.Cell>
-                      <DataTable.Cell numeric>
-                        {formatCurrency(item.unitPrice || 0)}
-                      </DataTable.Cell>
-                      <DataTable.Cell numeric>
-                        {formatCurrency(item.netAmount || item.totalPrice || 0)}
-                      </DataTable.Cell>
-                    </DataTable.Row>
-                  ))}
-                </DataTable>
-
-                <Divider style={styles.divider} />
-
-                <View style={styles.totalsSection}>
-                  <View style={styles.totalRow}>
-                    <Paragraph>Subtotal:</Paragraph>
-                    <Paragraph>{formatCurrency(localInvoice.order.subtotal || 0)}</Paragraph>
-                  </View>
-                  {(localInvoice.order.discountAmt || 0) > 0 && (
-                    <View style={styles.totalRow}>
-                      <Paragraph>Discount:</Paragraph>
-                      <Paragraph>-{formatCurrency(localInvoice.order.discountAmt || 0)}</Paragraph>
-                    </View>
-                  )}
-                  {(localInvoice.order.taxAmount || 0) > 0 && (
-                    <View style={styles.totalRow}>
-                      <Paragraph>Tax:</Paragraph>
-                      <Paragraph>{formatCurrency(localInvoice.order.taxAmount || 0)}</Paragraph>
-                    </View>
-                  )}
-                </View>
-              </>
-            ) : null}
-
-            <Divider style={styles.divider} />
-
-            <View style={styles.totalRow}>
-              <Title>Total:</Title>
-              <Title style={styles.totalAmount}>
-                {formatCurrency(localInvoice.totalAmount || 0)}
-              </Title>
+          {/* Logistics & Dates */}
+          <View style={styles.metaGrid}>
+            <View style={styles.metaItem}>
+              <Text style={styles.metaLabel}>Issued</Text>
+              <Text style={styles.metaValue}>{formatDate(localInvoice.issueDate)}</Text>
             </View>
+            <View style={styles.metaItem}>
+              <Text style={styles.metaLabel}>Due Date</Text>
+              <Text style={styles.metaValue}>{localInvoice.dueDate ? formatDate(localInvoice.dueDate) : 'N/A'}</Text>
+            </View>
+          </View>
 
-            {localInvoice.remarks && (
-              <>
-                <Divider style={styles.divider} />
-                <View style={styles.section}>
-                  <Paragraph style={styles.sectionTitle}>Remarks:</Paragraph>
-                  <Paragraph>{localInvoice.remarks}</Paragraph>
-                </View>
-              </>
+          {/* Items Section */}
+          <Text style={[styles.sectionLabel, { marginTop: 25 }]}>Billing Items</Text>
+          {localInvoice.order?.orderItems?.map((item) => (
+            <View key={item.id} style={styles.itemRow}>
+              <View style={styles.itemMain}>
+                <Text style={styles.itemName}>{item.variant?.product?.name || item.productName}</Text>
+                <Text style={styles.itemSub}>Qty: {item.quantity} × {formatCurrency(item.unitPrice)}</Text>
+              </View>
+              <Text style={styles.itemTotal}>{formatCurrency(item.netAmount || item.totalPrice)}</Text>
+            </View>
+          ))}
+
+          <Divider style={styles.divider} />
+
+          {/* Totals Summary */}
+          <View style={styles.totalsContainer}>
+            <View style={styles.totalLine}>
+              <Text style={styles.totalLabel}>Subtotal</Text>
+              <Text style={styles.totalValue}>{formatCurrency(localInvoice.order?.subtotal || 0)}</Text>
+            </View>
+            {localInvoice.order?.taxAmount > 0 && (
+              <View style={styles.totalLine}>
+                <Text style={styles.totalLabel}>Tax</Text>
+                <Text style={styles.totalValue}>{formatCurrency(localInvoice.order.taxAmount)}</Text>
+              </View>
             )}
+            <View style={[styles.totalLine, styles.grandTotalLine]}>
+              <Text style={styles.grandTotalLabel}>Grand Total</Text>
+              <Text style={styles.grandTotalValue}>{formatCurrency(localInvoice.totalAmount)}</Text>
+            </View>
+          </View>
 
-            {Array.isArray(localInvoice.payments) && localInvoice.payments.length > 0 && (
-              <>
-                <Divider style={styles.divider} />
-                <View style={styles.section}>
-                  <Paragraph style={styles.sectionTitle}>Payment History:</Paragraph>
-                  {localInvoice.payments.map((payment, index) => (
-                    <View key={payment.id || `payment-${index}`} style={styles.paymentRow}>
-                      <View>
-                        <Paragraph>{payment.method || 'N/A'}</Paragraph>
-                        <Paragraph style={styles.label}>
-                          {payment.paidAt ? formatDate(payment.paidAt) : 'Pending'}
-                        </Paragraph>
-                      </View>
-                      <View style={styles.paymentRight}>
-                        <Paragraph style={styles.paymentAmount}>
-                          {formatCurrency(payment.amount || 0)}
-                        </Paragraph>
-                        {payment.status && <StatusBadge status={payment.status} style={styles.paymentBadge} />}
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </>
-            )}
-          </Card.Content>
-        </Card>
+          {localInvoice.remarks && (
+            <View style={styles.remarksSection}>
+              <Text style={styles.sectionLabel}>Notes</Text>
+              <Text style={styles.remarksText}>{localInvoice.remarks}</Text>
+            </View>
+          )}
 
-        {localInvoice.status !== 'PAID' && localInvoice.status !== 'CANCELLED' && (
-          <Button
-            mode="contained"
-            onPress={handleMarkAsPaid}
-            loading={loading}
-            disabled={loading}
-            style={styles.button}
-          >
-            Mark as Paid
-          </Button>
-        )}
-      </ScrollView>
+          <View style={{ height: 120 }} />
+        </ScrollView>
+      </View>
+
+      {/* 3. PERSISTENT ACTION FOOTER */}
+      {localInvoice.status !== 'PAID' && localInvoice.status !== 'CANCELLED' && (
+        <Surface style={styles.footer} elevation={8}>
+          <TouchableOpacity style={styles.payButton} onPress={handleMarkAsPaid}>
+            <IconButton icon="check-decagram" iconColor="#fff" size={20} />
+            <Text style={styles.payButtonText}>Mark as Paid</Text>
+          </TouchableOpacity>
+        </Surface>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, backgroundColor: '#fff' },
+  loadingFull: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  headerBackground: {
+    backgroundColor: '#61F2D5',
+    height: 220,
+    paddingTop: 45,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    zIndex: 10,
+  },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 },
+  headerTextGroup: { paddingHorizontal: 25, marginTop: 15 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  mainTitle: { fontSize: 28, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  subTitle: { fontSize: 13, color: '#444', opacity: 0.7, marginTop: 4 },
+  badgeWrapper: { scaleX: 0.9, scaleY: 0.9, marginRight: -10 },
+
+  contentSheet: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    marginTop: -40,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    zIndex: 5,
   },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-  },
-  loadingContainer: {
-    flex: 1,
+  scroll: { flex: 1 },
+  scrollPadding: { paddingHorizontal: 25, paddingTop: 40 },
+  sectionLabel: { fontSize: 12, fontWeight: 'bold', color: '#BBB', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
+
+  infoCard: { borderRadius: 20, backgroundColor: '#fff', padding: 15, borderWidth: 1, borderColor: '#F8F8F8', marginBottom: 20 },
+  customerRow: { flexDirection: 'row', alignItems: 'center' },
+  avatar: { backgroundColor: '#F0FFFC' },
+  avatarLabel: { color: '#4FD3B5', fontWeight: 'bold' },
+  customerDetails: { marginLeft: 15 },
+  customerName: { fontSize: 16, fontWeight: 'bold', color: '#222' },
+  customerEmail: { fontSize: 12, color: '#888' },
+
+  metaGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+  metaItem: { flex: 1 },
+  metaLabel: { fontSize: 11, color: '#BBB', textTransform: 'uppercase' },
+  metaValue: { fontSize: 14, color: '#333', fontWeight: '600', marginTop: 2 },
+
+  itemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
+  itemName: { fontSize: 14, fontWeight: '700', color: '#333' },
+  itemSub: { fontSize: 12, color: '#999', marginTop: 2 },
+  itemTotal: { fontSize: 14, fontWeight: '700', color: '#222' },
+
+  divider: { marginVertical: 15, backgroundColor: '#F0F0F0' },
+
+  totalsContainer: { marginTop: 10 },
+  totalLine: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  totalLabel: { fontSize: 14, color: '#888' },
+  totalValue: { fontSize: 14, color: '#333', fontWeight: '600' },
+  grandTotalLine: { marginTop: 10, paddingTop: 10, borderTopWidth: 0 },
+  grandTotalLabel: { fontSize: 16, fontWeight: 'bold', color: '#222' },
+  grandTotalValue: { fontSize: 20, fontWeight: 'bold', color: '#4FD3B5' },
+
+  remarksSection: { marginTop: 25, backgroundColor: '#F9F9F9', padding: 15, borderRadius: 15 },
+  remarksText: { fontSize: 13, color: '#666', lineHeight: 18 },
+
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 90,
+    backgroundColor: '#fff',
+    paddingHorizontal: 25,
+    paddingBottom: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     justifyContent: 'center',
+  },
+  payButton: {
+    backgroundColor: '#333',
+    height: 55,
+    borderRadius: 18,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  scrollView: {
-    flex: 1,
-  },
-  card: {
-    margin: 16,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#ffffff',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  invoiceNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  section: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    color: '#666',
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-  },
-  divider: {
-    marginVertical: 16,
-  },
-  datesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  dateColumn: {
-    flex: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  label: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  totalsSection: {
-    marginTop: 16,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  totalAmount: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  paymentRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  paymentRight: {
-    alignItems: 'flex-end',
-  },
-  paymentAmount: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  paymentBadge: {
-    height: 24,
-  },
-  button: {
-    margin: 16,
-    marginTop: 0,
-    paddingVertical: 8,
-  },
-  retryButton: {
-    margin: 16,
-    marginTop: 16,
-  },
+  payButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16, marginLeft: -5 },
 });
 
 export default InvoiceScreen;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Card, Title, Paragraph, Appbar, Divider, DataTable, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
+import { IconButton, Surface, Divider, Avatar, ActivityIndicator } from 'react-native-paper';
 import { formatCurrency, formatDate } from '@utils/formatters';
 import { useOrders } from '@hooks';
 import { useSnackbar } from '@hooks/useSnackbar';
@@ -8,28 +8,21 @@ import { StatusBadge, EmptyState } from '@components';
 
 const OrderDetailScreen = ({ navigation, route }) => {
   const orderId = route.params?.orderId;
-  const customerId = route.params?.customerId; // Optional, needed for API call
-  
+  const customerId = route.params?.customerId;
   const [localOrder, setLocalOrder] = useState(null);
   
   const { order, loading, fetchOrderById } = useOrders();
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
-    if (orderId) {
-      loadOrder();
-    }
+    if (orderId) loadOrder();
   }, [orderId]);
 
   useEffect(() => {
-    if (order) {
-      setLocalOrder(order);
-    }
+    if (order) setLocalOrder(order);
   }, [order]);
 
   const loadOrder = async () => {
-    // Note: Orders API requires customerId or sessionId
-    // For admin, you'd need to handle this differently
     const params = customerId ? { customerId } : {};
     const result = await fetchOrderById(orderId, params);
     if (!result.success) {
@@ -40,17 +33,8 @@ const OrderDetailScreen = ({ navigation, route }) => {
 
   if (loading && !localOrder) {
     return (
-      <View style={styles.container}>
-        <Appbar.Header style={styles.header}>
-          <View style={styles.headerLogo}>
-            <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
-          </View>
-          <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
-        </Appbar.Header>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
-        </View>
+      <View style={styles.loadingFull}>
+        <ActivityIndicator size="large" color="#4FD3B5" />
       </View>
     );
   }
@@ -58,316 +42,180 @@ const OrderDetailScreen = ({ navigation, route }) => {
   if (!localOrder) {
     return (
       <View style={styles.container}>
-        <Appbar.Header style={styles.header}>
-          <View style={styles.headerLogo}>
-            <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
-          </View>
-          <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
-        </Appbar.Header>
-        <EmptyState
-          icon="cart-outline"
-          title="Order not found"
-          message="Unable to load order details"
-        />
+        <EmptyState icon="cart-off" title="Order Not Found" message="Unable to retrieve order details" />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
+      {/* 1. PREMIUM HEADER */}
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
+          <IconButton icon="dots-vertical" iconColor="#333" />
         </View>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
-      </Appbar.Header>
 
-      <ScrollView style={styles.scrollView}>
-        <Card style={styles.card}>
-          <Card.Content>
-            <View style={styles.headerRow}>
-              <Title style={styles.orderNumber}>
-                {localOrder.orderNumber || `#${localOrder.id?.slice(-8)}`}
-              </Title>
-              <StatusBadge status={localOrder.status} />
+        <View style={styles.headerTextGroup}>
+          <View style={styles.titleRow}>
+            <Text style={styles.mainTitle}>{localOrder.orderNumber || `#${localOrder.id?.slice(-8)}`}</Text>
+            <View style={styles.badgeWrapper}>
+               <StatusBadge status={localOrder.status} />
             </View>
+          </View>
+          <Text style={styles.subTitle}>Placed on {formatDate(localOrder.createdAt)}</Text>
+        </View>
+      </View>
 
-            {localOrder.customer && (
-              <View style={styles.section}>
-                <Paragraph style={styles.sectionTitle}>Customer:</Paragraph>
-                <Title>{localOrder.customer.name}</Title>
-                {localOrder.customer.email && (
-                  <Paragraph>{localOrder.customer.email}</Paragraph>
-                )}
-                {localOrder.customer.phone && (
-                  <Paragraph>{localOrder.customer.phone}</Paragraph>
-                )}
+      {/* 2. CONTENT SHEET */}
+      <View style={styles.contentSheet}>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollPadding} showsVerticalScrollIndicator={false}>
+          
+          {/* Customer & Shipping Row */}
+          <Text style={styles.sectionLabel}>Customer Information</Text>
+          <Surface style={styles.infoCard} elevation={1}>
+            <View style={styles.customerRow}>
+              <Avatar.Text 
+                size={40} 
+                label={localOrder.customer?.name?.substring(0,2).toUpperCase() || 'CU'} 
+                style={styles.avatar} 
+                labelStyle={styles.avatarLabel} 
+              />
+              <View style={styles.customerDetails}>
+                <Text style={styles.customerName}>{localOrder.customer?.name}</Text>
+                <Text style={styles.customerSub}>{localOrder.customer?.email}</Text>
               </View>
-            )}
-
-            <Divider style={styles.divider} />
-
-            <View style={styles.row}>
-              <Paragraph style={styles.label}>Order Date:</Paragraph>
-              <Paragraph>{formatDate(localOrder.createdAt)}</Paragraph>
             </View>
-
-            {localOrder.confirmedAt && (
-              <View style={styles.row}>
-                <Paragraph style={styles.label}>Confirmed:</Paragraph>
-                <Paragraph>{formatDate(localOrder.confirmedAt)}</Paragraph>
-              </View>
-            )}
-
-            <Divider style={styles.divider} />
-
             {localOrder.shippingAddress && (
-              <View style={styles.section}>
-                <Paragraph style={styles.sectionTitle}>Shipping Address:</Paragraph>
-                <Paragraph>{localOrder.shippingAddress.name}</Paragraph>
-                <Paragraph>{localOrder.shippingAddress.address}</Paragraph>
-                <Paragraph>
-                  {localOrder.shippingAddress.city}, {localOrder.shippingAddress.state} {localOrder.shippingAddress.pincode}
-                </Paragraph>
+              <View style={styles.addressBox}>
+                <Divider style={styles.innerDivider} />
+                <Text style={styles.addressLabel}>Shipping Address</Text>
+                <Text style={styles.addressText}>
+                  {localOrder.shippingAddress.address}, {localOrder.shippingAddress.city}
+                </Text>
               </View>
             )}
+          </Surface>
 
-            <Divider style={styles.divider} />
+          {/* Items Section */}
+          <Text style={[styles.sectionLabel, { marginTop: 25 }]}>Ordered Items</Text>
+          {localOrder.items?.map((item) => (
+            <View key={item.id} style={styles.itemRow}>
+              <View style={styles.itemMain}>
+                <Text style={styles.itemName}>{item.productName || item.product?.name}</Text>
+                <Text style={styles.itemSub}>Quantity: {item.quantity}</Text>
+              </View>
+              <Text style={styles.itemTotal}>{formatCurrency(item.netAmount || item.totalPrice)}</Text>
+            </View>
+          ))}
 
-            {localOrder.items && localOrder.items.length > 0 && (
-              <>
-                <Paragraph style={styles.sectionTitle}>Order Items:</Paragraph>
-                <DataTable>
-                  <DataTable.Header>
-                    <DataTable.Title>Product</DataTable.Title>
-                    <DataTable.Title numeric>Qty</DataTable.Title>
-                    <DataTable.Title numeric>Total</DataTable.Title>
-                  </DataTable.Header>
+          <Divider style={styles.divider} />
 
-                  {localOrder.items.map((item) => (
-                    <DataTable.Row key={item.id}>
-                      <DataTable.Cell>
-                        {item.productName || item.product?.name}
-                      </DataTable.Cell>
-                      <DataTable.Cell numeric>{item.quantity}</DataTable.Cell>
-                      <DataTable.Cell numeric>
-                        {formatCurrency(item.netAmount || item.totalPrice)}
-                      </DataTable.Cell>
-                    </DataTable.Row>
-                  ))}
-                </DataTable>
+          {/* Totals Summary */}
+          <View style={styles.totalsContainer}>
+            <View style={styles.totalLine}>
+              <Text style={styles.totalLabel}>Subtotal</Text>
+              <Text style={styles.totalValue}>{formatCurrency(localOrder.subtotal || 0)}</Text>
+            </View>
+            {localOrder.totalTax > 0 && (
+              <View style={styles.totalLine}>
+                <Text style={styles.totalLabel}>Tax</Text>
+                <Text style={styles.totalValue}>{formatCurrency(localOrder.totalTax)}</Text>
+              </View>
+            )}
+            <View style={[styles.totalLine, styles.grandTotalLine]}>
+              <Text style={styles.grandTotalLabel}>Order Total</Text>
+              <Text style={styles.grandTotalValue}>{formatCurrency(localOrder.total)}</Text>
+            </View>
+          </View>
 
-                <Divider style={styles.divider} />
-
-                <View style={styles.totalsSection}>
-                  <View style={styles.totalRow}>
-                    <Paragraph>Subtotal:</Paragraph>
-                    <Paragraph>{formatCurrency(localOrder.subtotal || 0)}</Paragraph>
-                  </View>
-                  {localOrder.totalDiscount > 0 && (
-                    <View style={styles.totalRow}>
-                      <Paragraph>Discount:</Paragraph>
-                      <Paragraph>-{formatCurrency(localOrder.totalDiscount)}</Paragraph>
-                    </View>
-                  )}
-                  {localOrder.totalTax > 0 && (
-                    <View style={styles.totalRow}>
-                      <Paragraph>Tax:</Paragraph>
-                      <Paragraph>{formatCurrency(localOrder.totalTax)}</Paragraph>
-                    </View>
-                  )}
-                  <Divider style={styles.divider} />
-                  <View style={styles.totalRow}>
-                    <Title>Total:</Title>
-                    <Title style={styles.totalAmount}>
-                      {formatCurrency(localOrder.total)}
-                    </Title>
+          {/* Timeline Section */}
+          {localOrder.timeline && localOrder.timeline.length > 0 && (
+            <View style={styles.timelineSection}>
+              <Text style={styles.sectionLabel}>Order Timeline</Text>
+              {localOrder.timeline.map((event, index) => (
+                <View key={index} style={styles.timelineItem}>
+                  <View style={styles.timelinePoint} />
+                  <View style={styles.timelineContent}>
+                    <Text style={styles.timelineDesc}>{event.description}</Text>
+                    <Text style={styles.timelineDate}>{formatDate(event.timestamp)}</Text>
                   </View>
                 </View>
-              </>
-            )}
+              ))}
+            </View>
+          )}
 
-            {localOrder.payment && (
-              <>
-                <Divider style={styles.divider} />
-                <View style={styles.section}>
-                  <Paragraph style={styles.sectionTitle}>Payment:</Paragraph>
-                  <View style={styles.row}>
-                    <Paragraph>Method:</Paragraph>
-                    <Paragraph>{localOrder.payment.method}</Paragraph>
-                  </View>
-                  <View style={styles.row}>
-                    <Paragraph>Status:</Paragraph>
-                    <StatusBadge status={localOrder.payment.status} style={styles.paymentBadge} />
-                  </View>
-                  {localOrder.payment.paidAt && (
-                    <View style={styles.row}>
-                      <Paragraph>Paid At:</Paragraph>
-                      <Paragraph>{formatDate(localOrder.payment.paidAt)}</Paragraph>
-                    </View>
-                  )}
-                </View>
-              </>
-            )}
-
-            {localOrder.shipment && (
-              <>
-                <Divider style={styles.divider} />
-                <View style={styles.section}>
-                  <Paragraph style={styles.sectionTitle}>Shipment:</Paragraph>
-                  <View style={styles.row}>
-                    <Paragraph>Status:</Paragraph>
-                    <StatusBadge status={localOrder.shipment.status} style={styles.shipmentBadge} />
-                  </View>
-                  {localOrder.shipment.trackingNumber && (
-                    <View style={styles.row}>
-                      <Paragraph>Tracking:</Paragraph>
-                      <Paragraph>{localOrder.shipment.trackingNumber}</Paragraph>
-                    </View>
-                  )}
-                  {localOrder.shipment.carrier && (
-                    <View style={styles.row}>
-                      <Paragraph>Carrier:</Paragraph>
-                      <Paragraph>{localOrder.shipment.carrier}</Paragraph>
-                    </View>
-                  )}
-                  {localOrder.shipment.estimatedDelivery && (
-                    <View style={styles.row}>
-                      <Paragraph>Est. Delivery:</Paragraph>
-                      <Paragraph>{formatDate(localOrder.shipment.estimatedDelivery)}</Paragraph>
-                    </View>
-                  )}
-                </View>
-              </>
-            )}
-
-            {localOrder.timeline && localOrder.timeline.length > 0 && (
-              <>
-                <Divider style={styles.divider} />
-                <View style={styles.section}>
-                  <Paragraph style={styles.sectionTitle}>Timeline:</Paragraph>
-                  {localOrder.timeline.map((event, index) => (
-                    <View key={index} style={styles.timelineItem}>
-                      <Paragraph style={styles.timelineDate}>
-                        {formatDate(event.timestamp)}
-                      </Paragraph>
-                      <Paragraph style={styles.timelineDesc}>
-                        {event.description}
-                      </Paragraph>
-                    </View>
-                  ))}
-                </View>
-              </>
-            )}
-          </Card.Content>
-        </Card>
-      </ScrollView>
+          <View style={{ height: 60 }} />
+        </ScrollView>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, backgroundColor: '#fff' },
+  loadingFull: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  headerBackground: {
+    backgroundColor: '#61F2D5',
+    height: 220,
+    paddingTop: 45,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    zIndex: 10,
+  },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 },
+  headerTextGroup: { paddingHorizontal: 25, marginTop: 15 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  mainTitle: { fontSize: 28, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  subTitle: { fontSize: 13, color: '#444', opacity: 0.7, marginTop: 4 },
+  badgeWrapper: { scaleX: 0.85, scaleY: 0.85, marginRight: -10 },
+  
+  contentSheet: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    marginTop: -40,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    zIndex: 5,
   },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 32,
-    height: 32,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  card: {
-    margin: 16,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#ffffff',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  orderNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  section: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    color: '#666',
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-  },
-  divider: {
-    marginVertical: 16,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-    alignItems: 'center',
-  },
-  label: {
-    fontSize: 12,
-    color: '#666',
-  },
-  totalsSection: {
-    marginTop: 16,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  totalAmount: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  paymentBadge: {
-    height: 24,
-  },
-  shipmentBadge: {
-    height: 24,
-  },
-  timelineItem: {
-    marginBottom: 12,
-    paddingLeft: 8,
-    borderLeftWidth: 2,
-    borderLeftColor: '#2196F3',
-  },
-  timelineDate: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 2,
-  },
-  timelineDesc: {
-    fontSize: 14,
-  },
+  scroll: { flex: 1 },
+  scrollPadding: { paddingHorizontal: 25, paddingTop: 40 },
+  sectionLabel: { fontSize: 12, fontWeight: 'bold', color: '#BBB', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
+  
+  infoCard: { borderRadius: 20, backgroundColor: '#fff', padding: 15, borderWidth: 1, borderColor: '#F8F8F8', marginBottom: 20 },
+  customerRow: { flexDirection: 'row', alignItems: 'center' },
+  avatar: { backgroundColor: '#F0FFFC' },
+  avatarLabel: { color: '#4FD3B5', fontWeight: 'bold' },
+  customerDetails: { marginLeft: 15 },
+  customerName: { fontSize: 16, fontWeight: 'bold', color: '#222' },
+  customerSub: { fontSize: 12, color: '#888' },
+
+  addressBox: { marginTop: 15 },
+  innerDivider: { marginBottom: 15, backgroundColor: '#F0F0F0' },
+  addressLabel: { fontSize: 11, color: '#BBB', textTransform: 'uppercase', marginBottom: 4 },
+  addressText: { fontSize: 13, color: '#555', lineHeight: 18 },
+
+  itemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
+  itemName: { fontSize: 14, fontWeight: '700', color: '#333' },
+  itemSub: { fontSize: 12, color: '#999', marginTop: 2 },
+  itemTotal: { fontSize: 14, fontWeight: '700', color: '#222' },
+  
+  divider: { marginVertical: 15, backgroundColor: '#F0F0F0' },
+  
+  totalsContainer: { marginTop: 10 },
+  totalLine: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  totalLabel: { fontSize: 14, color: '#888' },
+  totalValue: { fontSize: 14, color: '#333', fontWeight: '600' },
+  grandTotalLine: { marginTop: 10, paddingTop: 10 },
+  grandTotalLabel: { fontSize: 16, fontWeight: 'bold', color: '#222' },
+  grandTotalValue: { fontSize: 22, fontWeight: 'bold', color: '#4FD3B5' },
+
+  timelineSection: { marginTop: 30 },
+  timelineItem: { flexDirection: 'row', marginBottom: 20 },
+  timelinePoint: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#4FD3B5', marginTop: 5, marginRight: 15 },
+  timelineContent: { flex: 1, borderLeftWidth: 1, borderLeftColor: '#F0F0F0', paddingLeft: 15, marginLeft: -20 },
+  timelineDesc: { fontSize: 14, color: '#333', fontWeight: '600' },
+  timelineDate: { fontSize: 11, color: '#BBB', marginTop: 2 }
 });
 
 export default OrderDetailScreen;
-

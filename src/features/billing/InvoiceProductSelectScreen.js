@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, StyleSheet, FlatList, Image } from 'react-native';
-import { Appbar, Button, Badge, useTheme, Surface } from 'react-native-paper';
+import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, Text } from 'react-native';
+import { IconButton, Surface, Badge } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
 import { useProducts } from '@hooks';
-import { ProductCard, EmptyState, PaginationControls, FilterBar, LoadingScreen } from '@components';
+import { ProductCard, EmptyState, PaginationControls, LoadingScreen } from '@components';
 
 const InvoiceProductSelectScreen = ({ navigation, route }) => {
-  const theme = useTheme();
   const { customer } = route.params;
 
   // State
@@ -17,7 +16,6 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
 
   const { products = [], loading, pagination = {}, fetchProducts, searchProducts } = useProducts();
 
-  // Memoized Load Logic
   const loadProducts = useCallback(() => {
     const params = {
       page: currentPage,
@@ -40,7 +38,6 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
     loadProducts();
   }, [loadProducts]);
 
-  // Handlers
   const handleSearch = useCallback((query) => {
     setSearchQuery(query);
     setCurrentPage(1);
@@ -57,9 +54,6 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
     setCart(prevCart => {
       const existingIndex = prevCart.findIndex(item => item.variantId === variant.id);
       const price = variant.offerPrice || variant.price || product.basePrice;
-
-      // Calculate Tax if the product has tax information
-      // Most Indian GST is calculated as: Price * (Rate / 100)
       const taxRate = product.taxGroup?.taxes?.reduce((sum, t) => sum + t.rate, 0) || 0;
       const unitTax = parseFloat((price * (taxRate / 100)).toFixed(2));
 
@@ -80,7 +74,7 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
         sku: variant.sku,
         quantity: 1,
         unitPrice: price,
-        taxAmount: unitTax, // Important for the final API call
+        taxAmount: unitTax,
         totalPrice: price,
       }];
     });
@@ -96,7 +90,6 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
     });
   };
 
-  // Helper to sync Cart State with UI
   const getProductQuantity = useCallback((productId) => {
     const variant = selectedVariants[productId] || products?.find(p => p.id === productId)?.variants?.[0];
     if (!variant) return 0;
@@ -105,87 +98,107 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
 
   const cartItemsCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
-  // Renderers
   const renderProductCard = ({ item }) => {
     const selectedVariant = selectedVariants[item.id] || item.variants?.[0];
     const quantity = getProductQuantity(item.id);
 
     return (
-      <ProductCard
-        product={item}
-        selectedVariant={selectedVariant}
-        quantity={quantity}
-        onVariantSelect={(v) => handleVariantSelect(item.id, v)}
-        onQuantityChange={(newQty) => handleQuantityChange(selectedVariant?.id || item.variants?.[0]?.id, newQty)}
-        onAddToCart={() => handleAddToCart(item)}
-      />
+      <View style={styles.cardWrapper}>
+        <ProductCard
+          product={item}
+          selectedVariant={selectedVariant}
+          quantity={quantity}
+          onVariantSelect={(v) => handleVariantSelect(item.id, v)}
+          onQuantityChange={(newQty) => handleQuantityChange(selectedVariant?.id || item.variants?.[0]?.id, newQty)}
+          onAddToCart={() => handleAddToCart(item)}
+        />
+      </View>
     );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Appbar.Header elevated style={{ backgroundColor: theme.colors.surface }}>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content
-          title="Select Products"
-          subtitle={`Step 2 of 4 • ${customer?.name || 'Customer'}`}
-        />
-        <View style={styles.badgeAnchor}>
-          <Appbar.Action icon="cart-outline" onPress={() => { }} />
-          {cartItemsCount > 0 && (
-            <Badge style={styles.badge} size={18}>{cartItemsCount}</Badge>
-          )}
+    <View style={styles.container}>
+      {/* 1. BRANDED HEADER */}
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
+          <View style={styles.stepIndicator}>
+            <Text style={styles.stepText}>Step 2 of 4</Text>
+          </View>
         </View>
-      </Appbar.Header>
 
-      <FilterBar
-        searchValue={searchQuery}
-        onSearchChange={handleSearch}
-        placeholder="Search product name or SKU..."
-      />
+        <View style={styles.headerTextGroup}>
+          <Text style={styles.subTitle}>{customer?.name || 'Create Invoice'}</Text>
+          <Text style={styles.mainTitle}>Select Products</Text>
+        </View>
 
-      <View style={styles.content}>
+        {/* 2. FLOATING SEARCH BAR WITH CART BADGE */}
+        <Surface style={styles.searchContainer} elevation={2}>
+          <TextInput
+            placeholder="Search products or SKU..."
+            placeholderTextColor="#AAA"
+            value={searchQuery}
+            onChangeText={handleSearch}
+            style={styles.input}
+          />
+          <View style={styles.cartAnchor}>
+            <IconButton icon="cart-outline" iconColor="#4FD3B5" size={24} />
+            {cartItemsCount > 0 && (
+              <Badge style={styles.cartBadge} size={16}>{cartItemsCount}</Badge>
+            )}
+          </View>
+        </Surface>
+      </View>
+
+      {/* 3. CONTENT AREA */}
+      <View style={styles.contentSheet}>
         {loading && products.length === 0 ? (
           <LoadingScreen fullScreen={false} />
         ) : products?.length === 0 ? (
           <EmptyState
             icon="package-variant-closed"
             title="No products found"
-            message={searchQuery ? "Try a different search term" : "Your inventory is currently empty"}
+            message={searchQuery ? "Try a different search" : "Inventory is empty"}
           />
         ) : (
           <FlatList
             data={products}
             renderItem={renderProductCard}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.list}
-            initialNumToRender={6}
+            contentContainerStyle={styles.listPadding}
+            showsVerticalScrollIndicator={false}
+            ListFooterComponent={
+              pagination?.totalPages > 1 && (
+                <PaginationControls
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={setCurrentPage}
+                  loading={loading}
+                />
+              )
+            }
           />
         )}
       </View>
 
-      {/* Footer Navigation */}
-      {pagination?.totalPages > 1 && (
-        <PaginationControls
-          currentPage={pagination.page}
-          totalPages={pagination.totalPages}
-          onPageChange={setCurrentPage}
-          loading={loading}
-        />
-      )}
-
+      {/* 4. PREMIUM FLOATING FOOTER */}
       {cart.length > 0 && (
-        <Surface style={styles.footer} elevation={4}>
-          <Button
-            mode="contained"
-            onPress={() => navigation.navigate(ROUTES.INVOICE_DISCOUNT, { customer, cart })}
-            style={styles.continueButton}
-            contentStyle={styles.btnContent}
-            icon="arrow-right"
-            contentReverse
-          >
-            Review {cartItemsCount} {cartItemsCount === 1 ? 'Item' : 'Items'}
-          </Button>
+        <Surface style={styles.footerSheet} elevation={8}>
+          <View style={styles.footerRow}>
+            <View>
+              <Text style={styles.footerLabel}>Subtotal</Text>
+              <Text style={styles.footerPrice}>
+                ₹{cart.reduce((sum, i) => sum + i.totalPrice, 0).toLocaleString()}
+              </Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.checkoutBtn}
+              onPress={() => navigation.navigate(ROUTES.INVOICE_DISCOUNT, { customer, cart })}
+            >
+              <Text style={styles.checkoutText}>Review Items</Text>
+              <IconButton icon="chevron-right" iconColor="#fff" size={20} />
+            </TouchableOpacity>
+          </View>
         </Surface>
       )}
     </View>
@@ -193,39 +206,76 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerBackground: {
+    backgroundColor: '#61F2D5',
+    height: 240,
+    paddingTop: 45,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    zIndex: 10,
+  },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
+  stepIndicator: { backgroundColor: 'rgba(255,255,255,0.3)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginRight: 20 },
+  stepText: { fontSize: 11, fontWeight: 'bold', color: '#333', textTransform: 'uppercase' },
+  headerTextGroup: { paddingHorizontal: 25, marginTop: 5 },
+  subTitle: { fontSize: 13, color: '#444', opacity: 0.7 },
+  mainTitle: { fontSize: 26, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  
+  searchContainer: {
+    backgroundColor: '#fff',
+    marginHorizontal: 25,
+    marginTop: 20,
+    borderRadius: 15,
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 20,
+    paddingRight: 5,
+  },
+  input: { flex: 1, fontSize: 14, color: '#333' },
+  cartAnchor: { position: 'relative' },
+  cartBadge: { position: 'absolute', top: 4, right: 4, backgroundColor: '#FF4B7D' },
+
+  contentSheet: {
     flex: 1,
+    marginTop: -40,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    zIndex: 5,
   },
-  content: {
-    flex: 1,
-  },
-  list: {
-    paddingBottom: 100, // Space for the floating footer
-  },
-  badgeAnchor: {
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-  },
-  footer: {
+  listPadding: { paddingHorizontal: 20, paddingTop: 60, paddingBottom: 120 },
+  cardWrapper: { marginBottom: 15 },
+
+  footerSheet: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
-    paddingBottom: 32, // Safe area padding
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: '#fff',
+    paddingHorizontal: 25,
+    paddingTop: 20,
+    paddingBottom: 35,
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
   },
-  continueButton: {
-    borderRadius: 12,
+  footerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  footerLabel: { fontSize: 12, color: '#999', textTransform: 'uppercase' },
+  footerPrice: { fontSize: 20, fontWeight: 'bold', color: '#222' },
+  checkoutBtn: {
+    backgroundColor: '#333',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 20,
+    paddingRight: 8,
+    height: 50,
+    borderRadius: 18,
   },
-  btnContent: {
-    height: 48,
-  },
+  checkoutText: { color: '#fff', fontWeight: 'bold', fontSize: 15 }
 });
 
 export default InvoiceProductSelectScreen;

@@ -1,28 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
-import { Card, Title, Paragraph, FAB, Appbar } from 'react-native-paper';
-import { formatCurrency, formatDate } from '@utils/formatters';
+import { View, StyleSheet, FlatList, RefreshControl, TextInput, TouchableOpacity, Text } from 'react-native';
+import { IconButton, Surface, Avatar, Divider, Menu } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
+import { formatCurrency, formatDate } from '@utils/formatters';
 import { useInvoices } from '@hooks';
-import { FilterBar, PaginationControls, StatusBadge, EmptyState } from '@components';
+import { PaginationControls, EmptyState } from '@components';
 
 const BillingScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  
+  const [visible, setVisible] = useState(false);
+
   const { invoices, loading, pagination, fetchInvoices } = useInvoices();
 
   const loadInvoices = useCallback(() => {
-    const params = {
+    fetchInvoices({
       page: currentPage,
       limit: 20,
       search: searchQuery || undefined,
       status: statusFilter || undefined,
       sortField: 'createdAt',
       sortDirection: 'desc',
-    };
-    fetchInvoices(params);
+    });
   }, [currentPage, searchQuery, statusFilter, fetchInvoices]);
 
   useEffect(() => {
@@ -37,183 +37,231 @@ const BillingScreen = ({ navigation }) => {
   const handleStatusChange = (status) => {
     setStatusFilter(status);
     setCurrentPage(1);
-  };
-
-  const handleRefresh = () => {
-    loadInvoices();
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+    setVisible(false);
   };
 
   const renderInvoiceCard = ({ item }) => (
-    <Card
-      style={styles.card}
-      onPress={() => navigation.navigate(ROUTES.INVOICE, { invoiceId: item.id })}
-    >
-      <Card.Content>
-        <View style={styles.cardHeader}>
-          <Title>{item.invoiceNo || 'N/A'}</Title>
-          {item.status && <StatusBadge status={item.status} style={styles.statusBadge} />}
-        </View>
-        
-        {item.customer && (
-          <Paragraph style={styles.customerName}>{item.customer.name}</Paragraph>
-        )}
-        
-        <View style={styles.cardRow}>
-          <Paragraph style={styles.label}>Amount:</Paragraph>
-          <Title style={styles.amount}>{formatCurrency(item.totalAmount || 0)}</Title>
-        </View>
-        
-        {item.issueDate && (
-          <View style={styles.cardRow}>
-            <Paragraph style={styles.label}>Issue Date:</Paragraph>
-            <Paragraph>{formatDate(item.issueDate)}</Paragraph>
+    <Surface style={styles.card} elevation={1}>
+      <TouchableOpacity
+        style={styles.cardContent}
+        onPress={() => navigation.navigate(ROUTES.INVOICE, { invoiceId: item.id })}
+      >
+        <View style={styles.cardTopRow}>
+          <View style={styles.invoiceInfo}>
+            <Text style={styles.invoiceNo}>{item.invoiceNo || 'N/A'}</Text>
+            <Text style={styles.customerName}>{item.customer?.name || 'Unknown Customer'}</Text>
           </View>
-        )}
-        
-        {item.dueDate && (
-          <View style={styles.cardRow}>
-            <Paragraph style={styles.label}>Due Date:</Paragraph>
-            <Paragraph>{formatDate(item.dueDate)}</Paragraph>
+
+          {/* Status Dot/Indicator */}
+          <View style={[styles.statusTag, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={styles.statusLabel}>{item.status}</Text>
           </View>
-        )}
-      </Card.Content>
-    </Card>
+        </View>
+
+        <Divider style={styles.cardDivider} />
+
+        <View style={styles.cardBottomRow}>
+          <View>
+            <Text style={styles.dateLabel}>Due Date</Text>
+            <Text style={styles.dateValue}>{item.dueDate ? formatDate(item.dueDate) : 'N/A'}</Text>
+          </View>
+          <View style={styles.amountContainer}>
+            <Text style={styles.amountLabel}>Total Amount</Text>
+            <Text style={styles.amountValue}>₹{item.totalAmount || 0}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Surface>
   );
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'PAID': return '#4FD3B5';
+      case 'DRAFT': return '#FFB347';
+      case 'CANCELLED': return '#FF4B7D';
+      default: return '#CCC';
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
+      {/* 1. BRANDED HEADER */}
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
+          <IconButton icon="menu" iconColor="#333" onPress={() => navigation.openDrawer()} />
         </View>
-        <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
-        <Appbar.Content title="Billing & Invoices" titleStyle={styles.headerTitle} />
-      </Appbar.Header>
-      <View style={styles.content}>
-        <FilterBar
-          searchValue={searchQuery}
-          onSearchChange={handleSearch}
-          statusFilter={statusFilter}
-          statusOptions={[
-            { value: 'DRAFT', label: 'Draft' },
-            { value: 'SENT', label: 'Sent' },
-            { value: 'PAID', label: 'Paid' },
-            { value: 'CANCELLED', label: 'Cancelled' },
-          ]}
-          onStatusChange={handleStatusChange}
-        />
 
-        {invoices.length === 0 && !loading ? (
-          <EmptyState
-            icon="file-document-outline"
-            title="No invoices found"
-            message={searchQuery ? "Try adjusting your search" : "Create your first invoice to get started"}
+        <View style={styles.headerTextGroup}>
+          <Text style={styles.subTitle}>Manage Financials</Text>
+          <Text style={styles.mainTitle}>Billing</Text>
+        </View>
+
+        {/* 2. SEARCH & FILTER MENU */}
+        <Surface style={styles.searchContainer} elevation={2}>
+          <TextInput
+            placeholder="Search invoice number..."
+            placeholderTextColor="#AAA"
+            value={searchQuery}
+            onChangeText={handleSearch}
+            style={styles.input}
           />
+          <Divider style={styles.verticalDivider} />
+          <Menu
+            visible={visible}
+            onDismiss={() => setVisible(false)}
+            anchor={
+              <IconButton
+                icon={statusFilter ? "filter" : "filter-variant"}
+                size={22}
+                iconColor={statusFilter ? "#FF4B7D" : "#4FD3B5"}
+                onPress={() => setVisible(true)}
+              />
+            }
+          >
+            <Menu.Item onPress={() => handleStatusChange(null)} title="All Invoices" />
+            <Menu.Item onPress={() => handleStatusChange('PAID')} title="Paid" />
+            <Menu.Item onPress={() => handleStatusChange('DRAFT')} title="Draft" />
+            <Menu.Item onPress={() => handleStatusChange('CANCELLED')} title="Cancelled" />
+          </Menu>
+        </Surface>
+      </View>
+
+      {/* 3. CONTENT AREA */}
+      <View style={styles.contentSheet}>
+        {invoices.length === 0 && !loading ? (
+          <EmptyState icon="file-document-outline" title="No invoices found" />
         ) : (
           <FlatList
             data={invoices}
             renderItem={renderInvoiceCard}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.list}
-            refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+            contentContainerStyle={styles.listPadding}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={loadInvoices} />}
+            ListFooterComponent={
+              pagination.totalPages > 1 && (
+                <PaginationControls
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={(page) => setCurrentPage(page)}
+                  loading={loading}
+                />
+              )
             }
-          />
-        )}
-
-        {pagination.totalPages > 1 && (
-          <PaginationControls
-            currentPage={pagination.page}
-            totalPages={pagination.totalPages}
-            onPageChange={handlePageChange}
-            loading={loading}
           />
         )}
       </View>
 
-      <FAB
-        icon="plus"
-        label="New Invoice"
-        style={styles.fab}
+      {/* 4. FAB & NAVIGATION */}
+      <TouchableOpacity
+        style={styles.floatingFab}
         onPress={() => navigation.navigate(ROUTES.INVOICE_CUSTOMER_SELECT)}
-      />
+      >
+        <IconButton icon="plus" iconColor="#fff" size={28} />
+      </TouchableOpacity>
+
+      <Surface style={styles.bottomNav} elevation={4}>
+        <IconButton icon="home-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.DASHBOARD)} />
+        <IconButton icon="account-group-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)} />
+        <View style={styles.activeTabContainer}>
+          <IconButton icon="file-document" iconColor="#4FD3B5" />
+          <View style={styles.activeDot} />
+        </View>
+      </Surface>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerBackground: {
+    backgroundColor: '#61F2D5',
+    height: 260,
+    paddingTop: 40,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    zIndex: 1,
+  },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 },
+  headerTextGroup: { paddingHorizontal: 25, marginTop: 5 },
+  subTitle: { fontSize: 13, color: '#444', opacity: 0.7 },
+  mainTitle: { fontSize: 28, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  searchContainer: {
+    backgroundColor: '#fff',
+    marginHorizontal: 25,
+    marginTop: 20,
+    borderRadius: 15,
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 20,
+    paddingRight: 5,
+  },
+  input: { flex: 1, fontSize: 15, color: '#333' },
+  verticalDivider: { width: 1, height: '50%', backgroundColor: '#EEE', marginHorizontal: 5 },
+
+  contentSheet: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    marginTop: -40,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    zIndex: 2,
   },
-  header: {
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 28,
-    height: 28,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  content: {
-    flex: 1,
-  },
-  list: {
-    padding: 16,
-  },
+  listPadding: { paddingHorizontal: 25, paddingTop: 30, paddingBottom: 120 },
+
   card: {
-    marginBottom: 12,
-    borderRadius: 4,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
-    backgroundColor: '#ffffff',
+    borderColor: '#F8F8F8',
+    overflow: 'hidden'
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  statusBadge: {
-    height: 28,
-  },
-  customerName: {
-    color: '#666',
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  cardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  label: {
-    color: '#666',
-  },
-  amount: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  fab: {
+  cardContent: { padding: 16 },
+  cardTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  invoiceNo: { fontSize: 16, fontWeight: 'bold', color: '#222' },
+  customerName: { fontSize: 13, color: '#888', marginTop: 2 },
+  statusTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  statusLabel: { fontSize: 10, color: '#fff', fontWeight: 'bold' },
+
+  cardDivider: { marginVertical: 12, backgroundColor: '#F0F0F0' },
+
+  cardBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  dateLabel: { fontSize: 10, color: '#BBB', textTransform: 'uppercase' },
+  dateValue: { fontSize: 13, color: '#555', fontWeight: '600' },
+  amountContainer: { alignItems: 'flex-end' },
+  amountLabel: { fontSize: 10, color: '#BBB', textTransform: 'uppercase' },
+  amountValue: { fontSize: 18, fontWeight: 'bold', color: '#4FD3B5' },
+
+  floatingFab: {
     position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
+    bottom: 100,
+    right: 25,
+    backgroundColor: '#FF4B7D',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    zIndex: 10,
   },
+
+  bottomNav: {
+    position: 'absolute',
+    bottom: 25,
+    left: 25,
+    right: 25,
+    height: 65,
+    borderRadius: 22,
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  activeTabContainer: { alignItems: 'center' },
+  activeDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#4FD3B5', marginTop: -8 }
 });
 
 export default BillingScreen;

@@ -212,9 +212,24 @@ const DrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawer {...props} />}
       screenOptions={{
         headerShown: false,
+        // 1. POSITION DRAWER ON THE RIGHT
+        drawerPosition: 'right',
+        // 2. SET DRAWER TYPE TO 'FRONT' (slides over the content)
+        drawerType: 'front',
+        // 3. PREMIUM FLOATING SHEET STYLING
         drawerStyle: {
-          width: 280,
+          width: '25%',
+          backgroundColor: '#fff',
+          borderTopLeftRadius: 50,    // Curves the top edge as it slides in
+          borderBottomLeftRadius: 50, // Curves the bottom edge
+          elevation: 20,              // Stronger shadow for depth
+          shadowColor: '#000',
+          shadowOffset: { width: -10, height: 0 },
+          shadowOpacity: 0.1,
+          shadowRadius: 20,
         },
+        // Overlay color (dimming the background)
+        overlayColor: 'rgba(0,0,0,0.4)',
       }}
       initialRouteName={ROUTES.DASHBOARD}
     >

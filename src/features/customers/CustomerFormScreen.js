@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
-import { TextInput, Button, Appbar, HelperText, SegmentedButtons } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Text, TextInput as RNTextInput } from 'react-native';
+import { IconButton, Surface, HelperText, Avatar } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useCustomers } from '@hooks';
@@ -21,13 +21,7 @@ const CustomerFormScreen = ({ navigation, route }) => {
   const isEditMode = !!customerId;
   
   const [initialValues, setInitialValues] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    companyName: '',
-    gstNumber: '',
-    panNumber: '',
-    isActive: true,
+    name: '', email: '', phone: '', companyName: '', gstNumber: '', panNumber: '', isActive: true,
   });
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   
@@ -35,9 +29,7 @@ const CustomerFormScreen = ({ navigation, route }) => {
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
-    if (isEditMode) {
-      loadCustomer();
-    }
+    if (isEditMode) loadCustomer();
   }, [customerId]);
 
   const loadCustomer = async () => {
@@ -59,228 +51,132 @@ const CustomerFormScreen = ({ navigation, route }) => {
   };
 
   const handleSubmit = async (values) => {
-    const data = {
-      name: values.name,
-      email: values.email || undefined,
-      phone: values.phone,
-      companyName: values.companyName || undefined,
-      gstNumber: values.gstNumber || undefined,
-      panNumber: values.panNumber || undefined,
-      isActive: values.isActive,
-    };
-
-    let result;
-    if (isEditMode) {
-      result = await updateCustomer(customerId, data);
-    } else {
-      result = await createCustomer(data);
-    }
-
+    const result = isEditMode ? await updateCustomer(customerId, values) : await createCustomer(values);
     if (result.success) {
-      showSnackbar(
-        isEditMode ? 'Customer updated successfully' : 'Customer created successfully',
-        'success'
-      );
+      showSnackbar(isEditMode ? 'Updated successfully' : 'Created successfully', 'success');
       navigation.goBack();
     } else {
       showSnackbar(result.error || 'Operation failed', 'error');
     }
   };
 
+  // FIXED: Re-added the missing handleDelete function
   const handleDelete = async () => {
     const result = await deleteCustomer(customerId);
     if (result.success) {
       showSnackbar('Customer deleted successfully', 'success');
+      setDeleteDialogVisible(false);
       navigation.goBack();
     } else {
       showSnackbar(result.error || 'Failed to delete customer', 'error');
+      setDeleteDialogVisible(false);
     }
-    setDeleteDialogVisible(false);
   };
+
+  const FormInput = ({ label, icon, value, onChangeText, onBlur, error, touched, ...props }) => (
+    <View style={styles.inputWrapper}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <Surface style={[styles.inputSurface, touched && error && styles.inputError]} elevation={0}>
+        <IconButton icon={icon} size={20} iconColor="#4FD3B5" style={styles.inputIcon} />
+        <RNTextInput
+          style={styles.textInput}
+          value={value}
+          onChangeText={onChangeText}
+          onBlur={onBlur}
+          placeholderTextColor="#BBB"
+          {...props}
+        />
+      </Surface>
+      {touched && error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
+          {isEditMode && (
+            <IconButton icon="trash-can-outline" iconColor="#FF4B7D" onPress={() => setDeleteDialogVisible(true)} />
+          )}
         </View>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content 
-          title={isEditMode ? 'Edit Customer' : 'New Customer'} 
-          titleStyle={styles.headerTitle} 
-        />
-        {isEditMode && (
-          <Appbar.Action
-            icon="delete"
-            onPress={() => setDeleteDialogVisible(true)}
-          />
-        )}
-      </Appbar.Header>
+        <View style={styles.headerTextGroup}>
+          <Text style={styles.subTitle}>{isEditMode ? 'Edit member' : 'New member'}</Text>
+          <Text style={styles.mainTitle}>{isEditMode ? initialValues.name : 'Add Customer'}</Text>
+        </View>
+      </View>
 
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView style={styles.scrollView}>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={CustomerSchema}
-            onSubmit={handleSubmit}
-            enableReinitialize
-          >
-            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-              <View style={styles.form}>
-                <TextInput
-                  label="Full Name *"
-                  mode="outlined"
-                  value={values.name}
-                  onChangeText={handleChange('name')}
-                  onBlur={handleBlur('name')}
-                  error={touched.name && errors.name}
-                  style={styles.input}
-                />
-                <HelperText type="error" visible={touched.name && errors.name}>
-                  {errors.name}
-                </HelperText>
+      <View style={styles.contentSheet}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
+          <ScrollView contentContainerStyle={styles.scrollPadding} showsVerticalScrollIndicator={false}>
+            <Formik initialValues={initialValues} validationSchema={CustomerSchema} onSubmit={handleSubmit} enableReinitialize>
+              {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
+                <View>
+                  <FormInput label="Full Name *" icon="account-outline" value={values.name} onChangeText={handleChange('name')} onBlur={handleBlur('name')} error={errors.name} touched={touched.name} placeholder="e.g. Loni Bowcher" />
+                  <View style={styles.row}>
+                    <View style={{ flex: 1 }}>
+                      <FormInput label="Phone *" icon="phone-outline" value={values.phone} onChangeText={handleChange('phone')} onBlur={handleBlur('phone')} error={errors.phone} touched={touched.phone} keyboardType="phone-pad" placeholder="98765..." />
+                    </View>
+                    <View style={{ width: 15 }} />
+                    <View style={{ flex: 1 }}>
+                      <FormInput label="Status" icon="circle-double" value={values.isActive ? 'Active' : 'Inactive'} editable={false} />
+                    </View>
+                  </View>
+                  <FormInput label="Email Address" icon="email-outline" value={values.email} onChangeText={handleChange('email')} onBlur={handleBlur('email')} error={errors.email} touched={touched.email} keyboardType="email-address" autoCapitalize="none" placeholder="loni@example.com" />
+                  <FormInput label="Company Name" icon="office-building-outline" value={values.companyName} onChangeText={handleChange('companyName')} onBlur={handleBlur('companyName')} placeholder="e.g. Sales Düsseldorf" />
+                  <View style={styles.statusToggleRow}>
+                    <Text style={styles.statusLabel}>Set Profile as Active</Text>
+                    <TouchableOpacity style={[styles.toggleBase, values.isActive && styles.toggleActive]} onPress={() => setFieldValue('isActive', !values.isActive)}>
+                      <View style={[styles.toggleThumb, values.isActive && styles.toggleThumbActive]} />
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={loading}>
+                    <Text style={styles.submitBtnText}>{loading ? 'Processing...' : isEditMode ? 'Update Profile' : 'Create Profile'}</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </Formik>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
 
-                <TextInput
-                  label="Email"
-                  mode="outlined"
-                  value={values.email}
-                  onChangeText={handleChange('email')}
-                  onBlur={handleBlur('email')}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  error={touched.email && errors.email}
-                  style={styles.input}
-                />
-                <HelperText type="error" visible={touched.email && errors.email}>
-                  {errors.email}
-                </HelperText>
-
-                <TextInput
-                  label="Phone *"
-                  mode="outlined"
-                  value={values.phone}
-                  onChangeText={handleChange('phone')}
-                  onBlur={handleBlur('phone')}
-                  keyboardType="phone-pad"
-                  error={touched.phone && errors.phone}
-                  style={styles.input}
-                />
-                <HelperText type="error" visible={touched.phone && errors.phone}>
-                  {errors.phone}
-                </HelperText>
-
-                <TextInput
-                  label="Company Name"
-                  mode="outlined"
-                  value={values.companyName}
-                  onChangeText={handleChange('companyName')}
-                  onBlur={handleBlur('companyName')}
-                  style={styles.input}
-                />
-
-                <TextInput
-                  label="GST Number"
-                  mode="outlined"
-                  value={values.gstNumber}
-                  onChangeText={handleChange('gstNumber')}
-                  onBlur={handleBlur('gstNumber')}
-                  autoCapitalize="characters"
-                  style={styles.input}
-                />
-
-                <TextInput
-                  label="PAN Number"
-                  mode="outlined"
-                  value={values.panNumber}
-                  onChangeText={handleChange('panNumber')}
-                  onBlur={handleBlur('panNumber')}
-                  autoCapitalize="characters"
-                  style={styles.input}
-                />
-
-                <SegmentedButtons
-                  value={values.isActive ? 'active' : 'inactive'}
-                  onValueChange={(value) => setFieldValue('isActive', value === 'active')}
-                  buttons={[
-                    { value: 'active', label: 'Active' },
-                    { value: 'inactive', label: 'Inactive' },
-                  ]}
-                  style={styles.segmentedButtons}
-                />
-
-                <Button
-                  mode="contained"
-                  onPress={handleSubmit}
-                  loading={loading}
-                  disabled={loading}
-                  style={styles.button}
-                >
-                  {isEditMode ? 'Update Customer' : 'Create Customer'}
-                </Button>
-              </View>
-            )}
-          </Formik>
-        </ScrollView>
-      </KeyboardAvoidingView>
-
-      <ConfirmDialog
-        visible={deleteDialogVisible}
-        title="Delete Customer"
-        message="Are you sure you want to delete this customer? This action cannot be undone."
-        onConfirm={handleDelete}
-        onDismiss={() => setDeleteDialogVisible(false)}
-        loading={loading}
+      <ConfirmDialog 
+        visible={deleteDialogVisible} 
+        title="Delete Customer" 
+        message="This action is permanent. Continue?" 
+        onConfirm={handleDelete} 
+        onDismiss={() => setDeleteDialogVisible(false)} 
+        loading={loading} 
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  header: {
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerLogo: {
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  logo: {
-    width: 28,
-    height: 28,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  form: {
-    padding: 16,
-  },
-  input: {
-    marginBottom: 4,
-  },
-  segmentedButtons: {
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  button: {
-    marginTop: 16,
-    paddingVertical: 8,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerBackground: { backgroundColor: '#61F2D5', height: 220, paddingTop: 45, borderBottomLeftRadius: 60, borderBottomRightRadius: 60, zIndex: 10 },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 },
+  headerTextGroup: { paddingHorizontal: 25, marginTop: 15 },
+  subTitle: { fontSize: 13, color: '#444', opacity: 0.7 },
+  mainTitle: { fontSize: 26, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  contentSheet: { flex: 1, marginTop: -40, backgroundColor: '#fff', borderTopLeftRadius: 40, borderTopRightRadius: 40, zIndex: 5 },
+  scrollPadding: { paddingHorizontal: 25, paddingTop: 40, paddingBottom: 40 },
+  inputWrapper: { marginBottom: 20 },
+  inputLabel: { fontSize: 12, fontWeight: 'bold', color: '#BBB', textTransform: 'uppercase', marginBottom: 8, marginLeft: 4 },
+  inputSurface: { backgroundColor: '#F9F9F9', borderRadius: 18, height: 55, flexDirection: 'row', alignItems: 'center', paddingRight: 15, borderWidth: 1, borderColor: '#F0F0F0' },
+  inputError: { borderColor: '#FF4B7D' },
+  inputIcon: { marginLeft: 5 },
+  textInput: { flex: 1, fontSize: 15, color: '#333', fontWeight: '500' },
+  errorText: { color: '#FF4B7D', fontSize: 11, marginTop: 5, marginLeft: 15 },
+  row: { flexDirection: 'row' },
+  statusToggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, marginBottom: 30, paddingHorizontal: 5 },
+  statusLabel: { fontSize: 14, fontWeight: '700', color: '#444' },
+  toggleBase: { width: 50, height: 28, borderRadius: 14, backgroundColor: '#EEE', padding: 3, justifyContent: 'center' },
+  toggleActive: { backgroundColor: '#4FD3B5' },
+  toggleThumb: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff' },
+  toggleThumbActive: { alignSelf: 'flex-end' },
+  submitBtn: { backgroundColor: '#333', height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', elevation: 4 },
+  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
 });
 
 export default CustomerFormScreen;

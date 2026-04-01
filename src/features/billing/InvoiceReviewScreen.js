@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Appbar, Card, Title, Paragraph, Button, DataTable, TextInput, Text } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput as RNTextInput } from 'react-native';
+import { IconButton, Surface, Divider, Button, Avatar } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
 import { useInvoices } from '@hooks';
 import { useSnackbar } from '@hooks/useSnackbar';
@@ -16,7 +16,6 @@ const InvoiceReviewScreen = ({ navigation, route }) => {
 
   const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
   const taxAmount = cart.reduce((sum, item) => sum + (item.taxAmount || 0), 0);
-  // Ensure totalAmount is a number and rounded to 2 decimal places to avoid API precision errors
   const totalAmount = parseFloat((subtotal + taxAmount - discountAmount).toFixed(2));
 
   const handleCreateInvoice = async () => {
@@ -37,7 +36,6 @@ const InvoiceReviewScreen = ({ navigation, route }) => {
 
     try {
       const result = await createInvoice(invoiceData);
-
       if (result.success) {
         showSnackbar('Invoice created successfully', 'success');
         navigation.reset({
@@ -48,8 +46,7 @@ const InvoiceReviewScreen = ({ navigation, route }) => {
           ],
         });
       } else {
-        // Handling the 500 error or validation errors from the API
-        showSnackbar(result.error || 'Failed to create invoice. Please check network.', 'error');
+        showSnackbar(result.error || 'Failed to create invoice.', 'error');
       }
     } catch (error) {
       showSnackbar('A system error occurred.', 'error');
@@ -58,140 +55,174 @@ const InvoiceReviewScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.header}>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content
-          title="Review Invoice"
-          subtitle={`Step 4 of 4 • ${customer.name}`}
-          titleStyle={styles.headerTitle}
-        />
-        <View style={styles.headerLogo}>
-          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
+      {/* 1. BRANDED HEADER */}
+      <View style={styles.headerBackground}>
+        <View style={styles.topNav}>
+          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
+          <View style={styles.stepIndicator}>
+            <Text style={styles.stepText}>Final Step</Text>
+          </View>
         </View>
-      </Appbar.Header>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Customer Summary Card */}
-        <Card style={styles.card} elevation={0}>
-          <Card.Content>
-            <Title style={styles.sectionTitle}>Customer Details</Title>
-            <Paragraph style={styles.customerName}>{customer.name}</Paragraph>
-            <Text style={styles.text}>{customer.email}</Text>
-            <Text style={styles.text}>{formatPhoneNumber(customer.phone)}</Text>
-            {customer.companyName && <Text style={styles.text}>{customer.companyName}</Text>}
-          </Card.Content>
-        </Card>
+        <View style={styles.headerTextGroup}>
+          <Text style={styles.subTitle}>Check details before sending</Text>
+          <Text style={styles.mainTitle}>Review Invoice</Text>
+        </View>
+      </View>
 
-        {/* Items Table Card */}
-        <Card style={styles.card} elevation={0}>
-          <Card.Content>
-            <Title style={styles.sectionTitle}>Items ({cart.length})</Title>
-            <DataTable>
-              <DataTable.Header>
-                <DataTable.Title>Product</DataTable.Title>
-                <DataTable.Title numeric>Qty</DataTable.Title>
-                <DataTable.Title numeric>Total</DataTable.Title>
-              </DataTable.Header>
+      {/* 2. CONTENT AREA */}
+      <View style={styles.contentSheet}>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollPadding} showsVerticalScrollIndicator={false}>
+          
+          {/* Customer Summary */}
+          <Text style={styles.sectionTitle}>Bill To</Text>
+          <Surface style={styles.customerCard} elevation={1}>
+            <View style={styles.customerRow}>
+              <Avatar.Text size={40} label={customer.name.substring(0, 2).toUpperCase()} style={styles.avatar} labelStyle={styles.avatarLabel} />
+              <View style={styles.customerInfo}>
+                <Text style={styles.customerName}>{customer.name}</Text>
+                <Text style={styles.customerSub}>{customer.email}</Text>
+                <Text style={styles.customerSub}>{formatPhoneNumber(customer.phone)}</Text>
+              </View>
+            </View>
+          </Surface>
 
-              {cart.map((item, index) => (
-                <DataTable.Row key={item.variantId || index}>
-                  <DataTable.Cell>
-                    <View style={styles.itemInfo}>
-                      <Text style={styles.productName} numberOfLines={1}>{item.productName}</Text>
-                      <Text style={styles.variantName}>{item.variantName}</Text>
-                    </View>
-                  </DataTable.Cell>
-                  <DataTable.Cell numeric>{item.quantity}</DataTable.Cell>
-                  <DataTable.Cell numeric>
-                    <Text style={styles.priceText}>{formatCurrency(item.totalPrice)}</Text>
-                  </DataTable.Cell>
-                </DataTable.Row>
-              ))}
-            </DataTable>
-          </Card.Content>
-        </Card>
+          {/* Items List */}
+          <Text style={[styles.sectionTitle, { marginTop: 25 }]}>Items ({cart.length})</Text>
+          {cart.map((item, index) => (
+            <View key={item.variantId || index} style={styles.itemRow}>
+              <View style={styles.itemDetails}>
+                <Text style={styles.productName}>{item.productName}</Text>
+                <Text style={styles.variantName}>{item.variantName} x {item.quantity}</Text>
+              </View>
+              <Text style={styles.itemPrice}>{formatCurrency(item.totalPrice)}</Text>
+            </View>
+          ))}
+          
+          <Divider style={styles.divider} />
 
-        {/* Totals Section */}
-        <CartSummary
-          subtotal={subtotal}
-          tax={taxAmount}
-          discount={discountAmount}
-          total={totalAmount}
-          couponCode={coupon?.code}
-          containerStyle={styles.card}
-        />
+          {/* Totals Section */}
+          <CartSummary
+            subtotal={subtotal}
+            tax={taxAmount}
+            discount={discountAmount}
+            total={totalAmount}
+            couponCode={coupon?.code}
+            containerStyle={styles.summaryContainer}
+          />
 
-        {/* Remarks Input */}
-        <Card style={styles.card} elevation={0}>
-          <Card.Content>
-            <TextInput
-              label="Remarks (Optional)"
-              mode="outlined"
+          {/* Remarks Input */}
+          <Text style={[styles.sectionTitle, { marginTop: 25 }]}>Remarks</Text>
+          <Surface style={styles.remarksCard} elevation={1}>
+            <RNTextInput
               value={remarks}
               onChangeText={setRemarks}
+              placeholder="Add internal notes or customer message..."
+              placeholderTextColor="#AAA"
               multiline
-              numberOfLines={3}
-              placeholder="Add notes for the customer..."
-              outlineColor="#f0f0f0"
-              activeOutlineColor="#6200ee"
+              style={styles.remarksInput}
             />
-          </Card.Content>
-        </Card>
-
-        {/* Bottom Padding for Scroll */}
-        <View style={{ height: 40 }} />
-      </ScrollView>
-
-      {/* Persistent Footer */}
-      <View style={styles.footer}>
-        <View style={styles.footerTotalContainer}>
-          <Text style={styles.footerTotalLabel}>Total Amount</Text>
-          <Text style={styles.footerTotalValue}>{formatCurrency(totalAmount)}</Text>
-        </View>
-        <Button
-          mode="contained"
-          onPress={handleCreateInvoice}
-          loading={loading}
-          disabled={loading}
-          style={styles.createButton}
-          contentStyle={styles.buttonContent}
-        >
-          Confirm & Create
-        </Button>
+          </Surface>
+          
+          <View style={{ height: 120 }} />
+        </ScrollView>
       </View>
+
+      {/* 3. PREMIUM PERSISTENT FOOTER */}
+      <Surface style={styles.footer} elevation={8}>
+        <View style={styles.footerTotalBox}>
+          <Text style={styles.footerLabel}>Total Amount</Text>
+          <Text style={styles.footerAmount}>{formatCurrency(totalAmount)}</Text>
+        </View>
+        <TouchableOpacity 
+          style={[styles.createButton, loading && styles.buttonDisabled]} 
+          onPress={handleCreateInvoice}
+          disabled={loading}
+        >
+          <Text style={styles.createButtonText}>{loading ? 'Generating...' : 'Confirm'}</Text>
+          <IconButton icon="check-all" iconColor="#fff" size={20} />
+        </TouchableOpacity>
+      </Surface>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  header: { backgroundColor: '#ffffff', elevation: 0, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold' },
-  headerLogo: { marginRight: 16 },
-  logo: { width: 32, height: 32 },
-  content: { flex: 1, padding: 16 },
-  card: { marginBottom: 16, backgroundColor: '#fff', borderRadius: 8, borderOrigin: '1px solid #eee' },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 8 },
-  customerName: { fontSize: 17, fontWeight: '700', color: '#000' },
-  text: { color: '#666', marginTop: 2 },
-  itemInfo: { paddingVertical: 8 },
-  productName: { fontSize: 14, fontWeight: '500' },
-  variantName: { fontSize: 12, color: '#888' },
-  priceText: { fontWeight: '600' },
-  footer: {
-    padding: 16,
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerBackground: {
+    backgroundColor: '#61F2D5',
+    height: 220,
+    paddingTop: 45,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    zIndex: 10,
+  },
+  topNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
+  stepIndicator: { backgroundColor: 'rgba(255,255,255,0.3)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginRight: 20 },
+  stepText: { fontSize: 11, fontWeight: 'bold', color: '#333', textTransform: 'uppercase' },
+  headerTextGroup: { paddingHorizontal: 25, marginTop: 15 },
+  subTitle: { fontSize: 13, color: '#444', opacity: 0.7 },
+  mainTitle: { fontSize: 26, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
+  
+  contentSheet: {
+    flex: 1,
+    marginTop: -40,
     backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    zIndex: 5,
+  },
+  scroll: { flex: 1 },
+  scrollPadding: { paddingHorizontal: 25, paddingTop: 40 },
+  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: '#BBB', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
+  
+  customerCard: { borderRadius: 20, backgroundColor: '#fff', padding: 15, borderWidth: 1, borderColor: '#F8F8F8' },
+  customerRow: { flexDirection: 'row', alignItems: 'center' },
+  avatar: { backgroundColor: '#F0FFFC' },
+  avatarLabel: { color: '#4FD3B5', fontWeight: 'bold' },
+  customerInfo: { marginLeft: 15 },
+  customerName: { fontSize: 16, fontWeight: 'bold', color: '#222' },
+  customerSub: { fontSize: 12, color: '#888', marginTop: 1 },
+
+  itemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
+  productName: { fontSize: 14, fontWeight: '700', color: '#333' },
+  variantName: { fontSize: 12, color: '#999', marginTop: 2 },
+  itemPrice: { fontSize: 14, fontWeight: '700', color: '#222' },
+  
+  divider: { marginVertical: 10, backgroundColor: '#F0F0F0' },
+  summaryContainer: { backgroundColor: 'transparent', paddingHorizontal: 0 },
+
+  remarksCard: { borderRadius: 18, backgroundColor: '#F9F9F9', padding: 12 },
+  remarksInput: { fontSize: 14, color: '#333', minHeight: 80, textAlignVertical: 'top' },
+
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 100,
+    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    paddingHorizontal: 25,
+    paddingBottom: 20,
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
   },
-  footerTotalContainer: { flex: 1 },
-  footerTotalLabel: { fontSize: 12, color: '#666' },
-  footerTotalValue: { fontSize: 20, fontWeight: 'bold', color: '#6200ee' },
-  createButton: { flex: 1.2, borderRadius: 8 },
-  buttonContent: { height: 48 }
+  footerTotalBox: { flex: 1 },
+  footerLabel: { fontSize: 11, color: '#999', textTransform: 'uppercase' },
+  footerAmount: { fontSize: 22, fontWeight: 'bold', color: '#222' },
+  createButton: {
+    backgroundColor: '#333',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 20,
+    paddingRight: 10,
+    height: 55,
+    borderRadius: 18,
+  },
+  buttonDisabled: { opacity: 0.7 },
+  createButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
 
 export default InvoiceReviewScreen;
