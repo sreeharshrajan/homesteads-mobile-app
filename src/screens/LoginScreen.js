@@ -27,8 +27,7 @@ const LoginScreen = ({ navigation }) => {
     const result = await login(values.email, values.password);
 
     if (result.success) {
-      // Navigate to dashboard on successful login
-      navigation.replace(ROUTES.DASHBOARD);
+      // The auth state update will automatically trigger navigation in AppNavigator
     } else {
       setError(result.error || 'Login failed. Please try again.');
     }
