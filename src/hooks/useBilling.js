@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { billingApi } from '../api/billing';
+import { billingApi } from '@api/billing';
 
 /**
  * Custom hook for managing billing data

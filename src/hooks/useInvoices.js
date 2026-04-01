@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { invoicesApi } from '../api';
+import { invoicesApi } from '@api';
 
 /**
  * Custom hook for managing invoices

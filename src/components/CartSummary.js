@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Title, Paragraph, Divider, Chip } from 'react-native-paper';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency } from '@utils/formatters';
 
 /**
  * CartSummary Component
@@ -58,11 +58,15 @@ const CartSummary = ({ items = [], discount = 0, couponCode = null, style }) => 
 
 const styles = StyleSheet.create({
   card: {
-    elevation: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#ffffff',
   },
   title: {
     marginBottom: 16,
     fontSize: 18,
+    fontWeight: 'bold',
   },
   row: {
     flexDirection: 'row',

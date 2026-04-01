@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { Card, Title, Paragraph, Button, IconButton, Text } from 'react-native-paper';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency } from '@utils/formatters';
 
 /**
  * ProductCard Component
@@ -104,24 +104,30 @@ const ProductCard = ({
 const styles = StyleSheet.create({
   card: {
     marginBottom: 12,
-    elevation: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#ffffff',
   },
   row: {
     flexDirection: 'row',
     marginBottom: 12,
   },
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    width: 60,
+    height: 60,
+    borderRadius: 4,
     marginRight: 12,
+    backgroundColor: '#f8f9fa',
   },
   info: {
     flex: 1,
   },
   title: {
-    fontSize: 16,
-    marginBottom: 4,
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 2,
+    color: '#1a1a1a',
   },
   variant: {
     fontSize: 12,
@@ -134,19 +140,20 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   price: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#4CAF50',
+    color: '#1a1a1a',
   },
   mrp: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#999',
     textDecorationLine: 'line-through',
   },
   discount: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#4CAF50',
     fontWeight: 'bold',
+    marginTop: 2,
   },
   variantsRow: {
     flexDirection: 'row',
@@ -156,24 +163,27 @@ const styles = StyleSheet.create({
   },
   variantButton: {
     marginRight: 4,
+    borderRadius: 4,
+    height: 32,
   },
   quantityRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#f0f0f0',
     paddingTop: 8,
   },
   quantityText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     marginHorizontal: 16,
-    minWidth: 40,
+    minWidth: 32,
     textAlign: 'center',
   },
   addButton: {
     marginTop: 8,
+    borderRadius: 4,
   },
 });
 

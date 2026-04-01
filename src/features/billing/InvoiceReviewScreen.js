@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { Appbar, Card, Title, Paragraph, Button, Divider, DataTable, TextInput } from 'react-native-paper';
-import { ROUTES } from '../utils/constants';
-import { useInvoices } from '../hooks';
-import { useSnackbar } from '../hooks/useSnackbar';
-import { CartSummary } from '../components';
-import { formatPhoneNumber, formatCurrency } from '../utils/formatters';
+import { ROUTES } from '@utils/constants';
+import { useInvoices } from '@hooks';
+import { useSnackbar } from '@hooks/useSnackbar';
+import { CartSummary } from '@components';
+import { formatPhoneNumber, formatCurrency } from '@utils/formatters';
 
 const InvoiceReviewScreen = ({ navigation, route }) => {
   const { customer, cart, coupon, discountAmount } = route.params;
@@ -48,14 +48,15 @@ const InvoiceReviewScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
+      <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content
           title="Review Invoice"
           subtitle={`Step 4 of 4 • ${customer.name}`}
+          titleStyle={styles.headerTitle}
         />
       </Appbar.Header>
 
@@ -148,16 +149,25 @@ const InvoiceReviewScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
+  },
+  header: {
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   headerLogo: {
     marginLeft: 8,
-    marginRight: 8,
+    marginRight: 4,
   },
   logo: {
-    width: 32,
-    height: 32,
-    resizeMode: 'contain',
+    width: 28,
+    height: 28,
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
   },
   content: {
     flex: 1,
@@ -165,7 +175,10 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 16,
-    elevation: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#ffffff',
   },
   sectionTitle: {
     fontSize: 18,
@@ -191,10 +204,11 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#f0f0f0',
   },
   createButton: {
     paddingVertical: 8,
+    borderRadius: 4,
   },
 });
 

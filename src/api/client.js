@@ -1,6 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import config from '../config';
+import config from '@/config';
 
 // Create axios instance
 const apiClient = axios.create({

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Image } from 'react-native';
 import { Card, Title, Paragraph, Chip, Divider, Button, SegmentedButtons, List, Surface, Badge, Appbar } from 'react-native-paper';
-import { ROUTES } from '../utils/constants';
-import { formatCurrency, formatDate } from '../utils/formatters';
-import useAuthStore from '../store/authStore';
-import { useDashboard } from '../hooks';
-import { EmptyState } from '../components';
-import StatCard from '../components/dashboard/StatCard';
-import AlertSection from '../components/dashboard/AlertSection';
+import { ROUTES } from '@utils/constants';
+import { formatCurrency, formatDate } from '@utils/formatters';
+import useAuthStore from '@store/authStore';
+import { useDashboard } from '@hooks';
+import { EmptyState } from '@components';
+import StatCard from './components/StatCard';
+import AlertSection from './components/AlertSection';
 
 const DashboardScreen = ({ navigation }) => {
   const [timeRange, setTimeRange] = useState('today');
@@ -174,7 +174,7 @@ const DashboardScreen = ({ navigation }) => {
       <View style={styles.container}>
         <Appbar.Header>
           <View style={styles.headerLogo}>
-            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+            <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
           </View>
           <Appbar.Content title="Dashboard" />
           <Appbar.Action icon="logout" onPress={handleLogout} />
@@ -192,7 +192,7 @@ const DashboardScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
         <Appbar.Content title="Dashboard" titleStyle={styles.headerTitle} />

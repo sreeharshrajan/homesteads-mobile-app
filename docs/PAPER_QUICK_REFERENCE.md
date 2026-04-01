@@ -516,10 +516,10 @@ import {
   ConfirmDialog,
   SnackbarContainer,
   ActionMenu,
-} from '../components';
+} from '@components';
 
 // Or
-import EmptyState from '../components/EmptyState';
+import EmptyState from '@components/EmptyState';
 ```
 
 ### EmptyState
@@ -585,24 +585,30 @@ const { visible, message, showSnackbar, hideSnackbar } = useSnackbar();
 Popular Material Community Icons:
 
 **Actions:**
+
 - `plus`, `minus`, `close`, `check`, `delete`, `pencil`, `content-save`, `refresh`
 
 **Navigation:**
+
 - `arrow-left`, `arrow-right`, `chevron-left`, `chevron-right`, `menu`, `dots-vertical`, `dots-horizontal`
 
 **UI:**
+
 - `magnify`, `filter`, `sort`, `eye`, `eye-off`, `heart`, `heart-outline`, `star`, `star-outline`
 
 **Objects:**
+
 - `account`, `email`, `phone`, `calendar`, `clock`, `home`, `briefcase`, `cart`, `credit-card`
 
 **Files:**
+
 - `file`, `folder`, `download`, `upload`, `share`, `printer`, `invoice-text-outline`
 
 **Status:**
+
 - `check-circle`, `alert-circle`, `information`, `help-circle`, `shield-check`
 
-Full icon list: https://pictogrammers.com/library/mdi/
+Full icon list: <https://pictogrammers.com/library/mdi/>
 
 ---
 
@@ -612,6 +618,3 @@ Full icon list: https://pictogrammers.com/library/mdi/
 - [Component Showcase](https://callstack.github.io/react-native-paper/docs/components/ActivityIndicator)
 - [Theming Guide](https://callstack.github.io/react-native-paper/docs/guides/theming)
 - [Icon Directory](https://pictogrammers.com/library/mdi/)
-
-
-

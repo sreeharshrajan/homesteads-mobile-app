@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
 import { Appbar } from 'react-native-paper';
-import { ROUTES } from '../utils/constants';
-import { useOrders } from '../hooks';
-import { FilterBar, PaginationControls, OrderCard, EmptyState } from '../components';
+import { ROUTES } from '@utils/constants';
+import { useOrders } from '@hooks';
+import { FilterBar, PaginationControls, OrderCard, EmptyState } from '@components';
 
 const OrderListScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +24,7 @@ const OrderListScreen = ({ navigation }) => {
       status: statusFilter || undefined,
       sortField: 'createdAt',
       sortDirection: 'desc',
+      includeCustomer: true,
     };
     
     // Note: This will need customerId - in production you'd either:
@@ -65,9 +66,9 @@ const OrderListScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated>
+      <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
         <Appbar.Content title="Orders" titleStyle={styles.headerTitle} />

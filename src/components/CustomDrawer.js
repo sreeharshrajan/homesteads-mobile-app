@@ -3,8 +3,8 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { Avatar, Title, Caption, Drawer, Divider, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import useAuthStore from '../store/authStore';
-import { ROUTES } from '../utils/constants';
+import useAuthStore from '@store/authStore';
+import { ROUTES } from '@utils/constants';
 
 const CustomDrawer = (props) => {
   const { user, admin, role, logout } = useAuthStore();
@@ -28,9 +28,9 @@ const CustomDrawer = (props) => {
         {/* User Info Section */}
         <View style={styles.userInfoSection}>
           <View style={styles.avatarContainer}>
-            <Avatar.Icon 
-              size={60} 
-              icon="account" 
+            <Avatar.Icon
+              size={60}
+              icon="account"
               style={styles.avatar}
             />
           </View>
@@ -61,7 +61,7 @@ const CustomDrawer = (props) => {
             active={activeRoute === ROUTES.DASHBOARD}
             onPress={() => props.navigation.navigate(ROUTES.DASHBOARD)}
           />
-          
+
           <DrawerItem
             icon={({ color, size }) => (
               <MaterialCommunityIcons name="account-group" color={color} size={size} />

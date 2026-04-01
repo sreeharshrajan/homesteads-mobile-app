@@ -12,10 +12,12 @@ npx expo start
 ### 2. Open on Device
 
 **Option A: Physical Device**
+
 - Install "Expo Go" from App Store (iOS) or Play Store (Android)
 - Scan the QR code shown in terminal
 
 **Option B: Emulator**
+
 - Press `a` for Android emulator
 - Press `i` for iOS simulator (macOS only)
 
@@ -24,6 +26,7 @@ npx expo start
 The app currently uses **sample data** for demonstration:
 
 **Login Screen:**
+
 - Enter any email and password
 - Currently will attempt API call (which will fail without real backend)
 - To test navigation, you need to either:
@@ -64,6 +67,7 @@ Now you can use any credentials to login and explore the app!
 ### 4. Explore Features
 
 Once logged in:
+
 - ✅ View customer list with search
 - ✅ Create/edit customers (forms with validation)
 - ✅ View billing records
@@ -75,6 +79,7 @@ Once logged in:
 When ready to connect to your backend:
 
 1. **Update API URL** in `src/api/client.js`:
+
    ```javascript
    const BASE_URL = 'https://your-actual-api.com';
    ```
@@ -82,9 +87,10 @@ When ready to connect to your backend:
 2. **Remove the mock login** from `authStore.js` (restore original)
 
 3. **Update screens to use real data:**
+
    ```javascript
    // In CustomerListScreen.js
-   import { useCustomers } from '../hooks/useCustomers';
+   import { useCustomers } from '@hooks/useCustomers';
    
    // Replace sample data with:
    const { customers, loading, error, refetch } = useCustomers();
@@ -128,11 +134,13 @@ npx expo doctor
 ## 🐛 Troubleshooting
 
 **"Network Error" when calling API:**
+
 - Make sure API URL is correct
 - Check if backend is running
 - For local development, use your computer's IP (not localhost)
 
 **App won't start:**
+
 ```bash
 # Clear cache
 npx expo start -c
@@ -143,6 +151,7 @@ npm install
 ```
 
 **Changes not showing:**
+
 - Press `r` in terminal to reload
 - Clear cache: `npx expo start -c`
 
@@ -176,4 +185,3 @@ npm install
 **Need Help?** Check the full documentation or create an issue!
 
 **Happy Coding! 🎉**
-

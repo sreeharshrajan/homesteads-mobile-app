@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { dashboardApi } from '../api';
+import { dashboardApi } from '@api';
 
 /**
  * Custom hook for managing dashboard data using TanStack Query

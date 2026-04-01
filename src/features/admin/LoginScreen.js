@@ -3,8 +3,8 @@ import { View, StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-n
 import { TextInput, Button, Text, Title, HelperText } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import useAuthStore from '../store/authStore';
-import { ROUTES } from '../utils/constants';
+import useAuthStore from '@store/authStore';
+import { ROUTES } from '@utils/constants';
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -42,7 +42,7 @@ const LoginScreen = ({ navigation }) => {
     >
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Title style={styles.title}>Homesteads Viands</Title>
         <Text style={styles.subtitle}>Billing & Customer Management</Text>

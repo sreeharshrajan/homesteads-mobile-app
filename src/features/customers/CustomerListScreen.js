@@ -1,33 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
-import { Card, Title, Paragraph, FAB, Appbar } from 'react-native-paper';
-import { formatCurrency, formatDate } from '../utils/formatters';
-import { ROUTES } from '../utils/constants';
-import { useInvoices } from '../hooks';
-import { FilterBar, PaginationControls, StatusBadge, EmptyState } from '../components';
+import { Card, Title, Paragraph, FAB, Chip, Appbar } from 'react-native-paper';
+import { ROUTES } from '@utils/constants';
+import { formatPhoneNumber } from '@utils/formatters';
+import { useCustomers } from '@hooks';
+import { FilterBar, PaginationControls, EmptyState } from '@components';
 
-const BillingScreen = ({ navigation }) => {
+const CustomerListScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   
-  const { invoices, loading, pagination, fetchInvoices } = useInvoices();
+  const { customers, loading, pagination, fetchCustomers } = useCustomers();
 
-  const loadInvoices = useCallback(() => {
+  const loadCustomers = useCallback(() => {
     const params = {
       page: currentPage,
       limit: 20,
       search: searchQuery || undefined,
-      status: statusFilter || undefined,
+      isActive: statusFilter === 'active' ? true : statusFilter === 'inactive' ? false : undefined,
       sortField: 'createdAt',
       sortDirection: 'desc',
     };
-    fetchInvoices(params);
-  }, [currentPage, searchQuery, statusFilter, fetchInvoices]);
+    fetchCustomers(params);
+  }, [currentPage, searchQuery, statusFilter, fetchCustomers]);
 
   useEffect(() => {
-    loadInvoices();
-  }, [loadInvoices]);
+    loadCustomers();
+  }, [loadCustomers]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -40,44 +40,42 @@ const BillingScreen = ({ navigation }) => {
   };
 
   const handleRefresh = () => {
-    loadInvoices();
+    loadCustomers();
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  const renderInvoiceCard = ({ item }) => (
+  const renderCustomerCard = ({ item }) => (
     <Card
       style={styles.card}
-      onPress={() => navigation.navigate(ROUTES.INVOICE, { invoiceId: item.id })}
+      onPress={() => navigation.navigate(ROUTES.CUSTOMER_FORM, { customerId: item.id })}
     >
       <Card.Content>
         <View style={styles.cardHeader}>
-          <Title>{item.invoiceNo || 'N/A'}</Title>
-          {item.status && <StatusBadge status={item.status} style={styles.statusBadge} />}
+          <Title>{item.name}</Title>
+          <Chip
+            mode="outlined"
+            style={[
+              styles.statusChip,
+              item.isActive ? styles.activeChip : styles.inactiveChip,
+            ]}
+          >
+            {item.isActive ? 'Active' : 'Inactive'}
+          </Chip>
         </View>
-        
-        {item.customer && (
-          <Paragraph style={styles.customerName}>{item.customer.name}</Paragraph>
-        )}
-        
-        <View style={styles.cardRow}>
-          <Paragraph style={styles.label}>Amount:</Paragraph>
-          <Title style={styles.amount}>{formatCurrency(item.totalAmount || 0)}</Title>
-        </View>
-        
-        {item.issueDate && (
-          <View style={styles.cardRow}>
-            <Paragraph style={styles.label}>Issue Date:</Paragraph>
-            <Paragraph>{formatDate(item.issueDate)}</Paragraph>
-          </View>
-        )}
-        
-        {item.dueDate && (
-          <View style={styles.cardRow}>
-            <Paragraph style={styles.label}>Due Date:</Paragraph>
-            <Paragraph>{formatDate(item.dueDate)}</Paragraph>
+        {!!item.email && <Paragraph style={styles.email}>{item.email}</Paragraph>}
+        {!!item.phone && <Paragraph style={styles.phone}>{formatPhoneNumber(item.phone)}</Paragraph>}
+        {!!item.companyName && <Paragraph style={styles.company}>{item.companyName}</Paragraph>}
+        {!!item._count && (
+          <View style={styles.countsRow}>
+            <Paragraph style={styles.count}>
+              Orders: {item._count.orders || 0}
+            </Paragraph>
+            <Paragraph style={styles.count}>
+              Invoices: {item._count.invoices || 0}
+            </Paragraph>
           </View>
         )}
       </Card.Content>
@@ -88,10 +86,10 @@ const BillingScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
-        <Appbar.Content title="Billing & Invoices" titleStyle={styles.headerTitle} />
+        <Appbar.Content title="Customers" titleStyle={styles.headerTitle} />
       </Appbar.Header>
       <View style={styles.content}>
         <FilterBar
@@ -99,24 +97,22 @@ const BillingScreen = ({ navigation }) => {
           onSearchChange={handleSearch}
           statusFilter={statusFilter}
           statusOptions={[
-            { value: 'DRAFT', label: 'Draft' },
-            { value: 'SENT', label: 'Sent' },
-            { value: 'PAID', label: 'Paid' },
-            { value: 'CANCELLED', label: 'Cancelled' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
           ]}
           onStatusChange={handleStatusChange}
         />
 
-        {invoices.length === 0 && !loading ? (
+        {customers.length === 0 && !loading ? (
           <EmptyState
-            icon="file-document-outline"
-            title="No invoices found"
-            message={searchQuery ? "Try adjusting your search" : "Create your first invoice to get started"}
+            icon="account-group"
+            title="No customers found"
+            message={searchQuery ? "Try adjusting your search" : "Add your first customer to get started"}
           />
         ) : (
           <FlatList
-            data={invoices}
-            renderItem={renderInvoiceCard}
+            data={customers}
+            renderItem={renderCustomerCard}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
             refreshControl={
@@ -137,9 +133,8 @@ const BillingScreen = ({ navigation }) => {
 
       <FAB
         icon="plus"
-        label="New Invoice"
         style={styles.fab}
-        onPress={() => navigation.navigate(ROUTES.INVOICE_CUSTOMER_SELECT)}
+        onPress={() => navigation.navigate(ROUTES.CUSTOMER_FORM)}
       />
     </View>
   );
@@ -187,26 +182,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  statusBadge: {
+  statusChip: {
     height: 28,
   },
-  customerName: {
-    color: '#666',
-    fontSize: 14,
-    marginBottom: 12,
+  activeChip: {
+    backgroundColor: '#e8f5e9',
   },
-  cardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  inactiveChip: {
+    backgroundColor: '#ffebee',
+  },
+  email: {
+    color: '#666',
     marginBottom: 4,
   },
-  label: {
+  phone: {
     color: '#666',
+    marginBottom: 4,
   },
-  amount: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  company: {
+    color: '#888',
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  countsRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 8,
+  },
+  count: {
+    fontSize: 12,
+    color: '#666',
   },
   fab: {
     position: 'absolute',
@@ -216,4 +221,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BillingScreen;
+export default CustomerListScreen;

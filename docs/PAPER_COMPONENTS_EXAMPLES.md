@@ -23,8 +23,8 @@ This guide provides practical examples of how to use React Native Paper componen
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
-import useSnackbar from '../hooks/useSnackbar';
-import SnackbarContainer from '../components/SnackbarContainer';
+import useSnackbar from '@hooks/useSnackbar';
+import SnackbarContainer from '@components/SnackbarContainer';
 
 const MyScreen = () => {
   const { visible, message, action, showSnackbar, hideSnackbar } = useSnackbar();
@@ -89,7 +89,7 @@ showSnackbar('New features available');
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Button } from 'react-native-paper';
-import ConfirmDialog from '../components/ConfirmDialog';
+import ConfirmDialog from '@components/ConfirmDialog';
 
 const CustomerListScreen = () => {
   const [showDialog, setShowDialog] = useState(false);
@@ -173,7 +173,7 @@ const AddNoteDialog = ({ visible, onDismiss, onSave }) => {
 ```javascript
 import React from 'react';
 import { Card, Title } from 'react-native-paper';
-import ActionMenu from '../components/ActionMenu';
+import ActionMenu from '@components/ActionMenu';
 
 const CustomerCard = ({ customer, onEdit, onShare, onDelete }) => {
   const menuItems = [
@@ -545,11 +545,11 @@ import {
   Searchbar,
   Chip,
 } from 'react-native-paper';
-import useSnackbar from '../hooks/useSnackbar';
-import SnackbarContainer from '../components/SnackbarContainer';
-import ConfirmDialog from '../components/ConfirmDialog';
-import ActionMenu from '../components/ActionMenu';
-import EmptyState from '../components/EmptyState';
+import useSnackbar from '@hooks/useSnackbar';
+import SnackbarContainer from '@components/SnackbarContainer';
+import ConfirmDialog from '@components/ConfirmDialog';
+import ActionMenu from '@components/ActionMenu';
+import EmptyState from '@components/EmptyState';
 
 const CustomersScreen = ({ navigation }) => {
   const [customers, setCustomers] = useState([]);
@@ -692,7 +692,7 @@ export default CustomersScreen;
 4. **List Performance**: Use FlatList for long lists with Paper components
 5. **Theme Colors**: Access theme colors via `useTheme()` hook
 6. **Accessibility**: Paper components include built-in accessibility support
-7. **Icons**: Use Material Community Icons names from: https://pictogrammers.com/library/mdi/
+7. **Icons**: Use Material Community Icons names from: <https://pictogrammers.com/library/mdi/>
 
 ---
 
@@ -736,6 +736,3 @@ export default CustomersScreen;
   )}
 />
 ```
-
-
-

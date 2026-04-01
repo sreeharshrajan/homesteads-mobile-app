@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Title, Paragraph } from 'react-native-paper';
-import StatusBadge from './StatusBadge';
-import { formatCurrency, formatDate } from '../utils/formatters';
+import StatusBadge from '@components/StatusBadge';
+import { formatCurrency, formatDate } from '@utils/formatters';
 
 /**
  * OrderCard Component
@@ -18,24 +18,19 @@ const OrderCard = ({ order, onPress }) => {
           </Title>
           <StatusBadge status={order.status} />
         </View>
-        
+
         {order.customer && (
           <Paragraph style={styles.customerName}>{order.customer.name}</Paragraph>
         )}
-        
-        <View style={styles.divider} />
-        
+
         <View style={styles.cardFooter}>
-          <View style={styles.footerItem}>
-            <Paragraph style={styles.label}>Total</Paragraph>
-            <Title style={styles.amount}>
-              {formatCurrency(order.total || order.totalAmount || 0)}
-            </Title>
+          <View style={styles.metaInfo}>
+            <Paragraph style={styles.metaText}>{formatDate(order.createdAt)}</Paragraph>
+            <Paragraph style={styles.metaText}>
+              {order.itemCount || 0} items
+            </Paragraph>
           </View>
-          <View style={styles.footerItemRight}>
-            <Paragraph style={styles.label}>Date</Paragraph>
-            <Paragraph style={styles.dateText}>{formatDate(order.createdAt)}</Paragraph>
-          </View>
+          <Title style={styles.totalPrice}>{formatCurrency(order.totalAmount)}</Title>
         </View>
       </Card.Content>
     </Card>
@@ -49,7 +44,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#f0f0f0',
     backgroundColor: '#ffffff',
-    elevation: 0,
   },
   cardContent: {
     padding: 12,
@@ -61,18 +55,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   orderNumber: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1a1a1a',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   customerName: {
-    fontSize: 13,
-    color: '#757575',
-    marginBottom: 12,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#f9f9f9',
+    fontSize: 14,
+    color: '#666',
     marginBottom: 12,
   },
   cardFooter: {

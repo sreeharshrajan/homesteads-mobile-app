@@ -3,27 +3,27 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { IconButton } from 'react-native-paper';
-import useAuthStore from '../store/authStore';
-import { ROUTES } from '../utils/constants';
-import CustomDrawer from '../components/CustomDrawer';
+import useAuthStore from '@store/authStore';
+import { ROUTES } from '@utils/constants';
+import CustomDrawer from '@components/CustomDrawer';
 
 // Import screens
-import LoginScreen from '../screens/LoginScreen';
-import DashboardScreen from '../screens/DashboardScreen';
-import CustomerListScreen from '../screens/CustomerListScreen';
-import CustomerFormScreen from '../screens/CustomerFormScreen';
-import BillingScreen from '../screens/BillingScreen';
-import InvoiceScreen from '../screens/InvoiceScreen';
-import InvoiceCustomerSelectScreen from '../screens/InvoiceCustomerSelectScreen';
-import InvoiceProductSelectScreen from '../screens/InvoiceProductSelectScreen';
-import InvoiceDiscountScreen from '../screens/InvoiceDiscountScreen';
-import InvoiceReviewScreen from '../screens/InvoiceReviewScreen';
-import OrderListScreen from '../screens/OrderListScreen';
-import OrderDetailScreen from '../screens/OrderDetailScreen';
-import ApiKeysScreen from '../screens/ApiKeysScreen';
-import ApiKeyFormScreen from '../screens/ApiKeyFormScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import LoadingScreen from '../components/LoadingScreen';
+import LoginScreen from '@features/admin/LoginScreen';
+import DashboardScreen from '@features/dashboard/DashboardScreen';
+import CustomerListScreen from '@features/customers/CustomerListScreen';
+import CustomerFormScreen from '@features/customers/CustomerFormScreen';
+import BillingScreen from '@features/billing/BillingScreen';
+import InvoiceScreen from '@features/billing/InvoiceScreen';
+import InvoiceCustomerSelectScreen from '@features/billing/InvoiceCustomerSelectScreen';
+import InvoiceProductSelectScreen from '@features/billing/InvoiceProductSelectScreen';
+import InvoiceDiscountScreen from '@features/billing/InvoiceDiscountScreen';
+import InvoiceReviewScreen from '@features/billing/InvoiceReviewScreen';
+import OrderListScreen from '@features/orders/OrderListScreen';
+import OrderDetailScreen from '@features/orders/OrderDetailScreen';
+import ApiKeysScreen from '@features/admin/ApiKeysScreen';
+import ApiKeyFormScreen from '@features/admin/ApiKeyFormScreen';
+import SettingsScreen from '@features/admin/SettingsScreen';
+import { LoadingScreen } from '@components';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -35,8 +35,8 @@ const DashboardStack = () => (
       headerShown: false,
     }}
   >
-    <Stack.Screen 
-      name="DashboardMain" 
+    <Stack.Screen
+      name="DashboardMain"
       component={DashboardScreen}
       options={({ navigation }) => ({
         title: 'Dashboard',
@@ -59,8 +59,8 @@ const CustomerStack = () => (
       headerShown: false,
     }}
   >
-    <Stack.Screen 
-      name="CustomerListMain" 
+    <Stack.Screen
+      name="CustomerListMain"
       component={CustomerListScreen}
       options={({ navigation }) => ({
         title: 'Customers',
@@ -73,8 +73,8 @@ const CustomerStack = () => (
         ),
       })}
     />
-    <Stack.Screen 
-      name={ROUTES.CUSTOMER_FORM} 
+    <Stack.Screen
+      name={ROUTES.CUSTOMER_FORM}
       component={CustomerFormScreen}
       options={{ title: 'Customer Form' }}
     />
@@ -88,8 +88,8 @@ const BillingStack = () => (
       headerShown: false,
     }}
   >
-    <Stack.Screen 
-      name="BillingMain" 
+    <Stack.Screen
+      name="BillingMain"
       component={BillingScreen}
       options={({ navigation }) => ({
         title: 'Billing & Invoices',
@@ -102,28 +102,28 @@ const BillingStack = () => (
         ),
       })}
     />
-    <Stack.Screen 
-      name={ROUTES.INVOICE} 
+    <Stack.Screen
+      name={ROUTES.INVOICE}
       component={InvoiceScreen}
       options={{ title: 'Invoice Details' }}
     />
-    <Stack.Screen 
-      name={ROUTES.INVOICE_CUSTOMER_SELECT} 
+    <Stack.Screen
+      name={ROUTES.INVOICE_CUSTOMER_SELECT}
       component={InvoiceCustomerSelectScreen}
       options={{ title: 'Select Customer' }}
     />
-    <Stack.Screen 
-      name={ROUTES.INVOICE_PRODUCT_SELECT} 
+    <Stack.Screen
+      name={ROUTES.INVOICE_PRODUCT_SELECT}
       component={InvoiceProductSelectScreen}
       options={{ title: 'Select Products' }}
     />
-    <Stack.Screen 
-      name={ROUTES.INVOICE_DISCOUNT} 
+    <Stack.Screen
+      name={ROUTES.INVOICE_DISCOUNT}
       component={InvoiceDiscountScreen}
       options={{ title: 'Apply Discount' }}
     />
-    <Stack.Screen 
-      name={ROUTES.INVOICE_REVIEW} 
+    <Stack.Screen
+      name={ROUTES.INVOICE_REVIEW}
       component={InvoiceReviewScreen}
       options={{ title: 'Review Invoice' }}
     />
@@ -137,8 +137,8 @@ const OrdersStack = () => (
       headerShown: false,
     }}
   >
-    <Stack.Screen 
-      name="OrdersMain" 
+    <Stack.Screen
+      name="OrdersMain"
       component={OrderListScreen}
       options={({ navigation }) => ({
         title: 'Orders',
@@ -151,8 +151,8 @@ const OrdersStack = () => (
         ),
       })}
     />
-    <Stack.Screen 
-      name={ROUTES.ORDER_DETAIL} 
+    <Stack.Screen
+      name={ROUTES.ORDER_DETAIL}
       component={OrderDetailScreen}
       options={{ title: 'Order Details' }}
     />
@@ -166,8 +166,8 @@ const SettingsStack = () => (
       headerShown: false,
     }}
   >
-    <Stack.Screen 
-      name="SettingsMain" 
+    <Stack.Screen
+      name="SettingsMain"
       component={SettingsScreen}
     />
   </Stack.Navigator>
@@ -180,8 +180,8 @@ const ApiKeysStack = () => (
       headerShown: false,
     }}
   >
-    <Stack.Screen 
-      name="ApiKeysMain" 
+    <Stack.Screen
+      name="ApiKeysMain"
       component={ApiKeysScreen}
       options={({ navigation }) => ({
         title: 'API Keys',
@@ -194,8 +194,8 @@ const ApiKeysStack = () => (
         ),
       })}
     />
-    <Stack.Screen 
-      name={ROUTES.API_KEY_FORM} 
+    <Stack.Screen
+      name={ROUTES.API_KEY_FORM}
       component={ApiKeyFormScreen}
       options={{ title: 'API Key Form' }}
     />
@@ -218,8 +218,8 @@ const DrawerNavigator = () => {
       }}
       initialRouteName={ROUTES.DASHBOARD}
     >
-      <Drawer.Screen 
-        name={ROUTES.DASHBOARD} 
+      <Drawer.Screen
+        name={ROUTES.DASHBOARD}
         component={DashboardStack}
         options={{
           drawerLabel: 'Dashboard',
@@ -228,8 +228,8 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      <Drawer.Screen 
-        name={ROUTES.CUSTOMER_LIST} 
+      <Drawer.Screen
+        name={ROUTES.CUSTOMER_LIST}
         component={CustomerStack}
         options={{
           drawerLabel: 'Customers',
@@ -238,8 +238,8 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      <Drawer.Screen 
-        name={ROUTES.BILLING} 
+      <Drawer.Screen
+        name={ROUTES.BILLING}
         component={BillingStack}
         options={{
           drawerLabel: 'Billing',
@@ -248,8 +248,8 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      <Drawer.Screen 
-        name={ROUTES.ORDERS} 
+      <Drawer.Screen
+        name={ROUTES.ORDERS}
         component={OrdersStack}
         options={{
           drawerLabel: 'Orders',
@@ -258,8 +258,8 @@ const DrawerNavigator = () => {
           ),
         }}
       />
-      <Drawer.Screen 
-        name={ROUTES.SETTINGS} 
+      <Drawer.Screen
+        name={ROUTES.SETTINGS}
         component={SettingsStack}
         options={{
           drawerLabel: 'Settings',
@@ -269,8 +269,8 @@ const DrawerNavigator = () => {
         }}
       />
       {isSuperuser && (
-        <Drawer.Screen 
-          name={ROUTES.API_KEYS} 
+        <Drawer.Screen
+          name={ROUTES.API_KEYS}
           component={ApiKeysStack}
           options={{
             drawerLabel: 'API Keys',

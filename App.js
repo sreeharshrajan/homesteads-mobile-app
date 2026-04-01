@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
-import AppNavigator from './src/navigation/AppNavigator';
-import AnimatedSplashScreen from './src/components/AnimatedSplashScreen';
-import { lightTheme } from './src/config/theme';
+import AppNavigator from '@/navigation/AppNavigator';
+import AnimatedSplashScreen from '@components/AnimatedSplashScreen';
+import { lightTheme } from '@/theme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Create a client

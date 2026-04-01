@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { apiKeysApi } from '../api';
+import { apiKeysApi } from '@api';
 
 /**
  * Custom hook for managing API keys (super-admin only)

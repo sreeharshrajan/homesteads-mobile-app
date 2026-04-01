@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { List, Divider, Text, Appbar, Avatar } from 'react-native-paper';
-import useAuthStore from '../store/authStore';
-import { ROUTES } from '../utils/constants';
+import useAuthStore from '@store/authStore';
+import { ROUTES } from '@utils/constants';
 
 const SettingsScreen = ({ navigation }) => {
   const { user, admin, role, logout } = useAuthStore();
@@ -16,7 +16,7 @@ const SettingsScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
         <Appbar.Content title="Settings" titleStyle={styles.headerTitle} />

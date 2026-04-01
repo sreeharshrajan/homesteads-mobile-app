@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ordersApi } from '../api';
+import { ordersApi } from '@api';
 
 /**
  * Custom hook for managing orders (read-only)

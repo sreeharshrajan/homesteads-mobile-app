@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, FlatList, Image } from 'react-native';
 import { Card, Title, Paragraph, Appbar, Searchbar } from 'react-native-paper';
-import { ROUTES } from '../utils/constants';
-import { useCustomers } from '../hooks';
-import { EmptyState, PaginationControls } from '../components';
-import { formatPhoneNumber } from '../utils/formatters';
+import { ROUTES } from '@utils/constants';
+import { useCustomers } from '@hooks';
+import { EmptyState, PaginationControls } from '@components';
+import { formatPhoneNumber } from '@utils/formatters';
 
 const InvoiceCustomerSelectScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,12 +57,12 @@ const InvoiceCustomerSelectScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
+      <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Select Customer" subtitle="Step 1 of 4" />
+        <Appbar.Content title="Select Customer" subtitle="Step 1 of 4" titleStyle={styles.headerTitle} />
       </Appbar.Header>
 
       <View style={styles.content}>
@@ -104,16 +104,25 @@ const InvoiceCustomerSelectScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
+  },
+  header: {
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   headerLogo: {
     marginLeft: 8,
-    marginRight: 8,
+    marginRight: 4,
   },
   logo: {
-    width: 32,
-    height: 32,
-    resizeMode: 'contain',
+    width: 28,
+    height: 28,
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
   },
   content: {
     flex: 1,
@@ -121,6 +130,8 @@ const styles = StyleSheet.create({
   searchbar: {
     margin: 16,
     elevation: 0,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 4,
   },
   list: {
     padding: 16,
@@ -128,7 +139,10 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 12,
-    elevation: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#ffffff',
   },
   text: {
     color: '#666',

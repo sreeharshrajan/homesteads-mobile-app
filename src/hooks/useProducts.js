@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { productsApi } from '../api';
+import { productsApi } from '@api';
 
 /**
  * Hook for fetching multiple products with filtering and pagination

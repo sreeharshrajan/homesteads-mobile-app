@@ -3,9 +3,9 @@ import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image } f
 import { TextInput, Button, Appbar, HelperText, SegmentedButtons } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { useCustomers } from '../hooks';
-import { useSnackbar } from '../hooks/useSnackbar';
-import { ConfirmDialog } from '../components';
+import { useCustomers } from '@hooks';
+import { useSnackbar } from '@hooks/useSnackbar';
+import { ConfirmDialog } from '@components';
 
 const CustomerSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -102,7 +102,7 @@ const CustomerFormScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content 

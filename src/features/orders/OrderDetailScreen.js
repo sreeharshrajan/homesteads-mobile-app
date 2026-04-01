@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { Card, Title, Paragraph, Appbar, Divider, DataTable, ActivityIndicator } from 'react-native-paper';
-import { formatCurrency, formatDate } from '../utils/formatters';
-import { useOrders } from '../hooks';
-import { useSnackbar } from '../hooks/useSnackbar';
-import { StatusBadge, EmptyState } from '../components';
+import { formatCurrency, formatDate } from '@utils/formatters';
+import { useOrders } from '@hooks';
+import { useSnackbar } from '@hooks/useSnackbar';
+import { StatusBadge, EmptyState } from '@components';
 
 const OrderDetailScreen = ({ navigation, route }) => {
   const orderId = route.params?.orderId;
@@ -43,7 +43,7 @@ const OrderDetailScreen = ({ navigation, route }) => {
       <View style={styles.container}>
         <Appbar.Header style={styles.header}>
           <View style={styles.headerLogo}>
-            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+            <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
           </View>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
           <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
@@ -60,7 +60,7 @@ const OrderDetailScreen = ({ navigation, route }) => {
       <View style={styles.container}>
         <Appbar.Header style={styles.header}>
           <View style={styles.headerLogo}>
-            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+            <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
           </View>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
           <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />
@@ -78,7 +78,7 @@ const OrderDetailScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title="Order Details" titleStyle={styles.headerTitle} />

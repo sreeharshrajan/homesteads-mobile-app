@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { customersApi } from '../api/customers';
+import { customersApi } from '@api/customers';
 
 /**
  * Custom hook for managing customer data

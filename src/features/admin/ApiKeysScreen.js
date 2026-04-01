@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Image } from 'react-native';
 import { Card, Title, Paragraph, FAB, Chip, Appbar } from 'react-native-paper';
-import { ROUTES } from '../utils/constants';
-import useAuthStore from '../store/authStore';
-import { useApiKeys } from '../hooks';
-import { useSnackbar } from '../hooks/useSnackbar';
-import { EmptyState, StatusBadge } from '../components';
-import { formatDate } from '../utils/formatters';
+import { ROUTES } from '@utils/constants';
+import useAuthStore from '@store/authStore';
+import { useApiKeys } from '@hooks';
+import { useSnackbar } from '@hooks/useSnackbar';
+import { EmptyState, StatusBadge } from '@components';
+import { formatDate } from '@utils/formatters';
 
 const ApiKeysScreen = ({ navigation }) => {
   const role = useAuthStore((state) => state.role);
@@ -63,26 +63,26 @@ const ApiKeysScreen = ({ navigation }) => {
           )}
         </View>
 
-        <View style={styles.metaRow}>
+        <div style={styles.metaRow}>
           <Paragraph style={styles.meta}>
             Created: {formatDate(item.createdAt)}
           </Paragraph>
-        </View>
+        </div>
 
         {item.lastUsedAt && (
-          <View style={styles.metaRow}>
+          <div style={styles.metaRow}>
             <Paragraph style={styles.meta}>
               Last used: {formatDate(item.lastUsedAt)}
             </Paragraph>
-          </View>
+          </div>
         )}
 
         {item.expiresAt && (
-          <View style={styles.metaRow}>
+          <div style={styles.metaRow}>
             <Paragraph style={styles.meta}>
               Expires: {formatDate(item.expiresAt)}
             </Paragraph>
-          </View>
+          </div>
         )}
       </Card.Content>
     </Card>
@@ -95,9 +95,9 @@ const ApiKeysScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated>
+      <Appbar.Header style={styles.header}>
         <View style={styles.headerLogo}>
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
         <Appbar.Content title="API Keys" titleStyle={styles.headerTitle} />

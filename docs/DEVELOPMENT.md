@@ -3,6 +3,7 @@
 ## Quick Start
 
 1. **Start the development server:**
+
    ```bash
    cd homesteads-viands-app
    npx expo start
@@ -16,11 +17,13 @@
 ## Project Architecture
 
 ### State Management
+
 - **Zustand** for global state (auth)
 - **React hooks** for local component state
 - **Custom hooks** for API data fetching
 
 ### Navigation Flow
+
 ```
 Login Screen
     ↓ (after authentication)
@@ -34,6 +37,7 @@ Customer List Screen
 ### API Integration
 
 All API calls go through the centralized Axios client (`src/api/client.js`) which:
+
 - Automatically adds JWT token to requests
 - Handles 401 errors (token expiration)
 - Provides consistent error handling
@@ -41,6 +45,7 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
 #### Connecting to Real APIs
 
 1. **Update the base URL** in `src/api/client.js`:
+
    ```javascript
    const BASE_URL = 'https://your-actual-api.com';
    ```
@@ -48,12 +53,13 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
 2. **Adjust API response structure** in endpoint files if your API returns different formats
 
 3. **Update screens** to use real data instead of sample data:
+
    ```javascript
    // Current (sample data):
    const [customers, setCustomers] = useState(SAMPLE_CUSTOMERS);
    
    // Replace with (real API):
-   import { useCustomers } from '../hooks/useCustomers';
+   import { useCustomers } from '@hooks/useCustomers';
    const { customers, loading, error } = useCustomers();
    ```
 
@@ -64,6 +70,7 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
 **Example: Adding a "Products" feature**
 
 1. **Create API endpoints** (`src/api/products.js`):
+
    ```javascript
    import apiClient from './client';
    
@@ -77,9 +84,10 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
    ```
 
 2. **Create a custom hook** (`src/hooks/useProducts.js`):
+
    ```javascript
    import { useState, useEffect } from 'react';
-   import { productsApi } from '../api/products';
+   import { productsApi } from '@api/products';
    
    export const useProducts = () => {
      const [products, setProducts] = useState([]);
@@ -108,6 +116,7 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
 3. **Create the screen** (`src/screens/ProductListScreen.js`)
 
 4. **Add route** in `src/utils/constants.js`:
+
    ```javascript
    export const ROUTES = {
      // ... existing routes
@@ -116,8 +125,9 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
    ```
 
 5. **Register in navigation** (`src/navigation/AppNavigator.js`):
+
    ```javascript
-   import ProductListScreen from '../screens/ProductListScreen';
+   import ProductListScreen from '@screens/ProductListScreen';
    
    // Inside authenticated stack:
    <Stack.Screen name={ROUTES.PRODUCT_LIST} component={ProductListScreen} />
@@ -161,8 +171,9 @@ const initialValues = {
 The app automatically handles authentication through the navigator. Authenticated users see the main app, unauthenticated users see the login screen.
 
 To manually check auth state in a component:
+
 ```javascript
-import useAuthStore from '../store/authStore';
+import useAuthStore from '@store/authStore';
 
 const MyComponent = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -180,7 +191,7 @@ const MyComponent = () => {
 Use the formatter utilities in `src/utils/formatters.js`:
 
 ```javascript
-import { formatCurrency, formatDate, formatPhoneNumber } from '../utils/formatters';
+import { formatCurrency, formatDate, formatPhoneNumber } from '@utils/formatters';
 
 formatCurrency(1234.56);           // "$1,234.56"
 formatDate('2025-10-12');          // "Oct 12, 2025"
@@ -208,6 +219,7 @@ Since you're using sample data, the login screen posts to the API but won't work
 
 **Option 1: Mock the API call**
 Temporarily modify `src/store/authStore.js`:
+
 ```javascript
 login: async (email, password) => {
   // Mock successful login for testing
@@ -226,6 +238,7 @@ login: async (email, password) => {
 
 **Option 2: Use a mock API**
 Set up a mock API server using tools like:
+
 - [JSON Server](https://github.com/typicode/json-server)
 - [Mockoon](https://mockoon.com/)
 - [MSW (Mock Service Worker)](https://mswjs.io/)
@@ -235,24 +248,29 @@ Set up a mock API server using tools like:
 ### Common Issues
 
 **1. "Network Error" when calling API**
+
 - Check that your API URL is correct
 - Ensure your device/emulator can reach the API
 - For localhost APIs, use your computer's IP address, not `localhost`
 
 **2. "Token not found" errors**
+
 - Clear AsyncStorage: Add temporary debug code
+
   ```javascript
   import AsyncStorage from '@react-native-async-storage/async-storage';
   await AsyncStorage.clear();
   ```
 
 **3. Navigation errors**
+
 - Ensure all routes are defined in `src/utils/constants.js`
 - Check that screens are properly registered in the navigator
 
 ### Expo DevTools
 
 Access helpful tools:
+
 - **Console**: View logs and errors
 - **Component Inspector**: Inspect React components
 - **Performance Monitor**: Check app performance
@@ -280,6 +298,7 @@ For production, use `expo-constants` for environment variables:
 1. Install: `npx expo install expo-constants`
 
 2. Create `app.config.js`:
+
    ```javascript
    export default {
      expo: {
@@ -291,6 +310,7 @@ For production, use `expo-constants` for environment variables:
    ```
 
 3. Access in code:
+
    ```javascript
    import Constants from 'expo-constants';
    const apiUrl = Constants.expoConfig.extra.apiUrl;
@@ -316,6 +336,7 @@ eas build --platform ios --profile production
 ```
 
 Note: You'll need to set up EAS (Expo Application Services) first:
+
 ```bash
 npm install -g eas-cli
 eas login
@@ -358,4 +379,3 @@ git push origin feature/add-products
 ## Support
 
 For questions or issues, contact the development team or create an issue in the project repository.
-
