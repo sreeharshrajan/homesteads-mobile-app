@@ -86,70 +86,54 @@ const DashboardScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerBackground}>
-        <View style={styles.topNav}>
-          <IconButton icon="menu" iconColor="#333" onPress={() => navigation.openDrawer()} />
-          <IconButton icon="bell-outline" iconColor="#333" />
-        </View>
-        <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeSub}>Good morning,</Text>
+    <ScreenTemplate
+      loading={loading}
+      onRefresh={refetch}
+      title={user?.name?.split(' ')[0] || 'Admin'}
+      subtitle="Good morning,"
+      headerAction={<IconButton icon="bell-outline" iconColor="#333" />}
+      headerContent={
+        <>
           <View style={styles.profileRow}>
-            <View>
-              <Text style={styles.welcomeTitle}>{user?.name?.split(' ')[0] || 'Admin'}</Text>
-              <Text style={styles.roleText}>{role?.name || 'Super Admin'}</Text>
-            </View>
+            <Text style={styles.roleText}>{role?.name || 'Super Admin'}</Text>
             <Avatar.Text size={50} label="NU" style={{ backgroundColor: '#FF4B7D' }} labelStyle={{ color: '#fff' }} />
           </View>
-        </View>
-        <Surface style={styles.statsBar} elevation={4}>
-          <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Revenue</Text>
-            <Text style={styles.statValue}>₹{dashboard?.stats?.revenue?.total || 0}</Text>
-          </View>
-          <View style={styles.verticalDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Total Orders</Text>
-            <Text style={styles.statValue}>{dashboard?.stats?.orders?.total || 0}</Text>
-          </View>
+          <Surface style={styles.statsBar} elevation={4}>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>Revenue</Text>
+              <Text style={styles.statValue}>₹{dashboard?.stats?.revenue?.total || 0}</Text>
+            </View>
+            <View style={styles.verticalDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>Total Orders</Text>
+              <Text style={styles.statValue}>{dashboard?.stats?.orders?.total || 0}</Text>
+            </View>
+          </Surface>
+        </>
+      }
+      footer={
+        <Surface style={styles.bottomNav} elevation={4}>
+          <IconButton icon="home" iconColor="#4FD3B5" />
+          <IconButton icon="account-group-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)} />
+          <IconButton icon="briefcase-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.BILLING)} />
         </Surface>
-      </View>
-      <View style={styles.contentSheet}>
-        <ScrollView 
-          contentContainerStyle={styles.scrollPadding}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}
-          showsVerticalScrollIndicator={false}
-        >
-          {renderInventoryStatus()}
-          {renderPendingInvoices()}
-          {renderRecentCustomers()}
-        </ScrollView>
-      </View>
-      <Surface style={styles.bottomNav} elevation={4}>
-        <IconButton icon="home" iconColor="#4FD3B5" />
-        <IconButton icon="account-group-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)} />
-        <IconButton icon="briefcase-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.BILLING)} />
-      </Surface>
-    </View>
+      }
+    >
+      {renderInventoryStatus()}
+      {renderPendingInvoices()}
+      {renderRecentCustomers()}
+    </ScreenTemplate>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  headerBackground: { backgroundColor: '#61F2D5', height: 300, paddingTop: 45, borderBottomLeftRadius: 60, borderBottomRightRadius: 60, zIndex: 10 },
-  topNav: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 15 },
-  welcomeSection: { paddingHorizontal: 25 },
-  welcomeSub: { fontSize: 16, color: '#444', opacity: 0.8 },
-  profileRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 5 },
-  welcomeTitle: { fontSize: 32, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
-  roleText: { fontSize: 12, color: '#333', textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600' },
-  statsBar: { backgroundColor: '#fff', marginHorizontal: 25, marginTop: 30, borderRadius: 20, height: 85, flexDirection: 'row', alignItems: 'center', zIndex: 20 },
+  profileRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: -10 },
+  roleText: { fontSize: 13, color: '#333', textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600' },
+  statsBar: { backgroundColor: '#fff', marginTop: 30, borderRadius: 20, height: 85, flexDirection: 'row', alignItems: 'center', zIndex: 20 },
   statItem: { flex: 1, alignItems: 'center' },
   statLabel: { fontSize: 11, color: '#999', textTransform: 'uppercase', marginBottom: 4 },
   statValue: { fontSize: 20, fontWeight: 'bold', color: '#333' },
   verticalDivider: { width: 1, height: '40%', backgroundColor: '#EEE' },
-  contentSheet: { flex: 1, marginTop: -40, backgroundColor: '#fff', borderTopLeftRadius: 40, borderTopRightRadius: 40, zIndex: 5 },
-  scrollPadding: { paddingHorizontal: 25, paddingTop: 60, paddingBottom: 100 },
   sectionContainer: { marginBottom: 25 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   sectionTitle: { fontSize: 17, fontWeight: 'bold', color: '#222', marginBottom: 12 },
@@ -167,7 +151,7 @@ const styles = StyleSheet.create({
   itemRight: { alignItems: 'flex-end' },
   itemAmount: { fontSize: 14, fontWeight: 'bold', color: '#222' },
   itemDate: { fontSize: 10, color: '#BBB', marginTop: 2 },
-  bottomNav: { position: 'absolute', bottom: 25, left: 25, right: 25, height: 65, borderRadius: 22, backgroundColor: '#fff', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', zIndex: 100 }
+  bottomNav: { marginHorizontal: 25, marginBottom: 25, height: 65, borderRadius: 22, backgroundColor: '#fff', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }
 });
 
 export default DashboardScreen;

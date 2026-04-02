@@ -4,6 +4,7 @@
  */
 
 // Core components
+export { default as ScreenTemplate } from './ScreenTemplate';
 export { default as EmptyState } from './EmptyState';
 export { default as LoadingScreen } from './LoadingScreen';
 export { default as AnimatedSplashScreen } from './AnimatedSplashScreen';
