@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  StyleSheet, 
-  KeyboardAvoidingView, 
-  Platform, 
-  Image, 
-  TouchableOpacity, 
-  Text, 
+import {
+  View,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  TouchableOpacity,
+  Text,
   TextInput as RNTextInput,
-  ScrollView // Added missing import
+  ScrollView, // Added missing import
 } from 'react-native';
 import { Surface, IconButton, HelperText } from 'react-native-paper';
 import { Formik } from 'formik';
@@ -53,7 +53,10 @@ const LoginScreen = ({ navigation }) => {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
         >
-          <ScrollView contentContainerStyle={styles.scrollPadding} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            contentContainerStyle={styles.scrollPadding}
+            showsVerticalScrollIndicator={false}
+          >
             <Text style={styles.formTitle}>Sign In</Text>
             <Text style={styles.formSub}>Enter your credentials to continue</Text>
 
@@ -67,7 +70,13 @@ const LoginScreen = ({ navigation }) => {
                   {/* Email Input */}
                   <View style={styles.inputWrapper}>
                     <Text style={styles.inputLabel}>Email Address</Text>
-                    <Surface style={[styles.inputSurface, touched.email && errors.email && styles.inputError]} elevation={0}>
+                    <Surface
+                      style={[
+                        styles.inputSurface,
+                        touched.email && errors.email && styles.inputError,
+                      ]}
+                      elevation={0}
+                    >
                       <IconButton icon="email-outline" size={20} iconColor="#4FD3B5" />
                       <RNTextInput
                         placeholder="admin@homesteads.com"
@@ -87,7 +96,13 @@ const LoginScreen = ({ navigation }) => {
                   {/* Password Input */}
                   <View style={styles.inputWrapper}>
                     <Text style={styles.inputLabel}>Password</Text>
-                    <Surface style={[styles.inputSurface, touched.password && errors.password && styles.inputError]} elevation={0}>
+                    <Surface
+                      style={[
+                        styles.inputSurface,
+                        touched.password && errors.password && styles.inputError,
+                      ]}
+                      elevation={0}
+                    >
                       <IconButton icon="lock-outline" size={20} iconColor="#4FD3B5" />
                       <RNTextInput
                         placeholder="••••••••"
@@ -97,10 +112,10 @@ const LoginScreen = ({ navigation }) => {
                         secureTextEntry={secureText}
                         style={styles.textInput}
                       />
-                      <IconButton 
-                        icon={secureText ? "eye-off-outline" : "eye-outline"} 
-                        size={20} 
-                        iconColor="#CCC" 
+                      <IconButton
+                        icon={secureText ? 'eye-off-outline' : 'eye-outline'}
+                        size={20}
+                        iconColor="#CCC"
                         onPress={() => setSecureText(!secureText)}
                       />
                     </Surface>
@@ -109,17 +124,17 @@ const LoginScreen = ({ navigation }) => {
                     </HelperText>
                   </View>
 
-                  {error ? (
-                    <Text style={styles.serverError}>{error}</Text>
-                  ) : null}
+                  {error ? <Text style={styles.serverError}>{error}</Text> : null}
 
-                  <TouchableOpacity 
-                    style={[styles.loginBtn, loading && styles.btnDisabled]} 
+                  <TouchableOpacity
+                    style={[styles.loginBtn, loading && styles.btnDisabled]}
                     onPress={handleSubmit}
                     disabled={loading}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.loginBtnText}>{loading ? 'Authenticating...' : 'Sign In'}</Text>
+                    <Text style={styles.loginBtnText}>
+                      {loading ? 'Authenticating...' : 'Sign In'}
+                    </Text>
                     {!loading && <IconButton icon="arrow-right" iconColor="#fff" size={20} />}
                   </TouchableOpacity>
 

@@ -5,11 +5,11 @@ import { dashboardApi } from '@api';
  * Custom hook for managing dashboard data using TanStack Query
  */
 export const useDashboard = (params = {}) => {
-  const { 
-    data: dashboard, 
-    isLoading: loading, 
-    error, 
-    refetch: fetchDashboard 
+  const {
+    data: dashboard,
+    isLoading: loading,
+    error,
+    refetch: fetchDashboard,
   } = useQuery({
     queryKey: ['dashboard', params],
     queryFn: () => dashboardApi.getDashboard(params),
@@ -20,7 +20,7 @@ export const useDashboard = (params = {}) => {
   return {
     dashboard,
     loading,
-    error: error ? (error.message || 'Failed to fetch dashboard data') : null,
+    error: error ? error.message || 'Failed to fetch dashboard data' : null,
     fetchDashboard,
     // Note: React Query handles reset/invalidation automatically via queryKey
   };

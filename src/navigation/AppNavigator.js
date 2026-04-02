@@ -41,11 +41,7 @@ const DashboardStack = () => (
       options={({ navigation }) => ({
         title: 'Dashboard',
         headerLeft: () => (
-          <IconButton
-            icon="menu"
-            size={24}
-            onPress={() => navigation.openDrawer()}
-          />
+          <IconButton icon="menu" size={24} onPress={() => navigation.openDrawer()} />
         ),
       })}
     />
@@ -65,11 +61,7 @@ const CustomerStack = () => (
       options={({ navigation }) => ({
         title: 'Customers',
         headerLeft: () => (
-          <IconButton
-            icon="menu"
-            size={24}
-            onPress={() => navigation.openDrawer()}
-          />
+          <IconButton icon="menu" size={24} onPress={() => navigation.openDrawer()} />
         ),
       })}
     />
@@ -94,11 +86,7 @@ const BillingStack = () => (
       options={({ navigation }) => ({
         title: 'Billing & Invoices',
         headerLeft: () => (
-          <IconButton
-            icon="menu"
-            size={24}
-            onPress={() => navigation.openDrawer()}
-          />
+          <IconButton icon="menu" size={24} onPress={() => navigation.openDrawer()} />
         ),
       })}
     />
@@ -143,11 +131,7 @@ const OrdersStack = () => (
       options={({ navigation }) => ({
         title: 'Orders',
         headerLeft: () => (
-          <IconButton
-            icon="menu"
-            size={24}
-            onPress={() => navigation.openDrawer()}
-          />
+          <IconButton icon="menu" size={24} onPress={() => navigation.openDrawer()} />
         ),
       })}
     />
@@ -166,10 +150,7 @@ const SettingsStack = () => (
       headerShown: false,
     }}
   >
-    <Stack.Screen
-      name="SettingsMain"
-      component={SettingsScreen}
-    />
+    <Stack.Screen name="SettingsMain" component={SettingsScreen} />
   </Stack.Navigator>
 );
 
@@ -186,11 +167,7 @@ const ApiKeysStack = () => (
       options={({ navigation }) => ({
         title: 'API Keys',
         headerLeft: () => (
-          <IconButton
-            icon="menu"
-            size={24}
-            onPress={() => navigation.openDrawer()}
-          />
+          <IconButton icon="menu" size={24} onPress={() => navigation.openDrawer()} />
         ),
       })}
     />
@@ -220,9 +197,9 @@ const DrawerNavigator = () => {
         drawerStyle: {
           width: '25%',
           backgroundColor: '#fff',
-          borderTopLeftRadius: 50,    // Curves the top edge as it slides in
+          borderTopLeftRadius: 50, // Curves the top edge as it slides in
           borderBottomLeftRadius: 50, // Curves the bottom edge
-          elevation: 20,              // Stronger shadow for depth
+          elevation: 20, // Stronger shadow for depth
           shadowColor: '#000',
           shadowOffset: { width: -10, height: 0 },
           shadowOpacity: 0.1,
@@ -278,9 +255,7 @@ const DrawerNavigator = () => {
         component={SettingsStack}
         options={{
           drawerLabel: 'Settings',
-          drawerIcon: ({ color, size }) => (
-            <IconButton icon="cog" size={size} iconColor={color} />
-          ),
+          drawerIcon: ({ color, size }) => <IconButton icon="cog" size={size} iconColor={color} />,
         }}
       />
       {isSuperuser && (

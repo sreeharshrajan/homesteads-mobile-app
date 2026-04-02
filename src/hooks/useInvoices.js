@@ -29,18 +29,18 @@ export const useInvoices = () => {
       return { success: true, data: response };
     } catch (err) {
       let errorMessage = err.message || 'Failed to fetch invoices';
-      
+
       // Provide more context for specific error types
       if (err.status === 500) {
         errorMessage = 'Server error while fetching invoices. Please try again later.';
       } else if (err.status === 401 || err.status === 403) {
         errorMessage = 'You do not have permission to view invoices';
       }
-      
+
       if (err.details) {
         errorMessage += ` (${err.details})`;
       }
-      
+
       setError(errorMessage);
       // Don't clear the invoices list on error - keep showing existing data
       return { success: false, error: errorMessage, status: err.status };
@@ -61,7 +61,7 @@ export const useInvoices = () => {
       return { success: true, data: response };
     } catch (err) {
       let errorMessage = err.message || 'Failed to fetch invoice';
-      
+
       // Provide more context for specific error types
       if (err.status === 404) {
         errorMessage = 'Invoice not found';
@@ -70,12 +70,12 @@ export const useInvoices = () => {
       } else if (err.status === 401 || err.status === 403) {
         errorMessage = 'You do not have permission to view this invoice';
       }
-      
+
       // Include details if available
       if (err.details) {
         errorMessage += ` (${err.details})`;
       }
-      
+
       setError(errorMessage);
       return { success: false, error: errorMessage, status: err.status };
     } finally {
@@ -94,7 +94,7 @@ export const useInvoices = () => {
       return { success: true, data: response };
     } catch (err) {
       let errorMessage = err.message || 'Failed to create invoice';
-      
+
       // Provide more context for specific error types
       if (err.status === 400) {
         errorMessage = err.message || 'Invalid invoice data';
@@ -103,11 +103,11 @@ export const useInvoices = () => {
       } else if (err.status === 401 || err.status === 403) {
         errorMessage = 'You do not have permission to create invoices';
       }
-      
+
       if (err.details) {
         errorMessage += ` (${err.details})`;
       }
-      
+
       setError(errorMessage);
       return { success: false, error: errorMessage, status: err.status };
     } finally {
@@ -127,7 +127,7 @@ export const useInvoices = () => {
       return { success: true, data: response };
     } catch (err) {
       let errorMessage = err.message || 'Failed to update invoice';
-      
+
       // Provide more context for specific error types
       if (err.status === 404) {
         errorMessage = 'Invoice not found';
@@ -138,11 +138,11 @@ export const useInvoices = () => {
       } else if (err.status === 401 || err.status === 403) {
         errorMessage = 'You do not have permission to update this invoice';
       }
-      
+
       if (err.details) {
         errorMessage += ` (${err.details})`;
       }
-      
+
       setError(errorMessage);
       return { success: false, error: errorMessage, status: err.status };
     } finally {
@@ -161,7 +161,7 @@ export const useInvoices = () => {
       return { success: true };
     } catch (err) {
       let errorMessage = err.message || 'Failed to delete invoice';
-      
+
       // Provide more context for specific error types
       if (err.status === 404) {
         errorMessage = 'Invoice not found';
@@ -172,11 +172,11 @@ export const useInvoices = () => {
       } else if (err.status === 401 || err.status === 403) {
         errorMessage = 'You do not have permission to delete this invoice';
       }
-      
+
       if (err.details) {
         errorMessage += ` (${err.details})`;
       }
-      
+
       setError(errorMessage);
       return { success: false, error: errorMessage, status: err.status };
     } finally {
@@ -208,4 +208,3 @@ export const useInvoices = () => {
     reset,
   };
 };
-

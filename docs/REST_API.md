@@ -93,7 +93,7 @@ curl -X GET "https://admin.homesteadsviands.com/api/invoices?page=1&limit=20&sta
         "status": "PAID",
         "issueDate": "2025-01-15T00:00:00.000Z",
         "dueDate": "2025-02-15T00:00:00.000Z",
-        "totalAmount": 10500.00,
+        "totalAmount": 10500.0,
         "customer": {
           "id": "cm...",
           "name": "Acme Corporation",
@@ -110,7 +110,7 @@ curl -X GET "https://admin.homesteadsviands.com/api/invoices?page=1&limit=20&sta
         "payments": [
           {
             "id": "cm...",
-            "amount": 10500.00,
+            "amount": 10500.0,
             "method": "BANK_TRANSFER",
             "status": "SUCCESS",
             "paidAt": "2025-01-16T10:30:00.000Z"
@@ -158,7 +158,7 @@ curl -X GET "https://admin.homesteadsviands.com/api/invoices/cm..." \
     "status": "PAID",
     "issueDate": "2025-01-15T00:00:00.000Z",
     "dueDate": "2025-02-15T00:00:00.000Z",
-    "totalAmount": 10500.00,
+    "totalAmount": 10500.0,
     "placeOfSupply": "Maharashtra",
     "statusNote": null,
     "remarks": "Thank you for your business",
@@ -176,18 +176,18 @@ curl -X GET "https://admin.homesteadsviands.com/api/invoices/cm..." \
       "id": "cm...",
       "orderNumber": "ORD-2025-000123",
       "status": "COMPLETED",
-      "subtotal": 10000.00,
-      "taxAmount": 1800.00,
-      "discountAmt": 1300.00,
-      "shippingAmt": 0.00,
+      "subtotal": 10000.0,
+      "taxAmount": 1800.0,
+      "discountAmt": 1300.0,
+      "shippingAmt": 0.0,
       "orderItems": [
         {
           "id": "cm...",
           "quantity": 10,
-          "unitPrice": 100.00,
-          "taxAmount": 180.00,
-          "netAmount": 1180.00,
-          "discountAmt": 0.00,
+          "unitPrice": 100.0,
+          "taxAmount": 180.0,
+          "netAmount": 1180.0,
+          "discountAmt": 0.0,
           "variant": {
             "id": "cm...",
             "name": "250g Pack",
@@ -205,7 +205,7 @@ curl -X GET "https://admin.homesteadsviands.com/api/invoices/cm..." \
     "payments": [
       {
         "id": "cm...",
-        "amount": 10500.00,
+        "amount": 10500.0,
         "method": "BANK_TRANSFER",
         "status": "SUCCESS",
         "paidAt": "2025-01-16T10:30:00.000Z",
@@ -239,7 +239,7 @@ Create a new invoice.
   "statusNote": "Pending approval",
   "issueDate": "2025-01-20T00:00:00.000Z",
   "dueDate": "2025-02-20T00:00:00.000Z",
-  "totalAmount": 5000.00,
+  "totalAmount": 5000.0,
   "placeOfSupply": "Karnataka",
   "remarks": "Please pay within 30 days",
   "poNumber": "PO-2025-002",
@@ -288,7 +288,7 @@ curl -X POST "https://admin.homesteadsviands.com/api/invoices" \
     "status": "DRAFT",
     "issueDate": "2025-01-20T00:00:00.000Z",
     "dueDate": "2025-02-20T00:00:00.000Z",
-    "totalAmount": 5000.00,
+    "totalAmount": 5000.0,
     "customer": {
       "id": "cm...",
       "name": "XYZ Industries",
@@ -321,7 +321,7 @@ Update an existing invoice. Only DRAFT invoices can be fully updated. For other 
   "status": "SENT",
   "statusNote": "Invoice sent to customer",
   "dueDate": "2025-03-01T00:00:00.000Z",
-  "totalAmount": 5500.00
+  "totalAmount": 5500.0
 }
 ```
 
@@ -349,7 +349,7 @@ curl -X PUT "https://admin.homesteadsviands.com/api/invoices/cm..." \
     "statusNote": "Invoice sent to customer",
     "issueDate": "2025-01-20T00:00:00.000Z",
     "dueDate": "2025-03-01T00:00:00.000Z",
-    "totalAmount": 5500.00,
+    "totalAmount": 5500.0,
     "customer": {
       "id": "cm...",
       "name": "XYZ Industries",
@@ -874,14 +874,14 @@ import { customersApi } from './src/api/customers';
 const invoices = await invoicesApi.getAll({
   page: 1,
   limit: 20,
-  status: 'PAID'
+  status: 'PAID',
 });
 
 // Create a customer
 const customer = await customersApi.create({
   name: 'New Customer',
   phone: '+1234567890',
-  email: 'customer@example.com'
+  email: 'customer@example.com',
 });
 ```
 
@@ -890,6 +890,7 @@ const customer = await customersApi.create({
 ## Support
 
 For API support and questions:
+
 - Email: sreeharshkrajan@gmail.com
 - Admin Panel: https://admin.homesteadsviands.com
 - Documentation: https://docs.homesteadsviands.com/rest-api
@@ -897,6 +898,7 @@ For API support and questions:
 ## Changelog
 
 ### Version 1.0.0 (2025-01-12)
+
 - Initial REST API release
 - Invoice management endpoints (CRUD)
 - Customer management endpoints (CRUD)
@@ -907,4 +909,3 @@ For API support and questions:
 ---
 
 © 2024 Homesteads Viands. All rights reserved.
-

@@ -20,7 +20,7 @@ import { lightTheme } from './src/config/theme';
 
 <PaperProvider theme={lightTheme}>
   <App />
-</PaperProvider>
+</PaperProvider>;
 ```
 
 ### 2. Theme Hook
@@ -169,7 +169,7 @@ import { Dialog, Portal } from 'react-native-paper';
       <Button onPress={handleConfirm}>OK</Button>
     </Dialog.Actions>
   </Dialog>
-</Portal>
+</Portal>;
 ```
 
 ### Snackbar
@@ -193,16 +193,12 @@ import { Dialog, Portal } from 'react-native-paper';
 ```javascript
 const [visible, setVisible] = useState(false);
 
-<Menu
-  visible={visible}
-  onDismiss={closeMenu}
-  anchor={<Button onPress={openMenu}>Menu</Button>}
->
+<Menu visible={visible} onDismiss={closeMenu} anchor={<Button onPress={openMenu}>Menu</Button>}>
   <Menu.Item onPress={() => {}} title="Edit" leadingIcon="pencil" />
   <Menu.Item onPress={() => {}} title="Delete" leadingIcon="delete" />
   <Divider />
   <Menu.Item onPress={() => {}} title="Settings" leadingIcon="cog" />
-</Menu>
+</Menu>;
 ```
 
 ### Chips
@@ -289,12 +285,7 @@ const [visible, setVisible] = useState(false);
     <DataTable.Cell numeric>$250</DataTable.Cell>
   </DataTable.Row>
 
-  <DataTable.Pagination
-    page={page}
-    numberOfPages={3}
-    onPageChange={setPage}
-    label="1-2 of 6"
-  />
+  <DataTable.Pagination page={page} numberOfPages={3} onPageChange={setPage} label="1-2 of 6" />
 </DataTable>
 ```
 
@@ -426,17 +417,17 @@ import { useTheme } from 'react-native-paper';
 const theme = useTheme();
 
 // Available colors
-theme.colors.primary
-theme.colors.secondary
-theme.colors.tertiary
-theme.colors.error
-theme.colors.background
-theme.colors.surface
-theme.colors.onPrimary
-theme.colors.onSecondary
-theme.colors.onBackground
-theme.colors.onSurface
-theme.colors.outline
+theme.colors.primary;
+theme.colors.secondary;
+theme.colors.tertiary;
+theme.colors.error;
+theme.colors.background;
+theme.colors.surface;
+theme.colors.onPrimary;
+theme.colors.onSecondary;
+theme.colors.onBackground;
+theme.colors.onSurface;
+theme.colors.outline;
 ```
 
 ---
@@ -478,9 +469,9 @@ theme.colors.outline
   <Appbar.Header>
     <Appbar.Content title="Title" />
   </Appbar.Header>
-  
+
   <ScrollView>{/* Content */}</ScrollView>
-  
+
   <FAB icon="plus" style={styles.fab} onPress={handleAdd} />
 </View>
 ```
@@ -489,16 +480,10 @@ theme.colors.outline
 
 ```javascript
 <View>
-  <Searchbar
-    placeholder="Search"
-    value={searchQuery}
-    onChangeText={setSearchQuery}
-  />
+  <Searchbar placeholder="Search" value={searchQuery} onChangeText={setSearchQuery} />
   <FlatList
     data={filteredData}
-    renderItem={({ item }) => (
-      <List.Item title={item.name} onPress={() => handlePress(item)} />
-    )}
+    renderItem={({ item }) => <List.Item title={item.name} onPress={() => handlePress(item)} />}
   />
 </View>
 ```
@@ -564,7 +549,7 @@ const { visible, message, showSnackbar, hideSnackbar } = useSnackbar();
   message={message}
   onDismiss={hideSnackbar}
   variant="success"
-/>
+/>;
 ```
 
 ### ActionMenu

@@ -2,7 +2,7 @@ import apiClient from './client';
 
 /**
  * Products API
- * 
+ *
  * Provides methods for accessing product catalog through the REST API.
  * All methods return the data directly (response interceptor extracts data.data).
  */
@@ -36,7 +36,7 @@ export const productsApi = {
     const response = await apiClient.get('/products', { params });
     return response;
   },
-  
+
   /**
    * Get product by ID
    * @param {string} id - Product ID
@@ -48,7 +48,7 @@ export const productsApi = {
     const response = await apiClient.get(`/products/${id}`, { params });
     return response;
   },
-  
+
   /**
    * Get product by slug
    * @param {string} slug - Product slug
@@ -61,7 +61,7 @@ export const productsApi = {
     const response = await apiClient.get(`/products/slug/${slug}`, { params });
     return response;
   },
-  
+
   /**
    * Search products
    * @param {Object} params - Query parameters
@@ -79,7 +79,7 @@ export const productsApi = {
     const response = await apiClient.get('/products/search', { params });
     return response;
   },
-  
+
   /**
    * Get featured products
    * @param {Object} params - Query parameters
@@ -91,7 +91,7 @@ export const productsApi = {
     const response = await apiClient.get('/products/featured', { params });
     return response;
   },
-  
+
   /**
    * Get products by category
    * @param {string} categorySlug - Category slug
@@ -103,4 +103,3 @@ export const productsApi = {
     return response;
   },
 };
-

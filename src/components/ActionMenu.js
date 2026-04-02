@@ -3,7 +3,7 @@ import { Menu, IconButton } from 'react-native-paper';
 
 /**
  * Reusable action menu component
- * 
+ *
  * Usage:
  * <ActionMenu
  *   items={[
@@ -28,14 +28,7 @@ const ActionMenu = ({ items, icon = 'dots-vertical', anchorStyle = {} }) => {
     <Menu
       visible={visible}
       onDismiss={closeMenu}
-      anchor={
-        <IconButton
-          icon={icon}
-          size={24}
-          onPress={openMenu}
-          style={anchorStyle}
-        />
-      }
+      anchor={<IconButton icon={icon} size={24} onPress={openMenu} style={anchorStyle} />}
     >
       {items.map((item, index) => (
         <Menu.Item
@@ -51,6 +44,3 @@ const ActionMenu = ({ items, icon = 'dots-vertical', anchorStyle = {} }) => {
 };
 
 export default ActionMenu;
-
-
-

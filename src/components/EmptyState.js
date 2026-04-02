@@ -13,27 +13,17 @@ const EmptyState = ({
   actionLabel,
   onAction,
   loading = false, // Added to handle loading states
-  style
+  style,
 }) => {
   const theme = useTheme();
 
   return (
-    <View
-      style={[styles.container, style]}
-      accessibilityRole="summary"
-    >
+    <View style={[styles.container, style]} accessibilityRole="summary">
       {/* Icon with themed color */}
-      <Icon
-        source={icon}
-        size={72}
-        color={theme.colors.outlineVariant}
-      />
+      <Icon source={icon} size={72} color={theme.colors.outlineVariant} />
 
       {/* Title using Paper's Headline typography */}
-      <Text
-        variant="headlineSmall"
-        style={[styles.title, { color: theme.colors.onSurface }]}
-      >
+      <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
         {title}
       </Text>
 
@@ -89,7 +79,7 @@ const styles = StyleSheet.create({
   },
   buttonContent: {
     paddingVertical: 4,
-  }
+  },
 });
 
 // Memoize to prevent re-renders when parent lists refresh

@@ -2,7 +2,7 @@ import apiClient from './client';
 
 /**
  * Dashboard API
- * 
+ *
  * Provides methods for fetching admin dashboard data.
  * All methods return the data directly (response interceptor extracts data.data).
  */
@@ -21,4 +21,3 @@ export const dashboardApi = {
     return response;
   },
 };
-

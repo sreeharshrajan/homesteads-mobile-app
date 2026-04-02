@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { productsApi } from '@api';
 
-
 /**
  * Hook for fetching multiple products with filtering and pagination
  */
@@ -10,33 +9,33 @@ export const useProducts = (initialParams = {}) => {
   const [params, setParams] = useState({
     page: 1,
     limit: 10,
-    ...initialParams
+    ...initialParams,
   });
 
   const query = useQuery({
     queryKey: ['products', params],
     queryFn: async () => {
       // Logic to switch between search and regular fetch based on 'q'
-      const response = params.q 
+      const response = params.q
         ? await productsApi.search(params)
         : await productsApi.getAll(params);
-        
+
       return {
         products: response?.products || [],
         pagination: response?.pagination || { totalPages: 1, page: 1 },
       };
     },
     // Keeps previous data visible while fetching new page (better UX)
-    placeholderData: (previousData) => previousData, 
+    placeholderData: (previousData) => previousData,
   });
 
   // Manual trigger helpers that match your screen's expectations
   const fetchProducts = useCallback((newParams) => {
-    setParams(prev => ({ ...prev, ...newParams, q: undefined }));
+    setParams((prev) => ({ ...prev, ...newParams, q: undefined }));
   }, []);
 
   const searchProducts = useCallback((newParams) => {
-    setParams(prev => ({ ...prev, ...newParams }));
+    setParams((prev) => ({ ...prev, ...newParams }));
   }, []);
 
   return {
@@ -44,7 +43,7 @@ export const useProducts = (initialParams = {}) => {
     pagination: query.data?.pagination ?? {},
     loading: query.isLoading || query.isFetching,
     error: query.error,
-    fetchProducts,  // Now these are actual functions!
+    fetchProducts, // Now these are actual functions!
     searchProducts, // Now these are actual functions!
     refetch: query.refetch,
   };

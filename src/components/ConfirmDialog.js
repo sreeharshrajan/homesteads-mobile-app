@@ -4,7 +4,7 @@ import { Dialog, Portal, Button, Text, useTheme, MD3Colors } from 'react-native-
 
 /**
  * Reusable confirmation dialog component
- * 
+ *
  * Usage:
  * <ConfirmDialog
  *   visible={showDialog}
@@ -98,7 +98,9 @@ const ConfirmDialog = ({
             disabled={loading}
             mode="contained-tonal" // Modern emphasis
             buttonColor={type !== 'primary' ? config.color : theme.colors.primaryContainer}
-            textColor={type !== 'primary' ? theme.colors.onPrimary : theme.colors.onPrimaryContainer}
+            textColor={
+              type !== 'primary' ? theme.colors.onPrimary : theme.colors.onPrimaryContainer
+            }
             style={styles.confirmButton}
             labelStyle={styles.actionButtonLabel}
           >

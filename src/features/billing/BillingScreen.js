@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, TextInput, TouchableOpacity, Text } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  RefreshControl,
+  TextInput,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
 import { IconButton, Surface, Avatar, Divider, Menu } from 'react-native-paper';
 import { ROUTES } from '@utils/constants';
 import { formatCurrency, formatDate } from '@utils/formatters';
 import { useInvoices } from '@hooks';
-import { PaginationControls, EmptyState } from '@components';
+import { PaginationControls, EmptyState, ScreenTemplate } from '@components';
 
 const BillingScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,28 +84,24 @@ const BillingScreen = ({ navigation }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'PAID': return '#4FD3B5';
-      case 'DRAFT': return '#FFB347';
-      case 'CANCELLED': return '#FF4B7D';
-      default: return '#CCC';
+      case 'PAID':
+        return '#4FD3B5';
+      case 'DRAFT':
+        return '#FFB347';
+      case 'CANCELLED':
+        return '#FF4B7D';
+      default:
+        return '#CCC';
     }
   };
 
   return (
-    <View style={styles.container}>
-      {/* 1. BRANDED HEADER */}
-      <View style={styles.headerBackground}>
-        <View style={styles.topNav}>
-          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
-          <IconButton icon="menu" iconColor="#333" onPress={() => navigation.openDrawer()} />
-        </View>
-
-        <View style={styles.headerTextGroup}>
-          <Text style={styles.subTitle}>Manage Financials</Text>
-          <Text style={styles.mainTitle}>Billing</Text>
-        </View>
-
-        {/* 2. SEARCH & FILTER MENU */}
+    <ScreenTemplate
+      title="Billing"
+      subtitle="Manage Financials"
+      showBackButton
+      scrollable={false}
+      headerContent={
         <Surface style={styles.searchContainer} elevation={2}>
           <TextInput
             placeholder="Search invoice number..."
@@ -112,9 +116,9 @@ const BillingScreen = ({ navigation }) => {
             onDismiss={() => setVisible(false)}
             anchor={
               <IconButton
-                icon={statusFilter ? "filter" : "filter-variant"}
+                icon={statusFilter ? 'filter' : 'filter-variant'}
                 size={22}
-                iconColor={statusFilter ? "#FF4B7D" : "#4FD3B5"}
+                iconColor={statusFilter ? '#FF4B7D' : '#4FD3B5'}
                 onPress={() => setVisible(true)}
               />
             }
@@ -125,32 +129,47 @@ const BillingScreen = ({ navigation }) => {
             <Menu.Item onPress={() => handleStatusChange('CANCELLED')} title="Cancelled" />
           </Menu>
         </Surface>
-      </View>
-
-      {/* 3. CONTENT AREA */}
-      <View style={styles.contentSheet}>
-        {invoices.length === 0 && !loading ? (
-          <EmptyState icon="file-document-outline" title="No invoices found" />
-        ) : (
-          <FlatList
-            data={invoices}
-            renderItem={renderInvoiceCard}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listPadding}
-            refreshControl={<RefreshControl refreshing={loading} onRefresh={loadInvoices} />}
-            ListFooterComponent={
-              pagination.totalPages > 1 && (
-                <PaginationControls
-                  currentPage={pagination.page}
-                  totalPages={pagination.totalPages}
-                  onPageChange={(page) => setCurrentPage(page)}
-                  loading={loading}
-                />
-              )
-            }
+      }
+      footer={
+        <Surface style={styles.bottomNav} elevation={4}>
+          <IconButton
+            icon="home-outline"
+            iconColor="#CCC"
+            onPress={() => navigation.navigate(ROUTES.DASHBOARD)}
           />
-        )}
-      </View>
+          <IconButton
+            icon="account-group-outline"
+            iconColor="#CCC"
+            onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)}
+          />
+          <View style={styles.activeTabContainer}>
+            <IconButton icon="file-document" iconColor="#4FD3B5" />
+            <View style={styles.activeDot} />
+          </View>
+        </Surface>
+      }
+    >
+      {invoices.length === 0 && !loading ? (
+        <EmptyState icon="file-document-outline" title="No invoices found" />
+      ) : (
+        <FlatList
+          data={invoices}
+          renderItem={renderInvoiceCard}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listPadding}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={loadInvoices} />}
+          ListFooterComponent={
+            pagination.totalPages > 1 && (
+              <PaginationControls
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+                loading={loading}
+              />
+            )
+          }
+        />
+      )}
 
       {/* 4. FAB & NAVIGATION */}
       <TouchableOpacity
@@ -159,16 +178,7 @@ const BillingScreen = ({ navigation }) => {
       >
         <IconButton icon="plus" iconColor="#fff" size={28} />
       </TouchableOpacity>
-
-      <Surface style={styles.bottomNav} elevation={4}>
-        <IconButton icon="home-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.DASHBOARD)} />
-        <IconButton icon="account-group-outline" iconColor="#CCC" onPress={() => navigation.navigate(ROUTES.CUSTOMER_LIST)} />
-        <View style={styles.activeTabContainer}>
-          <IconButton icon="file-document" iconColor="#4FD3B5" />
-          <View style={styles.activeDot} />
-        </View>
-      </Surface>
-    </View>
+    </ScreenTemplate>
   );
 };
 
@@ -216,7 +226,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: '#F8F8F8',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   cardContent: { padding: 16 },
   cardTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
@@ -261,7 +271,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeTabContainer: { alignItems: 'center' },
-  activeDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#4FD3B5', marginTop: -8 }
+  activeDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#4FD3B5', marginTop: -8 },
 });
 
 export default BillingScreen;

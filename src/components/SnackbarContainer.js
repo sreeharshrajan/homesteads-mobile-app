@@ -3,10 +3,10 @@ import { Snackbar } from 'react-native-paper';
 
 /**
  * Reusable Snackbar container component
- * 
+ *
  * Usage with useSnackbar hook:
  * const { visible, message, action, hideSnackbar } = useSnackbar();
- * 
+ *
  * <SnackbarContainer
  *   visible={visible}
  *   message={message}
@@ -51,6 +51,3 @@ const SnackbarContainer = ({
 };
 
 export default SnackbarContainer;
-
-
-

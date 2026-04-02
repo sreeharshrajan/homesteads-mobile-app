@@ -28,20 +28,14 @@ const STATUS_VARIANTS = {
   SENT: { bg: '#eeeeee', text: '#424242' },
 };
 
-const StatusBadge = ({
-  status,
-  label,
-  style,
-  onPress,
-  testID = 'status-badge'
-}) => {
+const StatusBadge = ({ status, label, style, onPress, testID = 'status-badge' }) => {
   const theme = useTheme();
 
   // Memoize styles to prevent recalculation unless status or theme changes
   const badgeStyle = useMemo(() => {
     const variant = STATUS_VARIANTS[status] || {
       bg: theme.colors.surfaceVariant,
-      text: theme.colors.onSurfaceVariant
+      text: theme.colors.onSurfaceVariant,
     };
 
     return {
@@ -64,7 +58,10 @@ const StatusBadge = ({
   const displayLabel = useMemo(() => {
     if (label) return label;
     if (!status) return 'Unknown';
-    return status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+    return status
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (l) => l.toUpperCase());
   }, [label, status]);
 
   return (

@@ -15,6 +15,7 @@ import { lightTheme, darkTheme } from './src/config/theme';
 ```
 
 **Custom Colors:**
+
 - **Primary**: `#2e7d32` (Green) - Food/fresh theme
 - **Secondary**: `#ff6f00` (Orange) - Accent color
 - **Tertiary**: `#1976d2` (Blue) - Additional accent
@@ -33,12 +34,14 @@ The `PaperProvider` wraps the entire app in `App.js`:
 ## Components Used
 
 ### Navigation Components
+
 - **Appbar.Header** - Screen headers with actions
 - **Appbar.BackAction** - Back navigation button
 - **Appbar.Content** - Header title
 - **Appbar.Action** - Header action buttons
 
 ### Form Components
+
 - **TextInput** - Text input fields (mode: "outlined")
 - **Button** - Action buttons (modes: "contained", "outlined", "text")
 - **SegmentedButtons** - Toggle between options
@@ -46,6 +49,7 @@ The `PaperProvider` wraps the entire app in `App.js`:
 - **Searchbar** - Search input with icon
 
 ### Display Components
+
 - **Card** - Container for grouped content
 - **Title** - Large text headers
 - **Paragraph** - Body text
@@ -56,6 +60,7 @@ The `PaperProvider` wraps the entire app in `App.js`:
 - **Icon** - Material icons
 
 ### Feedback Components
+
 - **ActivityIndicator** - Loading spinner
 - **FAB** (Floating Action Button) - Primary action button
 - **Snackbar** - Toast notifications (not yet implemented)
@@ -63,24 +68,31 @@ The `PaperProvider` wraps the entire app in `App.js`:
 ## Screen Examples
 
 ### Login Screen
+
 Uses Paper's TextInput, Button, Title, and HelperText components with form validation.
 
 ### Customer List Screen
+
 Features Appbar, Searchbar, Card, Chip, and FAB components for a rich list experience.
 
 ### Billing Screen
+
 Displays billing data using Card, Chip with custom colors, and FAB for new invoices.
 
 ### Invoice Screen
+
 Uses DataTable for line items and structured Card layout for invoice details.
 
 ### Customer Form Screen
+
 Implements TextInput fields, SegmentedButtons for status, and validation with HelperText.
 
 ## Best Practices
 
 ### 1. Theme Integration
+
 Access theme colors in styles:
+
 ```javascript
 import { useTheme } from 'react-native-paper';
 
@@ -93,17 +105,21 @@ const styles = StyleSheet.create({
 ```
 
 ### 2. Button Modes
+
 - **contained** - Primary actions (filled button)
 - **outlined** - Secondary actions (bordered button)
 - **text** - Tertiary actions (flat button)
 - **elevated** - Raised button with shadow
 
 ### 3. TextInput Modes
+
 - **outlined** - Recommended for forms (currently used)
 - **flat** - Alternative style with underline
 
 ### 4. Icon Usage
+
 Paper uses Material Community Icons by default through Expo:
+
 ```javascript
 <Icon source="account" size={24} />
 <Button icon="plus">Add</Button>
@@ -112,7 +128,9 @@ Paper uses Material Community Icons by default through Expo:
 ```
 
 ### 5. Accessibility
+
 Paper components come with built-in accessibility:
+
 - Proper touch target sizes
 - Screen reader support
 - Keyboard navigation
@@ -123,6 +141,7 @@ Paper components come with built-in accessibility:
 ### Recommended Additions
 
 1. **Snackbar** - For success/error notifications
+
 ```javascript
 <Snackbar
   visible={visible}
@@ -134,6 +153,7 @@ Paper components come with built-in accessibility:
 ```
 
 2. **Dialog** - For confirmations
+
 ```javascript
 <Dialog visible={visible} onDismiss={hideDialog}>
   <Dialog.Title>Delete Customer</Dialog.Title>
@@ -148,6 +168,7 @@ Paper components come with built-in accessibility:
 ```
 
 3. **Menu** - For dropdown actions
+
 ```javascript
 <Menu
   visible={visible}
@@ -160,14 +181,13 @@ Paper components come with built-in accessibility:
 ```
 
 4. **Checkbox/RadioButton** - For selections
+
 ```javascript
-<Checkbox
-  status={checked ? 'checked' : 'unchecked'}
-  onPress={() => setChecked(!checked)}
-/>
+<Checkbox status={checked ? 'checked' : 'unchecked'} onPress={() => setChecked(!checked)} />
 ```
 
 5. **Switch** - For toggles
+
 ```javascript
 <Switch value={enabled} onValueChange={setEnabled} />
 ```
@@ -175,12 +195,15 @@ Paper components come with built-in accessibility:
 ## Styling Guidelines
 
 ### Consistent Spacing
+
 - Padding: 16px standard, 8px compact
 - Margins: 16px between major sections, 8px between related items
 - Border radius: 8px (theme.roundness)
 
 ### Typography
+
 Paper provides consistent typography:
+
 ```javascript
 import { Text } from 'react-native-paper';
 
@@ -194,7 +217,9 @@ import { Text } from 'react-native-paper';
 ```
 
 ### Colors
+
 Use theme colors instead of hardcoded values:
+
 ```javascript
 const theme = useTheme();
 
@@ -216,14 +241,13 @@ import { lightTheme, darkTheme } from './src/config/theme';
 const [isDark, setIsDark] = useState(false);
 const theme = isDark ? darkTheme : lightTheme;
 
-<PaperProvider theme={theme}>
-  {/* App content */}
-</PaperProvider>
+<PaperProvider theme={theme}>{/* App content */}</PaperProvider>;
 ```
 
 ## Icon Reference
 
 Common Material Community Icons used in the app:
+
 - `plus` - Add/Create
 - `pencil` - Edit
 - `delete` - Delete
@@ -273,6 +297,3 @@ Find more icons at: https://pictogrammers.com/library/mdi/
 6. **Implement pull-to-refresh** with Paper styling
 7. **Add bottom sheet** for mobile actions
 8. **Implement drawer navigation** if needed
-
-
-

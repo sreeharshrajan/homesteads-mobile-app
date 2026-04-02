@@ -202,7 +202,7 @@ npx expo start --web
    ```javascript
    // In CustomerListScreen.js, replace:
    const [customers, setCustomers] = useState(SAMPLE_CUSTOMERS);
-   
+
    // With:
    import { useCustomers } from '@hooks/useCustomers';
    const { customers, loading, error } = useCustomers();
@@ -246,49 +246,49 @@ npx expo start --web
    - Customer statistics
 
 2. **Export Functionality**
-    - Export invoices as PDF
-    - Email invoices to customers
-    - Export customer lists as CSV
+   - Export invoices as PDF
+   - Email invoices to customers
+   - Export customer lists as CSV
 
 3. **Push Notifications**
-    - Payment reminders
-    - Overdue invoice alerts
-    - New customer notifications
+   - Payment reminders
+   - Overdue invoice alerts
+   - New customer notifications
 
 4. **Biometric Authentication**
-    - Face ID / Touch ID support
-    - Enhanced security
+   - Face ID / Touch ID support
+   - Enhanced security
 
 5. **Dark Mode**
-    - Theme switching
-    - User preference storage
+   - Theme switching
+   - User preference storage
 
 ### Long-term Improvements
 
 1. **TypeScript Migration**
-    - Add type safety
-    - Better IDE support
-    - Catch errors at compile time
+   - Add type safety
+   - Better IDE support
+   - Catch errors at compile time
 
 2. **Automated Testing**
-    - Unit tests with Jest
-    - Integration tests
-    - E2E tests with Detox
+   - Unit tests with Jest
+   - Integration tests
+   - E2E tests with Detox
 
 3. **Performance Optimization**
-    - Code splitting
-    - Image optimization
-    - Bundle size reduction
+   - Code splitting
+   - Image optimization
+   - Bundle size reduction
 
 4. **Accessibility**
-    - Screen reader support
-    - High contrast mode
-    - Larger text options
+   - Screen reader support
+   - High contrast mode
+   - Larger text options
 
 5. **Internationalization**
-    - Multi-language support
-    - Currency localization
-    - Date format localization
+   - Multi-language support
+   - Currency localization
+   - Date format localization
 
 ## 🎨 UI/UX Features
 

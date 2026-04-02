@@ -15,7 +15,7 @@ const FilterBar = ({
   showDateFilter = false,
   onDateRangePress,
   style,
-  placeholder = "Search...",
+  placeholder = 'Search...',
 }) => {
   const theme = useTheme();
   const [statusMenuVisible, setStatusMenuVisible] = useState(false);
@@ -26,10 +26,13 @@ const FilterBar = ({
   // Determine if a filter is currently active for visual feedback
   const isFilterActive = useMemo(() => !!statusFilter, [statusFilter]);
 
-  const handleStatusSelect = useCallback((value) => {
-    onStatusChange(value);
-    closeMenu();
-  }, [onStatusChange]);
+  const handleStatusSelect = useCallback(
+    (value) => {
+      onStatusChange(value);
+      closeMenu();
+    },
+    [onStatusChange]
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }, style]}>
@@ -45,7 +48,7 @@ const FilterBar = ({
           elevation={0}
         />
       )}
-      
+
       <View style={styles.filtersRow}>
         {/* Status Filter Menu */}
         {statusOptions.length > 0 && (
@@ -55,19 +58,19 @@ const FilterBar = ({
             anchorPosition="bottom"
             anchor={
               <Chip
-                mode={isFilterActive ? "flat" : "outlined"}
+                mode={isFilterActive ? 'flat' : 'outlined'}
                 onPress={openMenu}
                 style={[
                   styles.filterChip,
-                  isFilterActive && { backgroundColor: theme.colors.secondaryContainer }
+                  isFilterActive && { backgroundColor: theme.colors.secondaryContainer },
                 ]}
                 selected={isFilterActive}
                 showSelectedOverlay
-                icon={isFilterActive ? "check" : "filter-variant"}
+                icon={isFilterActive ? 'check' : 'filter-variant'}
                 onClose={isFilterActive ? () => onStatusChange(null) : undefined}
                 textStyle={{ fontSize: 12, color: theme.colors.onSurfaceVariant }}
               >
-                {statusOptions.find(opt => opt.value === statusFilter)?.label || 'Status'}
+                {statusOptions.find((opt) => opt.value === statusFilter)?.label || 'Status'}
               </Chip>
             }
           >
@@ -81,7 +84,7 @@ const FilterBar = ({
                 key={option.value}
                 onPress={() => handleStatusSelect(option.value)}
                 title={option.label}
-                trailingIcon={statusFilter === option.value ? "check" : undefined}
+                trailingIcon={statusFilter === option.value ? 'check' : undefined}
               />
             ))}
           </Menu>

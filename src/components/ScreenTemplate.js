@@ -15,7 +15,7 @@ import { IconButton } from 'react-native-paper';
  * ScreenTemplate Component
  * Standard layout for all screens in the Homesteads app.
  * Features a premium branded header and a floating content sheet.
- * 
+ *
  * @param {Object} props
  * @param {string} props.title - Main title displayed in the header
  * @param {string} props.subtitle - Secondary text above the title
@@ -54,18 +54,10 @@ const ScreenTemplate = ({
         <View style={styles.topNav}>
           <View style={styles.topLeftActions}>
             {showBackButton && (
-              <IconButton 
-                icon="arrow-left" 
-                iconColor="#333" 
-                onPress={() => navigation.goBack()} 
-              />
+              <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
             )}
             {showMenuButton && (
-              <IconButton 
-                icon="menu" 
-                iconColor="#333" 
-                onPress={() => navigation.openDrawer()} 
-              />
+              <IconButton icon="menu" iconColor="#333" onPress={() => navigation.openDrawer()} />
             )}
           </View>
           {headerAction && <View style={styles.topRightActions}>{headerAction}</View>}
@@ -88,11 +80,7 @@ const ScreenTemplate = ({
       contentContainerStyle={[styles.scrollPadding, containerStyle]}
       refreshControl={
         onRefresh ? (
-          <RefreshControl 
-            refreshing={loading} 
-            onRefresh={onRefresh} 
-            tintColor="#4FD3B5" 
-          />
+          <RefreshControl refreshing={loading} onRefresh={onRefresh} tintColor="#4FD3B5" />
         ) : undefined
       }
       showsVerticalScrollIndicator={false}
@@ -107,9 +95,7 @@ const ScreenTemplate = ({
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       {Header}
-      <View style={styles.contentSheet}>
-        {Content}
-      </View>
+      <View style={styles.contentSheet}>{Content}</View>
       {footer && <View style={styles.footerContainer}>{footer}</View>}
     </View>
   );

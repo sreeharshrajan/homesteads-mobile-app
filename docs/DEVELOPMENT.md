@@ -57,7 +57,7 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
    ```javascript
    // Current (sample data):
    const [customers, setCustomers] = useState(SAMPLE_CUSTOMERS);
-   
+
    // Replace with (real API):
    import { useCustomers } from '@hooks/useCustomers';
    const { customers, loading, error } = useCustomers();
@@ -73,7 +73,7 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
 
    ```javascript
    import apiClient from './client';
-   
+
    export const productsApi = {
      getAll: async () => {
        const response = await apiClient.get('/products');
@@ -88,11 +88,11 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
    ```javascript
    import { useState, useEffect } from 'react';
    import { productsApi } from '@api/products';
-   
+
    export const useProducts = () => {
      const [products, setProducts] = useState([]);
      const [loading, setLoading] = useState(false);
-     
+
      const fetchProducts = async () => {
        setLoading(true);
        try {
@@ -104,11 +104,11 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
          setLoading(false);
        }
      };
-     
+
      useEffect(() => {
        fetchProducts();
      }, []);
-     
+
      return { products, loading, refetch: fetchProducts };
    };
    ```
@@ -128,9 +128,9 @@ All API calls go through the centralized Axios client (`src/api/client.js`) whic
 
    ```javascript
    import ProductListScreen from '@screens/ProductListScreen';
-   
+
    // Inside authenticated stack:
-   <Stack.Screen name={ROUTES.PRODUCT_LIST} component={ProductListScreen} />
+   <Stack.Screen name={ROUTES.PRODUCT_LIST} component={ProductListScreen} />;
    ```
 
 ## Common Tasks
@@ -177,11 +177,11 @@ import useAuthStore from '@store/authStore';
 
 const MyComponent = () => {
   const { isAuthenticated, user } = useAuthStore();
-  
+
   if (!isAuthenticated) {
     return <Text>Please log in</Text>;
   }
-  
+
   return <Text>Welcome {user.name}</Text>;
 };
 ```
@@ -193,9 +193,9 @@ Use the formatter utilities in `src/utils/formatters.js`:
 ```javascript
 import { formatCurrency, formatDate, formatPhoneNumber } from '@utils/formatters';
 
-formatCurrency(1234.56);           // "$1,234.56"
-formatDate('2025-10-12');          // "Oct 12, 2025"
-formatPhoneNumber('5551234567');   // "(555) 123-4567"
+formatCurrency(1234.56); // "$1,234.56"
+formatDate('2025-10-12'); // "Oct 12, 2025"
+formatPhoneNumber('5551234567'); // "(555) 123-4567"
 ```
 
 ## Testing
@@ -227,10 +227,10 @@ login: async (email, password) => {
     token: 'mock-jwt-token',
     user: { id: 1, name: 'Test User', email: email }
   };
-  
+
   await AsyncStorage.setItem('authToken', mockResponse.token);
   await AsyncStorage.setItem('user', JSON.stringify(mockResponse.user));
-  
+
   set({ token: mockResponse.token, user: mockResponse.user, isAuthenticated: true });
   return { success: true };
 },

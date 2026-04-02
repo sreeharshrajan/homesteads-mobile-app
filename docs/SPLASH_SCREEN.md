@@ -7,22 +7,26 @@ The app implements a beautiful, animated splash screen using `expo-splash-screen
 ## Features
 
 ✅ **Smooth Animations**
+
 - Logo fade-in effect
 - Scale-up animation with spring physics
 - Subtle rotation animation
 - Cross-fade transition to app content
 
 ✅ **Native Integration**
+
 - Uses Expo's native splash screen
 - Seamless transition from native to JavaScript
 - No flash or jarring transitions
 
 ✅ **Brand Consistency**
+
 - Matches app theme colors (#2e7d32 green)
 - Displays logo and app name
 - Shows loading indicator
 
 ✅ **Configurable Duration**
+
 - Automatically hides when app is ready
 - Can be extended for initialization tasks
 
@@ -118,7 +122,7 @@ Animated.timing(fadeAnim, {
   toValue: 1,
   duration: 1200, // Change from 800ms to 1200ms
   useNativeDriver: true,
-})
+});
 ```
 
 ### Modify Animation Style
@@ -133,7 +137,7 @@ Animated.spring(scaleAnim, {
   tension: 20, // Higher = faster
   friction: 5, // Higher = less bounce
   useNativeDriver: true,
-})
+});
 ```
 
 ### Change Colors
@@ -152,7 +156,7 @@ title: {
 
 ```javascript
 // In App.js
-await new Promise(resolve => setTimeout(resolve, 3000)); // 3 seconds
+await new Promise((resolve) => setTimeout(resolve, 3000)); // 3 seconds
 ```
 
 ## App Initialization
@@ -165,7 +169,7 @@ The splash screen is visible during app initialization. Use this time to:
 import * as Font from 'expo-font';
 
 await Font.loadAsync({
-  'Roboto': require('./assets/fonts/Roboto-Regular.ttf'),
+  Roboto: require('./assets/fonts/Roboto-Regular.ttf'),
   'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
 });
 ```
@@ -236,16 +240,14 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 const [isAppReady, setIsAppReady] = useState(false);
 
 // And AnimatedSplashScreen wraps entire app
-<AnimatedSplashScreen isAppReady={isAppReady}>
-  {children}
-</AnimatedSplashScreen>
+<AnimatedSplashScreen isAppReady={isAppReady}>{children}</AnimatedSplashScreen>;
 ```
 
 ### Animations Not Smooth
 
 ```javascript
 // Always use native driver when possible
-useNativeDriver: true
+useNativeDriver: true;
 
 // Avoid layout animations during splash
 // Use opacity and transform only
@@ -282,7 +284,7 @@ npm run android
 
 ```javascript
 // Simulate slow initialization
-await new Promise(resolve => setTimeout(resolve, 5000));
+await new Promise((resolve) => setTimeout(resolve, 5000));
 ```
 
 ### Test Error Scenarios
@@ -304,8 +306,9 @@ try {
 ### Optimization Tips
 
 1. **Use Native Driver**
+
    ```javascript
-   useNativeDriver: true // Runs on native thread
+   useNativeDriver: true; // Runs on native thread
    ```
 
 2. **Minimize JavaScript Work**
@@ -329,12 +332,14 @@ try {
 **Location:** `assets/splash-icon.png`
 
 **Requirements:**
+
 - Size: 1284x2778 pixels (iOS) or 1080x1920 pixels (Android)
 - Format: PNG with transparency
 - Content: Centered logo or brand mark
 - Background: Transparent or solid color
 
 **Generation:**
+
 ```bash
 # Resize logo for splash
 # Use image editing tool or online service
@@ -346,6 +351,7 @@ try {
 **Location:** `assets/logo.png`
 
 **Requirements:**
+
 - Size: 1024x1024 pixels
 - Format: PNG with transparency
 - Aspect: Square
@@ -432,13 +438,13 @@ useEffect(() => {
   async function prepare() {
     setProgress(0.2);
     await loadFonts();
-    
+
     setProgress(0.5);
     await checkAuth();
-    
+
     setProgress(0.8);
     await loadData();
-    
+
     setProgress(1);
     setIsReady(true);
   }
@@ -448,7 +454,7 @@ useEffect(() => {
 // Pass progress to splash screen
 <AnimatedSplashScreen isAppReady={isReady} progress={progress}>
   <MainApp />
-</AnimatedSplashScreen>
+</AnimatedSplashScreen>;
 ```
 
 ## Related Components
@@ -472,12 +478,10 @@ useEffect(() => {
 ## Summary
 
 The splash screen provides a professional first impression of your app with:
+
 - Smooth, performant animations
 - Brand-consistent design
 - Proper initialization time
 - Seamless transition to main app
 
 Configure the minimum display time in `App.js` to match your app's initialization requirements.
-
-
-

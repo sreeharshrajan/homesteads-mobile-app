@@ -29,13 +29,13 @@ const PaginationControls = ({
         onPress={() => onPageChange(currentPage - 1)}
         size={20}
       />
-      
+
       <View style={styles.pageInfo}>
         <Text variant="bodyMedium">
           Page {currentPage} of {totalPages}
         </Text>
       </View>
-      
+
       <IconButton
         icon="chevron-right"
         mode="outlined"
@@ -63,4 +63,3 @@ const styles = StyleSheet.create({
 });
 
 export default PaginationControls;
-

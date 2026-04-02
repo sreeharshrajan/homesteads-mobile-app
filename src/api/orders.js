@@ -2,7 +2,7 @@ import apiClient from './client';
 
 /**
  * Orders API
- * 
+ *
  * Provides methods for viewing orders through the REST API (read-only).
  * All methods return the data directly (response interceptor extracts data.data).
  */
@@ -23,7 +23,7 @@ export const ordersApi = {
     const response = await apiClient.get('/store/orders', { params });
     return response;
   },
-  
+
   /**
    * Get order details
    * @param {string} orderId - Order ID
@@ -36,7 +36,7 @@ export const ordersApi = {
     const response = await apiClient.get(`/store/orders/${orderId}`, { params });
     return response;
   },
-  
+
   /**
    * Order status values
    */
@@ -49,7 +49,7 @@ export const ordersApi = {
     CANCELLED: 'CANCELLED',
     REFUNDED: 'REFUNDED',
   },
-  
+
   /**
    * Get status label and color
    * @param {string} status - Order status
@@ -68,4 +68,3 @@ export const ordersApi = {
     return statusMap[status] || { label: status, color: '#757575' };
   },
 };
-

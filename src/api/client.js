@@ -19,7 +19,7 @@ apiClient.interceptors.request.use(
       if (requestConfig.url?.includes('/auth/login')) {
         return requestConfig;
       }
-      
+
       // For admin-specific endpoints (like /admin/api-keys), use session token
       if (requestConfig.url?.includes('/admin/')) {
         const sessionToken = await AsyncStorage.getItem('authToken');
@@ -68,18 +68,18 @@ apiClient.interceptors.response.use(
     console.log('Response headers:', JSON.stringify(error.response?.headers));
     console.log('Is network error:', error.message === 'Network Error');
     console.log('===========================');
-    
+
     if (error.response?.status === 401) {
       // Token expired, invalid, or missing - clear all auth storage
       console.log('401 Unauthorized - clearing auth storage');
       await AsyncStorage.multiRemove(['authToken', 'sessionId', 'user', 'admin', 'role']);
       // You can add navigation to login here if needed
     }
-    
+
     // Format error response
     const errorMessage = error.response?.data?.error || error.message || 'An error occurred';
     const errorDetails = error.response?.data?.details;
-    
+
     return Promise.reject({
       message: errorMessage,
       details: errorDetails,
@@ -90,4 +90,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-

@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "assets/**/*"
-    ],
+    "assetBundlePatterns": ["assets/**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.homesteads.viands"
@@ -27,10 +25,7 @@
       "package": "com.homesteads.viands",
       "edgeToEdgeEnabled": true,
       "usesCleartextTraffic": true,
-      "permissions": [
-        "INTERNET",
-        "ACCESS_NETWORK_STATE"
-      ]
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
     },
     "web": {
       "favicon": "./assets/logo.png"

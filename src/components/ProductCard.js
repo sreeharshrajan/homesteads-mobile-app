@@ -7,7 +7,7 @@ import {
   IconButton,
   useTheme,
   Surface,
-  TouchableRipple
+  TouchableRipple,
 } from 'react-native-paper';
 import { formatCurrency } from '@utils/formatters';
 
@@ -43,14 +43,14 @@ const ProductCard = ({
   }, [product, selectedVariant]);
 
   return (
-    <Card
-      style={[styles.card, { backgroundColor: theme.colors.surface }, style]}
-      mode="outlined"
-    >
+    <Card style={[styles.card, { backgroundColor: theme.colors.surface }, style]} mode="outlined">
       <Card.Content style={styles.content}>
         <View style={styles.headerRow}>
           {/* Image with placeholder background */}
-          <Surface style={[styles.imageContainer, { backgroundColor: theme.colors.surfaceVariant }]} elevation={0}>
+          <Surface
+            style={[styles.imageContainer, { backgroundColor: theme.colors.surfaceVariant }]}
+            elevation={0}
+          >
             {product.defaultImage ? (
               <Image
                 source={{ uri: product.defaultImage }}
@@ -80,7 +80,10 @@ const ProductCard = ({
               {hasDiscount && (
                 <View style={styles.discountBadge}>
                   <Text style={styles.mrpText}>{formatCurrency(mrp)}</Text>
-                  <Text variant="labelSmall" style={[styles.discountText, { color: theme.colors.error }]}>
+                  <Text
+                    variant="labelSmall"
+                    style={[styles.discountText, { color: theme.colors.error }]}
+                  >
                     {discountPercentage}% OFF
                   </Text>
                 </View>
@@ -92,7 +95,9 @@ const ProductCard = ({
         {/* Variant Selection Chips */}
         {product.variants?.length > 1 && (
           <View style={styles.variantsWrapper}>
-            <Text variant="labelSmall" style={styles.sectionLabel}>Select Variant</Text>
+            <Text variant="labelSmall" style={styles.sectionLabel}>
+              Select Variant
+            </Text>
             <View style={styles.variantsRow}>
               {product.variants.map((v) => (
                 <TouchableRipple
@@ -101,14 +106,23 @@ const ProductCard = ({
                   style={[
                     styles.variantChip,
                     {
-                      borderColor: v.id === currentVariant?.id ? theme.colors.primary : theme.colors.outlineVariant,
-                      backgroundColor: v.id === currentVariant?.id ? theme.colors.primaryContainer : 'transparent'
-                    }
+                      borderColor:
+                        v.id === currentVariant?.id
+                          ? theme.colors.primary
+                          : theme.colors.outlineVariant,
+                      backgroundColor:
+                        v.id === currentVariant?.id ? theme.colors.primaryContainer : 'transparent',
+                    },
                   ]}
                 >
                   <Text
                     variant="labelMedium"
-                    style={{ color: v.id === currentVariant?.id ? theme.colors.onPrimaryContainer : theme.colors.onSurface }}
+                    style={{
+                      color:
+                        v.id === currentVariant?.id
+                          ? theme.colors.onPrimaryContainer
+                          : theme.colors.onSurface,
+                    }}
                   >
                     {v.name}
                   </Text>
@@ -121,7 +135,13 @@ const ProductCard = ({
         {/* Action Area */}
         <View style={styles.actionArea}>
           {quantity > 0 ? (
-            <Surface style={[styles.quantitySelector, { backgroundColor: theme.colors.secondaryContainer }]} elevation={0}>
+            <Surface
+              style={[
+                styles.quantitySelector,
+                { backgroundColor: theme.colors.secondaryContainer },
+              ]}
+              elevation={0}
+            >
               <IconButton
                 icon="minus"
                 size={18}

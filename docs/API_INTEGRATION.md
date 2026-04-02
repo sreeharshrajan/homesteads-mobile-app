@@ -38,6 +38,7 @@ The token is stored in `AsyncStorage` under the key `authToken`.
 The response interceptor handles two main concerns:
 
 1. **Success Response Extraction**: Automatically extracts data from the API's response format
+
    ```javascript
    // API returns: { success: true, data: {...} }
    // Interceptor returns: {...} (just the data)
@@ -88,7 +89,7 @@ const { invoices, pagination } = await invoicesApi.getAll({
   dateTo: '2025-01-31T23:59:59.999Z',
   search: 'INV-2025',
   sortField: 'createdAt',
-  sortDirection: 'desc'
+  sortDirection: 'desc',
 });
 
 // Get single invoice
@@ -97,14 +98,14 @@ const invoice = await invoicesApi.getById('cm...');
 // Create invoice
 const newInvoice = await invoicesApi.create({
   customerId: 'cm...',
-  totalAmount: 5000.00,
-  status: 'DRAFT'
+  totalAmount: 5000.0,
+  status: 'DRAFT',
 });
 
 // Update invoice
 const updatedInvoice = await invoicesApi.update('cm...', {
   status: 'SENT',
-  statusNote: 'Invoice sent to customer'
+  statusNote: 'Invoice sent to customer',
 });
 
 // Delete invoice (only DRAFT invoices)
@@ -125,7 +126,7 @@ const { customers, pagination } = await customersApi.getAll({
   isActive: true,
   search: 'acme',
   sortField: 'name',
-  sortDirection: 'asc'
+  sortDirection: 'asc',
 });
 
 // Get single customer (includes orders and invoices)
@@ -146,8 +147,8 @@ const newCustomer = await customersApi.create({
       state: 'Maharashtra',
       postalCode: '400001',
       country: 'India',
-      isDefault: true
-    }
+      isDefault: true,
+    },
   ],
   contacts: [
     {
@@ -155,14 +156,14 @@ const newCustomer = await customersApi.create({
       email: 'john@acme.com',
       phone: '+1234567891',
       designation: 'Accounts Manager',
-      isPrimary: true
-    }
-  ]
+      isPrimary: true,
+    },
+  ],
 });
 
 // Update customer
 const updatedCustomer = await customersApi.update('cm...', {
-  email: 'newemail@acme.com'
+  email: 'newemail@acme.com',
 });
 
 // Delete customer
@@ -202,14 +203,14 @@ try {
 } catch (error) {
   console.error('Error message:', error.message);
   console.error('Status code:', error.status);
-  
+
   // Handle validation errors
   if (error.details) {
-    error.details.forEach(detail => {
+    error.details.forEach((detail) => {
       console.error(`${detail.path.join('.')}: ${detail.message}`);
     });
   }
-  
+
   // Handle specific status codes
   if (error.status === 401) {
     // Token expired - redirect to login
@@ -303,11 +304,11 @@ const [hasMore, setHasMore] = useState(true);
 
 const loadMore = async () => {
   if (!hasMore) return;
-  
-  const { invoices, pagination } = await invoicesApi.getAll({ 
-    page: page + 1 
+
+  const { invoices, pagination } = await invoicesApi.getAll({
+    page: page + 1,
   });
-  
+
   setPage(page + 1);
   setHasMore(pagination.page < pagination.totalPages);
   // Append to existing data
@@ -322,9 +323,9 @@ Debounce search input to avoid excessive API calls:
 import { debounce } from 'lodash';
 
 const searchCustomers = debounce(async (searchTerm) => {
-  const { customers } = await customersApi.getAll({ 
+  const { customers } = await customersApi.getAll({
     search: searchTerm,
-    page: 1 
+    page: 1,
   });
   setCustomers(customers);
 }, 500);
@@ -339,7 +340,7 @@ const updateInvoiceStatus = async (invoiceId, newStatus) => {
   // Optimistic update
   const oldInvoice = invoice;
   setInvoice({ ...invoice, status: newStatus });
-  
+
   try {
     await invoicesApi.update(invoiceId, { status: newStatus });
   } catch (error) {
@@ -425,6 +426,7 @@ api: {
 ## Support
 
 For technical support:
+
 - Email: sreeharshkrajan@gmail.com
 - API Documentation: See `REST_API.md`
 - Admin Panel: https://admin.homesteadsviands.com
@@ -432,4 +434,3 @@ For technical support:
 ---
 
 © 2024 Homesteads Viands. All rights reserved.
-

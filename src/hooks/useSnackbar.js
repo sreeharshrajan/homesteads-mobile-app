@@ -2,13 +2,13 @@ import { useState, useCallback } from 'react';
 
 /**
  * Custom hook for managing Snackbar state
- * 
+ *
  * Usage:
  * const { visible, message, showSnackbar, hideSnackbar } = useSnackbar();
- * 
+ *
  * // Show snackbar
  * showSnackbar('Customer saved successfully!');
- * 
+ *
  * // In render
  * <Snackbar visible={visible} onDismiss={hideSnackbar}>
  *   {message}
@@ -42,6 +42,3 @@ export const useSnackbar = () => {
     hideSnackbar,
   };
 };
-
-
-

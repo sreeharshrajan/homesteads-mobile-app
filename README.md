@@ -76,6 +76,7 @@ src/
 ### Installation
 
 1. Navigate to the project directory:
+
    ```bash
    cd homesteads-viands-app
    ```
@@ -92,6 +93,7 @@ The app is pre-configured to connect to the production API:
 **API Base URL**: `https://admin.homesteadsviands.com/api`
 
 To change the environment, update `src/config/index.js`:
+
 ```javascript
 api: {
   baseURL: 'https://admin.homesteadsviands.com/api',
@@ -110,6 +112,7 @@ npx expo start
 ```
 
 This will open the Expo DevTools in your browser. You can then:
+
 - Press `a` to open on Android emulator
 - Press `i` to open on iOS simulator
 - Scan the QR code with Expo Go app on your physical device
@@ -128,25 +131,31 @@ This will open the Expo DevTools in your browser. You can then:
 To keep the application size minimal and optimized for production, we have implemented several build-level optimizations:
 
 ### Size Optimizations
+
 - **R8 Minification**: Enabled in `android/gradle.properties` to strip unused code and obfuscate binaries.
 - **Resource Shrinking**: Enabled to remove unused assets from libraries and dependencies.
 - **Hermes Engine**: Enabled for faster startup and smaller bundle size.
 - **App Bundles (.aab)**: The production build uses the Android App Bundle format to serve optimized APKs to users via Google Play.
 
 ### Building for Production
+
 We use **EAS Build** for production-ready binaries:
 
 1. **For Google Play (Recommended)**:
+
    ```bash
    eas build --platform android --profile production
    ```
-   *Generates an optimized `.aab` file (~5-10MB user download).*
+
+   _Generates an optimized `.aab` file (~5-10MB user download)._
 
 2. **For Local Testing (APK)**:
+
    ```bash
    eas build --platform android --profile preview
    ```
-   *Generates a installable `.apk` file.*
+
+   _Generates a installable `.apk` file._
 
 3. **Manual Gradle Build**:
    ```bash
@@ -156,17 +165,20 @@ We use **EAS Build** for production-ready binaries:
 Comprehensive documentation is available in the `/docs` folder:
 
 ### Getting Started
+
 - **[Quick Start Guide](docs/QUICK_START.md)** - Get up and running in 5 minutes
 - **[Development Guide](docs/DEVELOPMENT.md)** - Detailed development documentation with examples
 - **[Project Summary](docs/APP_SUMMARY.md)** - Complete overview of what was built
 - **[Development Checklist](docs/CHECKLIST.md)** - Track your development progress
 
 ### API Documentation
+
 - **[REST API Documentation](docs/REST_API.md)** - Complete REST API reference
 - **[API Integration Guide](docs/API_INTEGRATION.md)** - How to use the API in the mobile app
 - **[Integration Summary](docs/INTEGRATION_SUMMARY.md)** - Summary of API integration changes
 
 ### UI & Components
+
 - **[React Native Paper Guide](docs/REACT_NATIVE_PAPER.md)** - Complete Paper implementation guide
 - **[Component Examples](docs/PAPER_COMPONENTS_EXAMPLES.md)** - Practical Paper component examples
 - **[Quick Reference](docs/PAPER_QUICK_REFERENCE.md)** - Quick reference for common components
@@ -211,7 +223,7 @@ const { invoices, pagination } = await invoicesApi.getAll({
   page: 1,
   limit: 20,
   status: 'PAID',
-  search: 'INV-2025'
+  search: 'INV-2025',
 });
 
 // Create a customer with addresses
@@ -219,7 +231,7 @@ const customer = await customersApi.create({
   name: 'Acme Corp',
   phone: '+1234567890',
   email: 'billing@acme.com',
-  addresses: [{ type: 'BOTH', line1: '123 Street', city: 'Mumbai' }]
+  addresses: [{ type: 'BOTH', line1: '123 Street', city: 'Mumbai' }],
 });
 ```
 
@@ -228,6 +240,7 @@ For complete API documentation, see [REST_API.md](docs/REST_API.md) and [API_INT
 ## Development Notes
 
 ### Current State (v1.2.0)
+
 - ✅ **API Integration Complete** - Fully connected to production REST API
 - ✅ **Pagination Support** - API layer supports pagination for all list endpoints
 - ✅ **Search & Filtering** - API methods support advanced filtering
@@ -239,6 +252,7 @@ For complete API documentation, see [REST_API.md](docs/REST_API.md) and [API_INT
 - ⚠️ **UI Implementation Pending** - Screens still using sample data (needs API integration)
 
 ### Next Steps
+
 1. ✅ ~~API Integration~~ (COMPLETED)
 2. Update screens to use real API calls instead of sample data
 3. Implement pagination UI in customer and billing lists
@@ -251,7 +265,9 @@ For complete API documentation, see [REST_API.md](docs/REST_API.md) and [API_INT
 10. Add unit tests for API modules
 
 ### TypeScript Migration
+
 The project is structured to be TypeScript-ready. To migrate:
+
 1. Rename files from `.js` to `.tsx`/`.ts`
 2. Install TypeScript and types: `npm install -D typescript @types/react @types/react-native`
 3. Create `tsconfig.json`
@@ -260,6 +276,7 @@ The project is structured to be TypeScript-ready. To migrate:
 ## Contributing
 
 When adding new features:
+
 1. Create new API endpoint files in `src/api/`
 2. Add corresponding screens in `src/screens/`
 3. Create reusable components in `src/components/`
@@ -273,12 +290,15 @@ Proprietary - Homesteads Viands
 ## UI Components
 
 ### Material Design 3
+
 The app uses React Native Paper 5.14.5 with a custom theme:
+
 - **Primary Color**: #2e7d32 (Green) - Fresh, food-themed
 - **Secondary Color**: #ff6f00 (Orange) - Vibrant accent
 - **Tertiary Color**: #1976d2 (Blue) - Additional accent
 
 ### Custom Components
+
 - **AnimatedSplashScreen** - Smooth fade-in/scale animations
 - **ConfirmDialog** - Reusable confirmation dialogs
 - **SnackbarContainer** - Toast notifications with variants
@@ -293,6 +313,7 @@ See [PAPER_QUICK_REFERENCE.md](docs/PAPER_QUICK_REFERENCE.md) for component usag
 ### Version 1.3.0 (October 13, 2025)
 
 **Added:**
+
 - **APK Size Optimization**: Reduced APK size from ~70MB to <10MB.
 - **R8/Proguard**: Enabled code minification and obfuscation.
 - **Resource Shrinking**: Enabled automatic removal of unused resources.
@@ -302,6 +323,7 @@ See [PAPER_QUICK_REFERENCE.md](docs/PAPER_QUICK_REFERENCE.md) for component usag
 ### Version 1.2.0 (October 12, 2025)
 
 **Added:**
+
 - React Native Paper 5.14.5 integration with Material Design 3
 - Custom theme with brand colors (green primary, orange accent)
 - Animated splash screen with smooth transitions
@@ -311,6 +333,7 @@ See [PAPER_QUICK_REFERENCE.md](docs/PAPER_QUICK_REFERENCE.md) for component usag
 - Dark mode theme support (ready to implement)
 
 **Changed:**
+
 - Updated all screens to use Paper components
 - Enhanced LoadingScreen with Paper components
 - Improved EmptyState with icon support
@@ -319,6 +342,7 @@ See [PAPER_QUICK_REFERENCE.md](docs/PAPER_QUICK_REFERENCE.md) for component usag
 ### Version 1.1.0 (October 12, 2025)
 
 **Added:**
+
 - Full REST API integration with production environment (`https://admin.homesteadsviands.com/api`)
 - Comprehensive API documentation (REST_API.md, API_INTEGRATION.md)
 - Pagination support for all list endpoints
@@ -328,11 +352,13 @@ See [PAPER_QUICK_REFERENCE.md](docs/PAPER_QUICK_REFERENCE.md) for component usag
 - Indian states constant for GST forms
 
 **Changed:**
+
 - API response format handling (automatic data extraction)
 - All API modules updated with JSDoc documentation
 - Increased API timeout from 10s to 15s
 
 ### Version 1.0.0 (Initial Release)
+
 - Basic app structure with Expo
 - Authentication flow with JWT
 - Customer, billing, and invoice screens
@@ -341,7 +367,7 @@ See [PAPER_QUICK_REFERENCE.md](docs/PAPER_QUICK_REFERENCE.md) for component usag
 ## Support
 
 For technical support:
+
 - **Email**: sreeharshkrajan@gmail.com
 - **Admin Panel**: https://admin.homesteadsviands.com
 - **Documentation**: See `/docs` folder
-

@@ -46,7 +46,7 @@ const MyScreen = () => {
     <View style={styles.container}>
       <Button onPress={handleSave}>Save</Button>
       <Button onPress={handleDelete}>Delete</Button>
-      
+
       <SnackbarContainer
         visible={visible}
         message={message}
@@ -64,19 +64,19 @@ const MyScreen = () => {
 ```javascript
 // Success
 showSnackbar('Operation successful!');
-<SnackbarContainer variant="success" />
+<SnackbarContainer variant="success" />;
 
 // Error
 showSnackbar('Something went wrong!');
-<SnackbarContainer variant="error" />
+<SnackbarContainer variant="error" />;
 
 // Warning
 showSnackbar('Please check your input');
-<SnackbarContainer variant="warning" />
+<SnackbarContainer variant="warning" />;
 
 // Info
 showSnackbar('New features available');
-<SnackbarContainer variant="info" />
+<SnackbarContainer variant="info" />;
 ```
 
 ---
@@ -107,9 +107,7 @@ const CustomerListScreen = () => {
 
   return (
     <View>
-      <Button onPress={() => handleDeletePress(customer)}>
-        Delete
-      </Button>
+      <Button onPress={() => handleDeletePress(customer)}>Delete</Button>
 
       <ConfirmDialog
         visible={showDialog}
@@ -220,11 +218,7 @@ const SortMenu = ({ onSort }) => {
       visible={visible}
       onDismiss={() => setVisible(false)}
       anchor={
-        <Button 
-          mode="outlined" 
-          icon="sort" 
-          onPress={() => setVisible(true)}
-        >
+        <Button mode="outlined" icon="sort" onPress={() => setVisible(true)}>
           Sort
         </Button>
       }
@@ -277,7 +271,7 @@ const FilterDialog = () => {
   });
 
   const toggleFilter = (key) => {
-    setFilters(prev => ({ ...prev, [key]: !prev[key] }));
+    setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
@@ -358,22 +352,12 @@ const SettingsScreen = () => {
       <List.Item
         title="Push Notifications"
         description="Receive notifications about invoices and customers"
-        right={() => (
-          <Switch
-            value={notifications}
-            onValueChange={setNotifications}
-          />
-        )}
+        right={() => <Switch value={notifications} onValueChange={setNotifications} />}
       />
       <List.Item
         title="Dark Mode"
         description="Use dark theme throughout the app"
-        right={() => (
-          <Switch
-            value={darkMode}
-            onValueChange={setDarkMode}
-          />
-        )}
+        right={() => <Switch value={darkMode} onValueChange={setDarkMode} />}
       />
     </View>
   );
@@ -397,7 +381,7 @@ const CustomerListScreen = () => {
 
   const toggleFilter = (filter) => {
     if (filters.includes(filter)) {
-      setFilters(filters.filter(f => f !== filter));
+      setFilters(filters.filter((f) => f !== filter));
     } else {
       setFilters([...filters, filter]);
     }
@@ -411,7 +395,7 @@ const CustomerListScreen = () => {
         value={searchQuery}
         style={styles.searchBar}
       />
-      
+
       <View style={styles.filterContainer}>
         <Chip
           selected={filters.includes('active')}
@@ -472,7 +456,7 @@ const FAQScreen = () => {
         <List.Item title="Fill in the customer details" />
         <List.Item title="Tap Create Customer" />
       </List.Accordion>
-      
+
       <List.Accordion title="How do I create an invoice?" id="2">
         <List.Item title="Go to Billing screen" />
         <List.Item title="Tap New Invoice" />
@@ -497,28 +481,28 @@ const ProfileScreen = () => {
         <List.Item
           title="Profile Settings"
           description="Update your personal information"
-          left={props => <List.Icon {...props} icon="account" />}
-          right={props => <List.Icon {...props} icon="chevron-right" />}
+          left={(props) => <List.Icon {...props} icon="account" />}
+          right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => console.log('Profile')}
         />
         <List.Item
           title="Security"
           description="Password and authentication"
-          left={props => <List.Icon {...props} icon="shield-account" />}
-          right={props => <List.Icon {...props} icon="chevron-right" />}
+          left={(props) => <List.Icon {...props} icon="shield-account" />}
+          right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => console.log('Security')}
         />
       </List.Section>
-      
+
       <Divider />
-      
+
       <List.Section>
         <List.Subheader>Preferences</List.Subheader>
         <List.Item
           title="Notifications"
           description="Manage notification settings"
-          left={props => <List.Icon {...props} icon="bell" />}
-          right={props => <List.Icon {...props} icon="chevron-right" />}
+          left={(props) => <List.Icon {...props} icon="bell" />}
+          right={(props) => <List.Icon {...props} icon="chevron-right" />}
           onPress={() => console.log('Notifications')}
         />
       </List.Section>
@@ -536,15 +520,7 @@ const ProfileScreen = () => {
 ```javascript
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import {
-  Appbar,
-  Card,
-  Title,
-  Paragraph,
-  FAB,
-  Searchbar,
-  Chip,
-} from 'react-native-paper';
+import { Appbar, Card, Title, Paragraph, FAB, Searchbar, Chip } from 'react-native-paper';
 import useSnackbar from '@hooks/useSnackbar';
 import SnackbarContainer from '@components/SnackbarContainer';
 import ConfirmDialog from '@components/ConfirmDialog';
@@ -580,7 +556,12 @@ const CustomersScreen = ({ navigation }) => {
           <ActionMenu
             items={[
               { title: 'Edit', icon: 'pencil', onPress: () => handleEdit(item) },
-              { title: 'Delete', icon: 'delete', onPress: () => handleDeletePress(item), color: '#f44336' },
+              {
+                title: 'Delete',
+                icon: 'delete',
+                onPress: () => handleDeletePress(item),
+                color: '#f44336',
+              },
             ]}
           />
         </View>
@@ -617,16 +598,12 @@ const CustomersScreen = ({ navigation }) => {
         <FlatList
           data={customers}
           renderItem={renderCustomer}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
         />
       )}
 
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={() => navigation.navigate('CustomerForm')}
-      />
+      <FAB icon="plus" style={styles.fab} onPress={() => navigation.navigate('CustomerForm')} />
 
       <ConfirmDialog
         visible={showDeleteDialog}

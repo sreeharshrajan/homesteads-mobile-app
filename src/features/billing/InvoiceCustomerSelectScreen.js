@@ -8,12 +8,12 @@ import { EmptyState, PaginationControls, LoadingScreen } from '@components';
 const InvoiceCustomerSelectScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  
-  const { 
-    customers = [], 
-    loading = false, 
-    pagination = {}, 
-    fetchCustomers = () => {} 
+
+  const {
+    customers = [],
+    loading = false,
+    pagination = {},
+    fetchCustomers = () => {},
   } = useCustomers();
 
   const loadCustomers = useCallback(() => {
@@ -38,17 +38,17 @@ const InvoiceCustomerSelectScreen = ({ navigation }) => {
 
   const renderCustomerCard = ({ item }) => (
     <Surface style={styles.card} elevation={1}>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.cardContent}
         onPress={() => navigation.navigate(ROUTES.INVOICE_PRODUCT_SELECT, { customer: item })}
       >
-        <Avatar.Text 
-          size={44} 
-          label={item.name.substring(0, 2).toUpperCase()} 
+        <Avatar.Text
+          size={44}
+          label={item.name.substring(0, 2).toUpperCase()}
           style={styles.avatar}
           labelStyle={styles.avatarLabel}
         />
-        
+
         <View style={styles.textContainer}>
           <Text style={styles.userName}>{item.name}</Text>
           <Text style={styles.companyName}>{item.companyName || 'Private Customer'}</Text>
@@ -56,7 +56,7 @@ const InvoiceCustomerSelectScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.selectCircle}>
-           <IconButton icon="chevron-right" size={20} iconColor="#CCC" />
+          <IconButton icon="chevron-right" size={20} iconColor="#CCC" />
         </View>
       </TouchableOpacity>
     </Surface>
@@ -126,9 +126,9 @@ const InvoiceCustomerSelectScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#fff' 
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
   headerBackground: {
     backgroundColor: '#61F2D5',
@@ -138,11 +138,11 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 60,
     zIndex: 10,
   },
-  topNav: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
+  topNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10 
+    paddingHorizontal: 10,
   },
   stepIndicator: {
     backgroundColor: 'rgba(255,255,255,0.3)',
@@ -157,20 +157,20 @@ const styles = StyleSheet.create({
     color: '#333',
     textTransform: 'uppercase',
   },
-  headerTextGroup: { 
-    paddingHorizontal: 25, 
-    marginTop: 5 
+  headerTextGroup: {
+    paddingHorizontal: 25,
+    marginTop: 5,
   },
-  subTitle: { 
-    fontSize: 13, 
-    color: '#444', 
-    opacity: 0.7 
+  subTitle: {
+    fontSize: 13,
+    color: '#444',
+    opacity: 0.7,
   },
-  mainTitle: { 
-    fontSize: 26, 
-    fontWeight: 'bold', 
-    color: '#222', 
-    fontFamily: 'serif' 
+  mainTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#222',
+    fontFamily: 'serif',
   },
   searchContainer: {
     backgroundColor: '#fff',
@@ -183,10 +183,10 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 5,
   },
-  input: { 
-    flex: 1, 
-    fontSize: 15, 
-    color: '#333' 
+  input: {
+    flex: 1,
+    fontSize: 15,
+    color: '#333',
   },
   contentSheet: {
     flex: 1,
@@ -196,10 +196,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
     zIndex: 5,
   },
-  listPadding: { 
-    paddingHorizontal: 25, 
-    paddingTop: 60, 
-    paddingBottom: 40 
+  listPadding: {
+    paddingHorizontal: 25,
+    paddingTop: 60,
+    paddingBottom: 40,
   },
   card: {
     backgroundColor: '#fff',
@@ -208,39 +208,39 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FDFDFD',
   },
-  cardContent: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 12 
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
   },
-  avatar: { 
-    backgroundColor: '#F0FFFC' 
+  avatar: {
+    backgroundColor: '#F0FFFC',
   },
-  avatarLabel: { 
-    color: '#4FD3B5', 
-    fontSize: 16, 
-    fontWeight: 'bold' 
+  avatarLabel: {
+    color: '#4FD3B5',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  textContainer: { 
-    flex: 1, 
-    marginLeft: 15 
+  textContainer: {
+    flex: 1,
+    marginLeft: 15,
   },
-  userName: { 
-    fontSize: 15, 
-    fontWeight: 'bold', 
-    color: '#333' 
+  userName: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#333',
   },
-  companyName: { 
-    fontSize: 11, 
+  companyName: {
+    fontSize: 11,
     color: '#FF4B7D', // Brand accent for secondary info
     fontWeight: '700',
     textTransform: 'uppercase',
-    marginTop: 2
+    marginTop: 2,
   },
-  userEmail: { 
-    fontSize: 12, 
-    color: '#999', 
-    marginTop: 2 
+  userEmail: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
   },
   selectCircle: {
     width: 30,
@@ -249,8 +249,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#EEE',
     alignItems: 'center',
-    justifyContent: 'center'
-  }
+    justifyContent: 'center',
+  },
 });
 
 export default InvoiceCustomerSelectScreen;

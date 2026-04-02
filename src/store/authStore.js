@@ -19,19 +19,19 @@ const useAuthStore = create((set) => ({
       const userString = await AsyncStorage.getItem('user');
       const adminString = await AsyncStorage.getItem('admin');
       const roleString = await AsyncStorage.getItem('role');
-      
+
       if (token && userString) {
         const user = JSON.parse(userString);
         const admin = adminString ? JSON.parse(adminString) : null;
         const role = roleString ? JSON.parse(roleString) : null;
-        set({ 
-          token, 
+        set({
+          token,
           sessionId,
-          user, 
+          user,
           admin,
           role,
-          isAuthenticated: true, 
-          isLoading: false 
+          isAuthenticated: true,
+          isLoading: false,
         });
       } else {
         set({ isLoading: false });
@@ -57,13 +57,13 @@ const useAuthStore = create((set) => ({
       await AsyncStorage.setItem('admin', JSON.stringify(admin));
       await AsyncStorage.setItem('role', JSON.stringify(role));
 
-      set({ 
-        token, 
+      set({
+        token,
         sessionId,
-        user, 
+        user,
         admin,
         role,
-        isAuthenticated: true 
+        isAuthenticated: true,
       });
       return { success: true };
     } catch (error) {
@@ -73,9 +73,12 @@ const useAuthStore = create((set) => ({
       console.error('Error details:', error.details);
       console.error('Original error:', error.originalError);
       console.error('==================');
-      return { 
-        success: false, 
-        error: error.message || error.originalError || 'Login failed. Please check your network connection.' 
+      return {
+        success: false,
+        error:
+          error.message ||
+          error.originalError ||
+          'Login failed. Please check your network connection.',
       };
     }
   },
@@ -93,13 +96,13 @@ const useAuthStore = create((set) => ({
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('admin');
       await AsyncStorage.removeItem('role');
-      set({ 
-        token: null, 
+      set({
+        token: null,
         sessionId: null,
-        user: null, 
+        user: null,
         admin: null,
         role: null,
-        isAuthenticated: false 
+        isAuthenticated: false,
       });
     }
   },
@@ -109,4 +112,3 @@ const useAuthStore = create((set) => ({
 }));
 
 export default useAuthStore;
-

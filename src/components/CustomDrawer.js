@@ -1,13 +1,7 @@
 import React, { useCallback } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import {
-  Avatar,
-  Text,
-  Divider,
-  Surface,
-  IconButton
-} from 'react-native-paper';
+import { Avatar, Text, Divider, Surface, IconButton } from 'react-native-paper';
 import useAuthStore from '@store/authStore';
 import { ROUTES } from '@utils/constants';
 
@@ -34,12 +28,10 @@ const CustomDrawer = (props) => {
           <IconButton
             icon={icon}
             size={22}
-            iconColor={isActive ? "#4FD3B5" : "#777"}
+            iconColor={isActive ? '#4FD3B5' : '#777'}
             style={styles.navIcon}
           />
-          <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-            {label}
-          </Text>
+          <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>{label}</Text>
         </View>
         {isActive && <View style={styles.activeIndicator} />}
       </TouchableOpacity>
@@ -58,7 +50,9 @@ const CustomDrawer = (props) => {
           <Surface style={styles.avatarSurface} elevation={2}>
             <Avatar.Image
               size={64}
-              source={{ uri: `https://ui-avatars.com/api/?name=${admin?.name || user?.name || 'U'}&background=FF4B7D&color=fff` }}
+              source={{
+                uri: `https://ui-avatars.com/api/?name=${admin?.name || user?.name || 'U'}&background=FF4B7D&color=fff`,
+              }}
             />
           </Surface>
           <View style={styles.profileText}>
@@ -213,7 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#FF4B7D', // Pink accent for logout
-  }
+  },
 });
 
 export default CustomDrawer;

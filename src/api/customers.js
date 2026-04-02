@@ -2,7 +2,7 @@ import apiClient from './client';
 
 /**
  * Customer API
- * 
+ *
  * Provides methods for managing customers through the REST API.
  * All methods return the data directly (response interceptor extracts data.data).
  */
@@ -22,7 +22,7 @@ export const customersApi = {
     const response = await apiClient.get('/customers', { params });
     return response;
   },
-  
+
   /**
    * Get customer by ID
    * Includes detailed information with addresses, contacts, recent orders and invoices
@@ -33,7 +33,7 @@ export const customersApi = {
     const response = await apiClient.get(`/customers/${id}`);
     return response;
   },
-  
+
   /**
    * Create a new customer
    * @param {Object} customerData - Customer data
@@ -52,7 +52,7 @@ export const customersApi = {
     const response = await apiClient.post('/customers', customerData);
     return response;
   },
-  
+
   /**
    * Update an existing customer
    * @param {string} id - Customer ID
@@ -63,7 +63,7 @@ export const customersApi = {
     const response = await apiClient.put(`/customers/${id}`, customerData);
     return response;
   },
-  
+
   /**
    * Delete a customer (soft delete)
    * Note: Cannot delete customers with active orders or invoices
@@ -75,4 +75,3 @@ export const customersApi = {
     return response;
   },
 };
-

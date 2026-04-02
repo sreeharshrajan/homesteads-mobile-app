@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image, Alert } from 'react-native';
-import { TextInput, Button, Appbar, HelperText, Checkbox, Text, Card, Paragraph } from 'react-native-paper';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  Alert,
+} from 'react-native';
+import {
+  TextInput,
+  Button,
+  Appbar,
+  HelperText,
+  Checkbox,
+  Text,
+  Card,
+  Paragraph,
+} from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import useAuthStore from '@store/authStore';
@@ -29,7 +46,7 @@ const PERMISSION_OPTIONS = [
 const ApiKeyFormScreen = ({ navigation, route }) => {
   const apiKeyId = route.params?.apiKeyId;
   const isEditMode = !!apiKeyId;
-  
+
   const role = useAuthStore((state) => state.role);
   const [initialValues, setInitialValues] = useState({
     name: '',
@@ -37,7 +54,7 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
   });
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [generatedKey, setGeneratedKey] = useState(null);
-  
+
   const { loading, createApiKey, updateApiKey, deleteApiKey, fetchApiKeys } = useApiKeys();
   const { showSnackbar } = useSnackbar();
 
@@ -57,7 +74,7 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
   const loadApiKey = async () => {
     const result = await fetchApiKeys();
     if (result.success) {
-      const apiKey = result.data.find(k => k.id === apiKeyId);
+      const apiKey = result.data.find((k) => k.id === apiKeyId);
       if (apiKey) {
         setInitialValues({
           name: apiKey.name || '',
@@ -92,7 +109,7 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
         setGeneratedKey(result.data.key);
         Alert.alert(
           'API Key Created',
-          'Your API key has been created successfully. Make sure to copy it now as you won\'t be able to see it again.',
+          "Your API key has been created successfully. Make sure to copy it now as you won't be able to see it again.",
           [
             {
               text: 'OK',
@@ -142,16 +159,11 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
           <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content 
-          title={isEditMode ? 'Edit API Key' : 'New API Key'} 
-          titleStyle={styles.headerTitle} 
+        <Appbar.Content
+          title={isEditMode ? 'Edit API Key' : 'New API Key'}
+          titleStyle={styles.headerTitle}
         />
-        {isEditMode && (
-          <Appbar.Action
-            icon="delete"
-            onPress={() => setDeleteDialogVisible(true)}
-          />
-        )}
+        {isEditMode && <Appbar.Action icon="delete" onPress={() => setDeleteDialogVisible(true)} />}
       </Appbar.Header>
 
       <KeyboardAvoidingView
@@ -183,7 +195,15 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
             onSubmit={handleSubmit}
             enableReinitialize
           >
-            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+              setFieldValue,
+            }) => (
               <View style={styles.form}>
                 <TextInput
                   label="API Key Name *"
@@ -200,9 +220,7 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
                 </HelperText>
 
                 <Text style={styles.sectionTitle}>Permissions *</Text>
-                <HelperText type="info">
-                  Select the permissions this API key should have
-                </HelperText>
+                <HelperText type="info">Select the permissions this API key should have</HelperText>
 
                 {PERMISSION_OPTIONS.map((option) => (
                   <View key={option.value} style={styles.checkboxRow}>
@@ -210,7 +228,7 @@ const ApiKeyFormScreen = ({ navigation, route }) => {
                       status={values.permissions.includes(option.value) ? 'checked' : 'unchecked'}
                       onPress={() => {
                         const newPermissions = values.permissions.includes(option.value)
-                          ? values.permissions.filter(p => p !== option.value)
+                          ? values.permissions.filter((p) => p !== option.value)
                           : [...values.permissions, option.value];
                         setFieldValue('permissions', newPermissions);
                       }}
@@ -330,4 +348,3 @@ const styles = StyleSheet.create({
 });
 
 export default ApiKeyFormScreen;
-

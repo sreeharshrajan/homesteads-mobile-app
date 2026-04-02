@@ -2,7 +2,7 @@ import apiClient from './client';
 
 /**
  * Billing API
- * 
+ *
  * Provides methods for managing billing through the REST API.
  * All methods return the data directly (response interceptor extracts data.data).
  */
@@ -15,7 +15,7 @@ export const billingApi = {
     const response = await apiClient.get('/billing');
     return response;
   },
-  
+
   /**
    * Get billing record by ID
    * @param {string} id - Billing record ID
@@ -25,7 +25,7 @@ export const billingApi = {
     const response = await apiClient.get(`/billing/${id}`);
     return response;
   },
-  
+
   /**
    * Get billing records by customer ID
    * @param {string} customerId - Customer ID
@@ -35,7 +35,7 @@ export const billingApi = {
     const response = await apiClient.get(`/billing/customer/${customerId}`);
     return response;
   },
-  
+
   /**
    * Create a new billing record
    * @param {Object} billingData - Billing data
@@ -45,7 +45,7 @@ export const billingApi = {
     const response = await apiClient.post('/billing', billingData);
     return response;
   },
-  
+
   /**
    * Update an existing billing record
    * @param {string} id - Billing record ID
@@ -57,4 +57,3 @@ export const billingApi = {
     return response;
   },
 };
-

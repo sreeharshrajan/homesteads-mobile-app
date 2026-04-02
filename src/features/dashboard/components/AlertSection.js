@@ -13,14 +13,15 @@ const AlertSection = ({ alerts = [] }) => {
       <View style={styles.container}>
         <Title style={styles.cardTitle}>Real-time Alerts</Title>
         <View style={styles.alertList}>
-          {alerts.map((alert, index) => (
-            alert.value > 0 && (
-              <Surface key={index} style={[styles.alertCard, { borderLeftColor: alert.color }]}>
-                <Paragraph style={styles.alertValue}>{alert.value}</Paragraph>
-                <Paragraph style={styles.alertLabel}>{alert.label}</Paragraph>
-              </Surface>
-            )
-          ))}
+          {alerts.map(
+            (alert, index) =>
+              alert.value > 0 && (
+                <Surface key={index} style={[styles.alertCard, { borderLeftColor: alert.color }]}>
+                  <Paragraph style={styles.alertValue}>{alert.value}</Paragraph>
+                  <Paragraph style={styles.alertLabel}>{alert.label}</Paragraph>
+                </Surface>
+              )
+          )}
         </View>
       </View>
     </Surface>

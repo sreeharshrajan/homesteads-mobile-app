@@ -16,19 +16,19 @@ const CartSummary = ({ items = [], discount = 0, couponCode = null, style }) => 
     <Card style={[styles.card, style]}>
       <Card.Content>
         <Title style={styles.title}>Order Summary</Title>
-        
+
         <View style={styles.row}>
           <Paragraph>Items ({items.length})</Paragraph>
           <Paragraph>{formatCurrency(subtotal)}</Paragraph>
         </View>
-        
+
         {tax > 0 && (
           <View style={styles.row}>
             <Paragraph>Tax</Paragraph>
             <Paragraph>{formatCurrency(tax)}</Paragraph>
           </View>
         )}
-        
+
         {discount > 0 && (
           <View style={styles.row}>
             <View style={styles.discountRow}>
@@ -39,14 +39,12 @@ const CartSummary = ({ items = [], discount = 0, couponCode = null, style }) => 
                 </Chip>
               )}
             </View>
-            <Paragraph style={styles.discountAmount}>
-              -{formatCurrency(discount)}
-            </Paragraph>
+            <Paragraph style={styles.discountAmount}>-{formatCurrency(discount)}</Paragraph>
           </View>
         )}
-        
+
         <Divider style={styles.divider} />
-        
+
         <View style={styles.row}>
           <Title style={styles.totalLabel}>Total</Title>
           <Title style={styles.totalAmount}>{formatCurrency(total)}</Title>
@@ -101,4 +99,3 @@ const styles = StyleSheet.create({
 });
 
 export default CartSummary;
-

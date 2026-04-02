@@ -7,13 +7,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
  * LoadingScreen Component
  * Refactored for Material Design 3, Accessibility, and Safe Areas.
  */
-const LoadingScreen = ({ 
-  message = 'Loading...', 
-  fullScreen = true,
-  showLogo = true 
-}) => {
+const LoadingScreen = ({ message = 'Loading...', fullScreen = true, showLogo = true }) => {
   const theme = useTheme();
-  
+
   // Opacity animation for a smoother entrance
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
@@ -28,33 +24,33 @@ const LoadingScreen = ({
   const Container = fullScreen ? SafeAreaView : View;
 
   return (
-    <Container 
+    <Container
       style={[
-        styles.container, 
-        { backgroundColor: fullScreen ? theme.colors.background : 'transparent' }
+        styles.container,
+        { backgroundColor: fullScreen ? theme.colors.background : 'transparent' },
       ]}
     >
       <Animated.View style={[styles.innerContainer, { opacity: fadeAnim }]}>
         {showLogo && (
-          <Image 
-            source={require('@assets/logo.png')} 
-            style={styles.logo} 
+          <Image
+            source={require('@assets/logo.png')}
+            style={styles.logo}
             resizeMode="contain"
             accessibilityRole="image"
             accessibilityLabel="App Logo"
           />
         )}
 
-        <ActivityIndicator 
-          animating={true} 
-          size={showLogo ? "small" : "large"} 
-          color={theme.colors.primary} 
-          style={styles.loader} 
+        <ActivityIndicator
+          animating={true}
+          size={showLogo ? 'small' : 'large'}
+          color={theme.colors.primary}
+          style={styles.loader}
         />
 
         {message && (
-          <Text 
-            variant="bodyLarge" 
+          <Text
+            variant="bodyLarge"
             style={[styles.message, { color: theme.colors.onSurfaceVariant }]}
           >
             {message}

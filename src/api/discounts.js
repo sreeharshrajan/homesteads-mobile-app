@@ -2,7 +2,7 @@ import apiClient from './client';
 
 /**
  * Discounts API
- * 
+ *
  * Provides methods for coupon validation and discount calculation.
  * All methods return the data directly (response interceptor extracts data.data).
  */
@@ -20,7 +20,7 @@ export const discountsApi = {
     const response = await apiClient.post('/store/coupons/validate', data);
     return response;
   },
-  
+
   /**
    * Discount types
    */
@@ -28,7 +28,7 @@ export const discountsApi = {
     PERCENTAGE: 'PERCENTAGE',
     FIXED: 'FIXED',
   },
-  
+
   /**
    * Calculate discount amount
    * @param {Object} coupon - Coupon data
@@ -37,7 +37,7 @@ export const discountsApi = {
    */
   calculateDiscount: (coupon, subtotal) => {
     if (!coupon || !coupon.value) return 0;
-    
+
     let discount = 0;
     if (coupon.type === 'PERCENTAGE') {
       discount = (subtotal * coupon.value) / 100;
@@ -47,8 +47,7 @@ export const discountsApi = {
     } else if (coupon.type === 'FIXED') {
       discount = coupon.value;
     }
-    
+
     return Math.min(discount, subtotal);
   },
 };
-

@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Text, TextInput as RNTextInput } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  Text,
+  TextInput as RNTextInput,
+} from 'react-native';
 import { IconButton, Surface, HelperText, Avatar } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useCustomers } from '@hooks';
 import { useSnackbar } from '@hooks/useSnackbar';
-import { ConfirmDialog } from '@components';
+import { ConfirmDialog, ScreenTemplate } from '@components';
 
 const CustomerSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -19,13 +28,20 @@ const CustomerSchema = Yup.object().shape({
 const CustomerFormScreen = ({ navigation, route }) => {
   const customerId = route.params?.customerId;
   const isEditMode = !!customerId;
-  
+
   const [initialValues, setInitialValues] = useState({
-    name: '', email: '', phone: '', companyName: '', gstNumber: '', panNumber: '', isActive: true,
+    name: '',
+    email: '',
+    phone: '',
+    companyName: '',
+    gstNumber: '',
+    panNumber: '',
+    isActive: true,
   });
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
-  
-  const { loading, fetchCustomerById, createCustomer, updateCustomer, deleteCustomer } = useCustomers();
+
+  const { loading, fetchCustomerById, createCustomer, updateCustomer, deleteCustomer } =
+    useCustomers();
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -51,7 +67,9 @@ const CustomerFormScreen = ({ navigation, route }) => {
   };
 
   const handleSubmit = async (values) => {
-    const result = isEditMode ? await updateCustomer(customerId, values) : await createCustomer(values);
+    const result = isEditMode
+      ? await updateCustomer(customerId, values)
+      : await createCustomer(values);
     if (result.success) {
       showSnackbar(isEditMode ? 'Updated successfully' : 'Created successfully', 'success');
       navigation.goBack();
@@ -92,91 +110,170 @@ const CustomerFormScreen = ({ navigation, route }) => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerBackground}>
-        <View style={styles.topNav}>
-          <IconButton icon="arrow-left" iconColor="#333" onPress={() => navigation.goBack()} />
-          {isEditMode && (
-            <IconButton icon="trash-can-outline" iconColor="#FF4B7D" onPress={() => setDeleteDialogVisible(true)} />
-          )}
-        </View>
-        <View style={styles.headerTextGroup}>
-          <Text style={styles.subTitle}>{isEditMode ? 'Edit member' : 'New member'}</Text>
-          <Text style={styles.mainTitle}>{isEditMode ? initialValues.name : 'Add Customer'}</Text>
-        </View>
-      </View>
-
-      <View style={styles.contentSheet}>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
-          <ScrollView contentContainerStyle={styles.scrollPadding} showsVerticalScrollIndicator={false}>
-            <Formik initialValues={initialValues} validationSchema={CustomerSchema} onSubmit={handleSubmit} enableReinitialize>
-              {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-                <View>
-                  <FormInput label="Full Name *" icon="account-outline" value={values.name} onChangeText={handleChange('name')} onBlur={handleBlur('name')} error={errors.name} touched={touched.name} placeholder="e.g. Loni Bowcher" />
-                  <View style={styles.row}>
-                    <View style={{ flex: 1 }}>
-                      <FormInput label="Phone *" icon="phone-outline" value={values.phone} onChangeText={handleChange('phone')} onBlur={handleBlur('phone')} error={errors.phone} touched={touched.phone} keyboardType="phone-pad" placeholder="98765..." />
-                    </View>
-                    <View style={{ width: 15 }} />
-                    <View style={{ flex: 1 }}>
-                      <FormInput label="Status" icon="circle-double" value={values.isActive ? 'Active' : 'Inactive'} editable={false} />
-                    </View>
-                  </View>
-                  <FormInput label="Email Address" icon="email-outline" value={values.email} onChangeText={handleChange('email')} onBlur={handleBlur('email')} error={errors.email} touched={touched.email} keyboardType="email-address" autoCapitalize="none" placeholder="loni@example.com" />
-                  <FormInput label="Company Name" icon="office-building-outline" value={values.companyName} onChangeText={handleChange('companyName')} onBlur={handleBlur('companyName')} placeholder="e.g. Sales Düsseldorf" />
-                  <View style={styles.statusToggleRow}>
-                    <Text style={styles.statusLabel}>Set Profile as Active</Text>
-                    <TouchableOpacity style={[styles.toggleBase, values.isActive && styles.toggleActive]} onPress={() => setFieldValue('isActive', !values.isActive)}>
-                      <View style={[styles.toggleThumb, values.isActive && styles.toggleThumbActive]} />
-                    </TouchableOpacity>
-                  </View>
-                  <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={loading}>
-                    <Text style={styles.submitBtnText}>{loading ? 'Processing...' : isEditMode ? 'Update Profile' : 'Create Profile'}</Text>
-                  </TouchableOpacity>
+    <ScreenTemplate
+      showBackButton
+      title={isEditMode ? initialValues.name : 'Add Customer'}
+      subtitle={isEditMode ? 'Edit member' : 'New member'}
+      headerAction={
+        isEditMode && (
+          <IconButton
+            icon="trash-can-outline"
+            iconColor="#FF4B7D"
+            onPress={() => setDeleteDialogVisible(true)}
+          />
+        )
+      }
+    >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : null}>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={CustomerSchema}
+          onSubmit={handleSubmit}
+          enableReinitialize
+        >
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
+            <View>
+              <FormInput
+                label="Full Name *"
+                icon="account-outline"
+                value={values.name}
+                onChangeText={handleChange('name')}
+                onBlur={handleBlur('name')}
+                error={errors.name}
+                touched={touched.name}
+                placeholder="e.g. Loni Bowcher"
+              />
+              <View style={styles.row}>
+                <View style={{ flex: 1 }}>
+                  <FormInput
+                    label="Phone *"
+                    icon="phone-outline"
+                    value={values.phone}
+                    onChangeText={handleChange('phone')}
+                    onBlur={handleBlur('phone')}
+                    error={errors.phone}
+                    touched={touched.phone}
+                    keyboardType="phone-pad"
+                    placeholder="98765..."
+                  />
                 </View>
-              )}
-            </Formik>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </View>
+                <View style={{ width: 15 }} />
+                <View style={{ flex: 1 }}>
+                  <FormInput
+                    label="Status"
+                    icon="circle-double"
+                    value={values.isActive ? 'Active' : 'Inactive'}
+                    editable={false}
+                  />
+                </View>
+              </View>
+              <FormInput
+                label="Email Address"
+                icon="email-outline"
+                value={values.email}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                error={errors.email}
+                touched={touched.email}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="loni@example.com"
+              />
+              <FormInput
+                label="Company Name"
+                icon="office-building-outline"
+                value={values.companyName}
+                onChangeText={handleChange('companyName')}
+                onBlur={handleBlur('companyName')}
+                placeholder="e.g. Sales Düsseldorf"
+              />
+              <View style={styles.statusToggleRow}>
+                <Text style={styles.statusLabel}>Set Profile as Active</Text>
+                <TouchableOpacity
+                  style={[styles.toggleBase, values.isActive && styles.toggleActive]}
+                  onPress={() => setFieldValue('isActive', !values.isActive)}
+                >
+                  <View style={[styles.toggleThumb, values.isActive && styles.toggleThumbActive]} />
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={loading}>
+                <Text style={styles.submitBtnText}>
+                  {loading ? 'Processing...' : isEditMode ? 'Update Profile' : 'Create Profile'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </Formik>
+      </KeyboardAvoidingView>
 
-      <ConfirmDialog 
-        visible={deleteDialogVisible} 
-        title="Delete Customer" 
-        message="This action is permanent. Continue?" 
-        onConfirm={handleDelete} 
-        onDismiss={() => setDeleteDialogVisible(false)} 
-        loading={loading} 
+      <ConfirmDialog
+        visible={deleteDialogVisible}
+        title="Delete Customer"
+        message="This action is permanent. Continue?"
+        onConfirm={handleDelete}
+        onDismiss={() => setDeleteDialogVisible(false)}
+        loading={loading}
       />
-    </View>
+    </ScreenTemplate>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  headerBackground: { backgroundColor: '#61F2D5', height: 220, paddingTop: 45, borderBottomLeftRadius: 60, borderBottomRightRadius: 60, zIndex: 10 },
-  topNav: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10 },
-  headerTextGroup: { paddingHorizontal: 25, marginTop: 15 },
-  subTitle: { fontSize: 13, color: '#444', opacity: 0.7 },
-  mainTitle: { fontSize: 26, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
-  contentSheet: { flex: 1, marginTop: -40, backgroundColor: '#fff', borderTopLeftRadius: 40, borderTopRightRadius: 40, zIndex: 5 },
-  scrollPadding: { paddingHorizontal: 25, paddingTop: 40, paddingBottom: 40 },
+  loadingFull: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  scrollPadding: { paddingBottom: 40 },
   inputWrapper: { marginBottom: 20 },
-  inputLabel: { fontSize: 12, fontWeight: 'bold', color: '#BBB', textTransform: 'uppercase', marginBottom: 8, marginLeft: 4 },
-  inputSurface: { backgroundColor: '#F9F9F9', borderRadius: 18, height: 55, flexDirection: 'row', alignItems: 'center', paddingRight: 15, borderWidth: 1, borderColor: '#F0F0F0' },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#BBB',
+    textTransform: 'uppercase',
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  inputSurface: {
+    backgroundColor: '#F9F9F9',
+    borderRadius: 18,
+    height: 55,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 15,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
   inputError: { borderColor: '#FF4B7D' },
   inputIcon: { marginLeft: 5 },
   textInput: { flex: 1, fontSize: 15, color: '#333', fontWeight: '500' },
   errorText: { color: '#FF4B7D', fontSize: 11, marginTop: 5, marginLeft: 15 },
   row: { flexDirection: 'row' },
-  statusToggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, marginBottom: 30, paddingHorizontal: 5 },
+  statusToggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 30,
+    paddingHorizontal: 5,
+  },
   statusLabel: { fontSize: 14, fontWeight: '700', color: '#444' },
-  toggleBase: { width: 50, height: 28, borderRadius: 14, backgroundColor: '#EEE', padding: 3, justifyContent: 'center' },
+  toggleBase: {
+    width: 50,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#EEE',
+    padding: 3,
+    justifyContent: 'center',
+  },
   toggleActive: { backgroundColor: '#4FD3B5' },
   toggleThumb: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff' },
   toggleThumbActive: { alignSelf: 'flex-end' },
-  submitBtn: { backgroundColor: '#333', height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', elevation: 4 },
-  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  submitBtn: {
+    backgroundColor: '#333',
+    height: 60,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+  },
+  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
 
 export default CustomerFormScreen;

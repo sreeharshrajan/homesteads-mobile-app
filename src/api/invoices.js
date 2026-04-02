@@ -2,7 +2,7 @@ import apiClient from './client';
 
 /**
  * Invoice API
- * 
+ *
  * Provides methods for managing invoices through the REST API.
  * All methods return the data directly (response interceptor extracts data.data).
  */
@@ -55,12 +55,13 @@ export const invoicesApi = {
     // Sanitization: Ensure totalAmount is a number if it exists
     const payload = {
       ...invoiceData,
-      totalAmount: typeof invoiceData.totalAmount === 'number'
-        ? invoiceData.totalAmount
-        : parseFloat(invoiceData.totalAmount)
+      totalAmount:
+        typeof invoiceData.totalAmount === 'number'
+          ? invoiceData.totalAmount
+          : parseFloat(invoiceData.totalAmount),
     };
 
-    // If parsing fails, the API might still return a 400, 
+    // If parsing fails, the API might still return a 400,
     // but this prevents sending "NaN" or empty strings.
     const response = await apiClient.post('/invoices', payload);
     return response;
@@ -90,4 +91,3 @@ export const invoicesApi = {
     return response;
   },
 };
-

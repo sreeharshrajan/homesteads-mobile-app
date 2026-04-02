@@ -42,22 +42,22 @@ login: async (email, password) => {
   // TEMPORARY: Mock successful login for testing UI
   const mockResponse = {
     token: 'mock-jwt-token-12345',
-    user: { 
-      id: 1, 
-      name: 'Test User', 
-      email: email 
+    user: {
+      id: 1,
+      name: 'Test User',
+      email: email
     }
   };
-  
+
   await AsyncStorage.setItem('authToken', mockResponse.token);
   await AsyncStorage.setItem('user', JSON.stringify(mockResponse.user));
-  
-  set({ 
-    token: mockResponse.token, 
-    user: mockResponse.user, 
-    isAuthenticated: true 
+
+  set({
+    token: mockResponse.token,
+    user: mockResponse.user,
+    isAuthenticated: true
   });
-  
+
   return { success: true };
 },
 ```
@@ -91,7 +91,7 @@ When ready to connect to your backend:
    ```javascript
    // In CustomerListScreen.js
    import { useCustomers } from '@hooks/useCustomers';
-   
+
    // Replace sample data with:
    const { customers, loading, error, refetch } = useCustomers();
    ```

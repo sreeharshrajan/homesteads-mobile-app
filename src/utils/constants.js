@@ -47,10 +47,10 @@ export const INVOICE_STATUS_LABELS = {
 
 // Invoice status colors
 export const INVOICE_STATUS_COLORS = {
-  [INVOICE_STATUS.DRAFT]: '#808080',      // Gray
-  [INVOICE_STATUS.SENT]: '#2196F3',       // Blue
-  [INVOICE_STATUS.PAID]: '#4CAF50',       // Green
-  [INVOICE_STATUS.CANCELLED]: '#F44336',  // Red
+  [INVOICE_STATUS.DRAFT]: '#808080', // Gray
+  [INVOICE_STATUS.SENT]: '#2196F3', // Blue
+  [INVOICE_STATUS.PAID]: '#4CAF50', // Green
+  [INVOICE_STATUS.CANCELLED]: '#F44336', // Red
 };
 
 // Payment methods
@@ -159,4 +159,3 @@ export const INDIAN_STATES = [
   'Lakshadweep',
   'Puducherry',
 ];
-

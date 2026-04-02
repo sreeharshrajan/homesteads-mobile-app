@@ -21,12 +21,14 @@ export const useCustomers = () => {
     try {
       const data = await customersApi.getAll(params);
       setCustomers(data.customers || data);
-      setPagination(data.pagination || {
-        page: 1,
-        limit: 20,
-        total: 0,
-        totalPages: 0,
-      });
+      setPagination(
+        data.pagination || {
+          page: 1,
+          limit: 20,
+          total: 0,
+          totalPages: 0,
+        }
+      );
       return { success: true, data };
     } catch (err) {
       const errorMessage = err.message || 'Failed to fetch customers';
@@ -108,4 +110,3 @@ export const useCustomers = () => {
     deleteCustomer,
   };
 };
-

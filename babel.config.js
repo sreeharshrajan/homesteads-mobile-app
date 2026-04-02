@@ -18,20 +18,11 @@ module.exports = function (api) {
             '@utils': './src/utils',
             '@store': './src/store',
             '@theme': './src/theme',
-            '@assets': './assets'
+            '@assets': './assets',
           },
-          extensions: [
-            '.js',
-            '.jsx',
-            '.ts',
-            '.tsx',
-            '.json',
-            '.ios.js',
-            '.android.js'
-          ]
+          extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.ios.js', '.android.js'],
         },
       ],
     ],
   };
 };
-

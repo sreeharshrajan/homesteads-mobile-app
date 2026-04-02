@@ -16,7 +16,6 @@ const queryClient = new QueryClient({
   },
 });
 
-
 export default function App() {
   const [isAppReady, setIsAppReady] = useState(false);
 
@@ -30,9 +29,9 @@ export default function App() {
         // - Check authentication status
         // - Fetch initial data
         // - Initialize analytics
-        
+
         // Simulate loading time
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (error) {
         console.error('Error during app initialization:', error);
       } finally {

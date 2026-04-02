@@ -64,24 +64,18 @@ const ApiKeysScreen = ({ navigation }) => {
         </View>
 
         <div style={styles.metaRow}>
-          <Paragraph style={styles.meta}>
-            Created: {formatDate(item.createdAt)}
-          </Paragraph>
+          <Paragraph style={styles.meta}>Created: {formatDate(item.createdAt)}</Paragraph>
         </div>
 
         {item.lastUsedAt && (
           <div style={styles.metaRow}>
-            <Paragraph style={styles.meta}>
-              Last used: {formatDate(item.lastUsedAt)}
-            </Paragraph>
+            <Paragraph style={styles.meta}>Last used: {formatDate(item.lastUsedAt)}</Paragraph>
           </div>
         )}
 
         {item.expiresAt && (
           <div style={styles.metaRow}>
-            <Paragraph style={styles.meta}>
-              Expires: {formatDate(item.expiresAt)}
-            </Paragraph>
+            <Paragraph style={styles.meta}>Expires: {formatDate(item.expiresAt)}</Paragraph>
           </div>
         )}
       </Card.Content>
@@ -115,9 +109,7 @@ const ApiKeysScreen = ({ navigation }) => {
             renderItem={renderApiKeyCard}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
-            refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
-            }
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={handleRefresh} />}
           />
         )}
       </View>
@@ -195,4 +187,3 @@ const styles = StyleSheet.create({
 });
 
 export default ApiKeysScreen;
-

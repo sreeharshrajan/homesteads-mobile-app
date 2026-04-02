@@ -44,15 +44,15 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
   }, []);
 
   const handleVariantSelect = (productId, variant) => {
-    setSelectedVariants(prev => ({ ...prev, [productId]: variant }));
+    setSelectedVariants((prev) => ({ ...prev, [productId]: variant }));
   };
 
   const handleAddToCart = (product) => {
     const variant = selectedVariants[product.id] || product.variants?.[0];
     if (!variant) return;
 
-    setCart(prevCart => {
-      const existingIndex = prevCart.findIndex(item => item.variantId === variant.id);
+    setCart((prevCart) => {
+      const existingIndex = prevCart.findIndex((item) => item.variantId === variant.id);
       const price = variant.offerPrice || variant.price || product.basePrice;
       const taxRate = product.taxGroup?.taxes?.reduce((sum, t) => sum + t.rate, 0) || 0;
       const unitTax = parseFloat((price * (taxRate / 100)).toFixed(2));
@@ -66,35 +66,43 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
         return newCart;
       }
 
-      return [...prevCart, {
-        productId: product.id,
-        variantId: variant.id,
-        productName: product.name,
-        variantName: variant.name,
-        sku: variant.sku,
-        quantity: 1,
-        unitPrice: price,
-        taxAmount: unitTax,
-        totalPrice: price,
-      }];
+      return [
+        ...prevCart,
+        {
+          productId: product.id,
+          variantId: variant.id,
+          productName: product.name,
+          variantName: variant.name,
+          sku: variant.sku,
+          quantity: 1,
+          unitPrice: price,
+          taxAmount: unitTax,
+          totalPrice: price,
+        },
+      ];
     });
   };
 
   const handleQuantityChange = (variantId, quantity) => {
-    setCart(prevCart => {
-      if (quantity <= 0) return prevCart.filter(item => item.variantId !== variantId);
-      return prevCart.map(item => item.variantId === variantId
-        ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
-        : item
+    setCart((prevCart) => {
+      if (quantity <= 0) return prevCart.filter((item) => item.variantId !== variantId);
+      return prevCart.map((item) =>
+        item.variantId === variantId
+          ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
+          : item
       );
     });
   };
 
-  const getProductQuantity = useCallback((productId) => {
-    const variant = selectedVariants[productId] || products?.find(p => p.id === productId)?.variants?.[0];
-    if (!variant) return 0;
-    return cart.find(i => i.variantId === variant.id)?.quantity || 0;
-  }, [cart, selectedVariants, products]);
+  const getProductQuantity = useCallback(
+    (productId) => {
+      const variant =
+        selectedVariants[productId] || products?.find((p) => p.id === productId)?.variants?.[0];
+      if (!variant) return 0;
+      return cart.find((i) => i.variantId === variant.id)?.quantity || 0;
+    },
+    [cart, selectedVariants, products]
+  );
 
   const cartItemsCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
@@ -109,7 +117,9 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
           selectedVariant={selectedVariant}
           quantity={quantity}
           onVariantSelect={(v) => handleVariantSelect(item.id, v)}
-          onQuantityChange={(newQty) => handleQuantityChange(selectedVariant?.id || item.variants?.[0]?.id, newQty)}
+          onQuantityChange={(newQty) =>
+            handleQuantityChange(selectedVariant?.id || item.variants?.[0]?.id, newQty)
+          }
           onAddToCart={() => handleAddToCart(item)}
         />
       </View>
@@ -144,7 +154,9 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
           <View style={styles.cartAnchor}>
             <IconButton icon="cart-outline" iconColor="#4FD3B5" size={24} />
             {cartItemsCount > 0 && (
-              <Badge style={styles.cartBadge} size={16}>{cartItemsCount}</Badge>
+              <Badge style={styles.cartBadge} size={16}>
+                {cartItemsCount}
+              </Badge>
             )}
           </View>
         </Surface>
@@ -158,7 +170,7 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
           <EmptyState
             icon="package-variant-closed"
             title="No products found"
-            message={searchQuery ? "Try a different search" : "Inventory is empty"}
+            message={searchQuery ? 'Try a different search' : 'Inventory is empty'}
           />
         ) : (
           <FlatList
@@ -191,7 +203,7 @@ const InvoiceProductSelectScreen = ({ navigation, route }) => {
                 ₹{cart.reduce((sum, i) => sum + i.totalPrice, 0).toLocaleString()}
               </Text>
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.checkoutBtn}
               onPress={() => navigation.navigate(ROUTES.INVOICE_DISCOUNT, { customer, cart })}
             >
@@ -215,13 +227,24 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 60,
     zIndex: 10,
   },
-  topNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
-  stepIndicator: { backgroundColor: 'rgba(255,255,255,0.3)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginRight: 20 },
+  topNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  stepIndicator: {
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginRight: 20,
+  },
   stepText: { fontSize: 11, fontWeight: 'bold', color: '#333', textTransform: 'uppercase' },
   headerTextGroup: { paddingHorizontal: 25, marginTop: 5 },
   subTitle: { fontSize: 13, color: '#444', opacity: 0.7 },
   mainTitle: { fontSize: 26, fontWeight: 'bold', color: '#222', fontFamily: 'serif' },
-  
+
   searchContainer: {
     backgroundColor: '#fff',
     marginHorizontal: 25,
@@ -275,7 +298,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 18,
   },
-  checkoutText: { color: '#fff', fontWeight: 'bold', fontSize: 15 }
+  checkoutText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 });
 
 export default InvoiceProductSelectScreen;

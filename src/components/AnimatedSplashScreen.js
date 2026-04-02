@@ -11,7 +11,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 /**
  * Animated Splash Screen Component
  * Shows a smooth animated splash screen with fade-in effects
- * 
+ *
  * @param {boolean} isAppReady - Whether the app is ready to show
  * @param {ReactNode} children - The app content to show after splash
  */
@@ -40,7 +40,7 @@ const AnimatedSplashScreen = ({ isAppReady, children }) => {
         toValue: 0.6,
         duration: 2000,
         useNativeDriver: false,
-      })
+      }),
     ]).start();
   }, []);
 
@@ -63,8 +63,8 @@ const AnimatedSplashScreen = ({ isAppReady, children }) => {
             toValue: 1.05,
             duration: 500,
             useNativeDriver: true,
-          })
-        ])
+          }),
+        ]),
       ]).start(async () => {
         await SplashScreen.hideAsync();
       });
@@ -80,11 +80,7 @@ const AnimatedSplashScreen = ({ isAppReady, children }) => {
         style={[styles.splashOverlay, { opacity: fadeAnim }]}
       >
         <Animated.View style={{ transform: [{ scale: scaleAnim }], alignItems: 'center' }}>
-          <Image
-            source={require('@assets/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+          <Image source={require('@assets/logo.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brandText}>HOMESTEADS VIANDS</Text>
           <Text style={styles.tagline}>Made with love & care</Text>
         </Animated.View>
@@ -97,9 +93,9 @@ const AnimatedSplashScreen = ({ isAppReady, children }) => {
               {
                 width: progressAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: ['0%', '100%']
-                })
-              }
+                  outputRange: ['0%', '100%'],
+                }),
+              },
             ]}
           />
         </View>

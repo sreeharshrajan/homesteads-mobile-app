@@ -19,16 +19,12 @@ const OrderCard = ({ order, onPress }) => {
           <StatusBadge status={order.status} />
         </View>
 
-        {order.customer && (
-          <Paragraph style={styles.customerName}>{order.customer.name}</Paragraph>
-        )}
+        {order.customer && <Paragraph style={styles.customerName}>{order.customer.name}</Paragraph>}
 
         <View style={styles.cardFooter}>
           <View style={styles.metaInfo}>
             <Paragraph style={styles.metaText}>{formatDate(order.createdAt)}</Paragraph>
-            <Paragraph style={styles.metaText}>
-              {order.itemCount || 0} items
-            </Paragraph>
+            <Paragraph style={styles.metaText}>{order.itemCount || 0} items</Paragraph>
           </View>
           <Title style={styles.totalPrice}>{formatCurrency(order.totalAmount)}</Title>
         </View>
@@ -93,4 +89,3 @@ const styles = StyleSheet.create({
 });
 
 export default OrderCard;
-
