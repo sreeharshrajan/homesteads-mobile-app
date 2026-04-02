@@ -8,6 +8,13 @@ module.exports = [
     ignores: ['.expo/*', 'android/*', 'ios/*', 'node_modules/*', 'dist/*', 'web-build/*'],
   },
   {
+    settings: {
+      'import/resolver': {
+        'babel-module': {
+          extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+        },
+      },
+    },
     rules: {
       'prettier/prettier': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
